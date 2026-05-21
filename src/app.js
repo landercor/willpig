@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.routes.js";
 import homeRoutes from "./routes/home.routes.js"; // Importar rutas de home
 import chapterRoutes from "./routes/chapter.routes.js"; // Importar rutas de capítulos
 import sesion from "express-session"; // Importar express-session
+import { supabaseAdmin } from "./config/db.js";
 
 const app = express();
 
@@ -36,6 +37,49 @@ app.get("/", (req, res) => {
   } else {
     res.render("landing", { loggerUser: null });
   }
+});
+
+// Middleware global para cargar categorías en todas las vistas
+app.use(async (req, res, next) => {
+  try {
+    const { data: categorias, error } = await supabaseAdmin
+      .from('categorias')
+      .select('id_categoria, nombre')
+      .order('nombre', { ascending: true });
+
+    if (error) throw error;
+
+    // Solo permitir las 4 categorías solicitadas: ciencia ficcion, utopia, aventura, fantasia
+    const targetNames = ['ciencia ficcion', 'utopia', 'aventura', 'fantasia'];
+    const normalizeStr = (str) => str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    const filtered = (categorias || []).filter(cat => {
+      const norm = normalizeStr(cat.nombre);
+      return targetNames.includes(norm);
+    });
+
+    // Normalizar nombres para evitar duplicaciones en la lista del EJS
+    const seen = new Set();
+    const uniqueCategorias = [];
+    for (const cat of filtered) {
+      const norm = normalizeStr(cat.nombre);
+      if (!seen.has(norm)) {
+        seen.add(norm);
+        uniqueCategorias.push(cat);
+      }
+    }
+
+    res.locals.categorias = uniqueCategorias;
+  } catch (err) {
+    console.error('Error al cargar categorías en middleware:', err);
+    res.locals.categorias = [
+      { id_categoria: 8, nombre: 'Ciencia Ficción' },
+      { id_categoria: 9, nombre: 'Utopía' },
+      { id_categoria: 3, nombre: 'Aventura' },
+      { id_categoria: 1, nombre: 'Fantasía' }
+    ];
+  }
+  next();
 });
 
 app.use("/auth", authRoutes);

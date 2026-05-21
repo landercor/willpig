@@ -47,6 +47,30 @@
               <!--Se muestra una regla donde se especifica el elemento que se muestra-->
               <% } %>
 
+              <!-- DROPDOWN DE CATEGORÍAS (Explorar) -->
+              <div class="dropdown categories-dropdown">
+                <div class="dropdown-trigger">
+                  <button class="dropbtn">Explorar</button>
+                  <svg class="dropdown-arrow-svg" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <div class="dropdown-content glass-effect">
+                  <% if (typeof categorias !== 'undefined' && categorias && categorias.length > 0) { %>
+                    <% categorias.forEach(cat => { %>
+                      <% const norm = cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); %>
+                      <a href="/categoria/<%= norm %>"><%= cat.nombre %></a>
+                    <% }) %>
+                  <% } else { %>
+                    <a href="/categoria/ciencia-ficcion">Ciencia Ficción</a>
+                    <a href="/categoria/utopia">Utopía</a>
+                    <a href="/categoria/aventura">Aventura</a>
+                    <a href="/categoria/fantasia">Fantasía</a>
+                  <% } %>
+                </div>
+              </div>
+
                 <!-- PERFIL -->
                 <div class="dropdown profile">
                   <div class="dropdown-trigger">
@@ -68,32 +92,42 @@
                     <a href="/historias/crear" class="nav-link">Escribir</a>
                     <% } %>
 
+                    <!-- DROPDOWN DE CATEGORÍAS (Explorar) -->
+                    <div class="dropdown categories-dropdown">
+                      <div class="dropdown-trigger">
+                        <button class="dropbtn">Explorar</button>
+                        <svg class="dropdown-arrow-svg" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                      </div>
+                      <div class="dropdown-content glass-effect">
+                        <% if (typeof categorias !== 'undefined' && categorias && categorias.length > 0) { %>
+                          <% categorias.forEach(cat => { %>
+                            <% const norm = cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); %>
+                            <a href="/categoria/<%= norm %>"><%= cat.nombre %></a>
+                          <% }) %>
+                        <% } else { %>
+                          <a href="/categoria/ciencia-ficcion">Ciencia Ficción</a>
+                          <a href="/categoria/utopia">Utopía</a>
+                          <a href="/categoria/aventura">Aventura</a>
+                          <a href="/categoria/fantasia">Fantasía</a>
+                        <% } %>
+                      </div>
+                    </div>
+
                       <a href="/auth/login" class="nav-link">Iniciar sesión</a>
                       <a href="/auth/register" class="btn-primary-pastel">Registrarse</a>
                       <% } %>
         </div>
 
         <% if (typeof hideTema==='undefined' || !hideTema) { %>
-          <!--Se muestra una regla donde se especifica el elemento que se muestra-->
+          <!-- Botón de cambio de tema. Para cambiar por imágenes en el futuro, reemplaza los emojis por etiquetas <img> con su respectiva ruta. -->
           <button class="theme-toggle-btn" id="theme-toggle" aria-label="Cambiar tema">
-            <div class="toggle-icon">
-              <svg class="sun-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <circle cx="12" cy="12" r="5"></circle>
-                <line x1="12" y1="1" x2="12" y2="3"></line>
-                <line x1="12" y1="21" x2="12" y2="23"></line>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                <line x1="1" y1="12" x2="3" y2="12"></line>
-                <line x1="21" y1="12" x2="23" y2="12"></line>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-              </svg>
-              <svg class="moon-icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
-                stroke-width="2">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-              </svg>
-            </div>
+            <span class="theme-icon-container">
+              <span class="theme-icon light-icon" title="Modo Claro">☀️</span>
+              <span class="theme-icon dark-icon" title="Modo Oscuro">🌙</span>
+            </span>
           </button>
           <% } %> <!--Se muestra una regla donde se especifica el elemento que se muestra-->
       </div>

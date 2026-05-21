@@ -90,11 +90,16 @@
             <label for="categoria">Categoría</label>
             <select id="categoria" name="categoria_id" required>
               <option value="">Selecciona una categoría</option>
-              <option value="1" <%=cuento.categoria_id==1 ? 'selected' : '' %>>Fantasía</option>
-              <option value="2" <%=cuento.categoria_id==2 ? 'selected' : '' %>>Romance</option>
-              <option value="3" <%=cuento.categoria_id==3 ? 'selected' : '' %>>Aventura</option>
-              <option value="4" <%=cuento.categoria_id==4 ? 'selected' : '' %>>Drama</option>
-              <option value="5" <%=cuento.categoria_id==5 ? 'selected' : '' %>>Infantil</option>
+              <% if (typeof categorias !== 'undefined' && categorias && categorias.length > 0) { %>
+                <% categorias.forEach(cat => { %>
+                  <option value="<%= cat.id_categoria %>" <%= cuento.categoria_id == cat.id_categoria ? 'selected' : '' %>><%= cat.nombre %></option>
+                <% }) %>
+              <% } else { %>
+                <option value="1" <%= cuento.categoria_id == 1 ? 'selected' : '' %>>Fantasía</option>
+                <option value="3" <%= cuento.categoria_id == 3 ? 'selected' : '' %>>Aventura</option>
+                <option value="8" <%= cuento.categoria_id == 8 ? 'selected' : '' %>>Ciencia Ficción</option>
+                <option value="9" <%= cuento.categoria_id == 9 ? 'selected' : '' %>>Utopía</option>
+              <% } %>
             </select>
           </div>
 

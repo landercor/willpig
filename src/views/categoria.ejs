@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    <%= tituloPagina %>
+  </title>
+  <link rel="stylesheet" href="/css/style1.2.css?v=2" />
+  <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
+</head>
+
+<body>
+  <%- include('partials/navbar', { loggerUser }) %>
+
+    <!-- ===== EXPLORADOR DE CATEGORÍA ===== -->
+    <section class="library-page category-page">
+      <div class="library-header reveal-item">
+        <h1 class="text-primary">Categoría: <%= categoriaNombre %>
+        </h1>
+        <p class="text-muted mt-05">Explora todas las historias publicadas de este género</p>
+      </div>
+
+      <div class="library-content">
+        <div id="category-results" class="tab-content active mt-2">
+
+          <div class="library-grid reveal-item">
+            <% if (libros && libros.length> 0) { %>
+              <% libros.forEach(libro=> { %>
+                <div class="library-item">
+                  <div class="card-inner">
+                    <a href="/historias/<%= libro.id_cuento || '#' %>" class="card-image-link">
+                      <img src="<%= libro.portada_url || libro.portada || '/img/default-portada.jpg' %>" class="cover"
+                        alt="<%= libro.titulo %>">
+                      <div class="card-overlay">
+                        <span class="btn-play-mini">▶</span>
+                      </div>
+                    </a>
+                    <div class="card-info">
+                      <p class="title text-truncate">
+                        <%= libro.titulo %>
+                      </p>
+                      <div class="author">
+                        <img
+                          src="<%= (libro.cuenta_usuario && libro.cuenta_usuario.avatar_url) || '/img/default-avatar.svg' %>"
+                          alt="autor" class="author-avatar-xs">
+                        <% if (libro.cuenta_usuario && libro.cuenta_usuario.id_cuenta_usuario) { %>
+                          <a href="/usuario/profile/<%= libro.cuenta_usuario.id_cuenta_usuario %>" class="author-link">@
+                            <%= libro.cuenta_usuario.username %></a>
+                          <% } else { %>
+                            <span>@Anónimo</span>
+                            <% } %>
+                      </div>
+                      <div class="meta text-start">
+                        <img src="/img/img.ico/vistas-icon.svg" class="icon-eye">
+                        <%= (libro.vistas || 0).toLocaleString() %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% }) %>
+                  <% } else { %>
+                    <div class="empty-state empty-card text-center text-muted p-3 col-full reveal-item"
+                      style="grid-column: 1 / -1;">
+                      <h3 class="mb-05">Aún no hay historias publicadas en la categoría "<%= categoriaNombre %>"</h3>
+                      <p>¿Tienes una gran idea? Sé el primero en escribir una historia para esta categoría.</p>
+                      <div class="mt-2" style="display: flex; gap: 15px; justify-content: center; align-items: center;">
+                        <a href="/historias/crear"><button class="btn-primary-pastel">¡Escribe la primera!</button></a>
+                        <a href="/"><button class="btn-outline-primary">Volver al Inicio</button></a>
+                      </div>
+                    </div>
+                    <% } %>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <%- include('partials/footer') %>
+</body>
+
+</html>

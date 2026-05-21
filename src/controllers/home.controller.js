@@ -153,3 +153,64 @@ export const verBusqueda = async (req, res) => {
         });
     }
 };
+
+export const verCategoria = async (req, res) => {
+    const nombreCategoriaInput = req.params.nombre || '';
+    try {
+        // 1. Obtener todas las categorías para buscar coincidencia normalizada (sin acentos, minúsculas)
+        const { data: categoriasData, error: catError } = await supabase
+            .from('categorias')
+            .select('*');
+
+        if (catError) throw catError;
+
+        const normalizeStr = (str) => 
+            str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+        const targetNorm = normalizeStr(nombreCategoriaInput);
+        
+        // Filtrar categorías cuyo nombre normalizado coincida
+        const matchingCats = (categoriasData || []).filter(c => normalizeStr(c.nombre) === targetNorm);
+
+        if (matchingCats.length === 0) {
+            return res.status(404).render('404', { 
+                message: `Categoría "${nombreCategoriaInput}" no encontrada.`,
+                loggerUser: req.session.user 
+            });
+        }
+
+        // Obtener ids de las categorías coincidentes (para juntar duplicados como Fantasía/Fantasia)
+        const catIds = matchingCats.map(c => c.id_categoria);
+        const nombreDisplay = matchingCats[0].nombre;
+
+        // 2. Traer todos los cuentos de estas categorías
+        const { data: cuentos, error: storiesError } = await supabase
+            .from('cuentos')
+            .select(`
+                *,
+                cuenta_usuario ( id_cuenta_usuario, username, avatar_url ),
+                categorias ( nombre )
+            `)
+            .in('categoria_id', catIds)
+            .eq('estado', 'publicado')
+            .eq('visibilidad', 'publica')
+            .order('created_at', { ascending: false });
+
+        if (storiesError) throw storiesError;
+
+        res.render('categoria', {
+            tituloPagina: `${nombreDisplay} | Willpig Studio`,
+            categoriaNombre: nombreDisplay,
+            libros: cuentos || [],
+            loggerUser: req.session.user
+        });
+
+    } catch (error) {
+        console.error('Error al ver categoría:', error);
+        res.status(500).render('404', {
+            message: 'Ocurrió un error al cargar la categoría.',
+            loggerUser: req.session.user
+        });
+    }
+};
+

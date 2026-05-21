@@ -61,6 +61,79 @@
 
     <!-- Secciones con scroll horizontal -->
     <section class="library-page">
+
+      <!-- Explora por Categorías -->
+      <div class="categories-explorer-section reveal-item mb-4">
+        <div class="categories-explorer-title-wrapper">
+          <h2 class="categories-explorer-title">Explora por Categorías</h2>
+          <p class="categories-explorer-subtitle">Encuentra tu próximo libro favorito según tu género preferido</p>
+        </div>
+        <div class="categories-grid-premium">
+          <% 
+          const categoryGradients = {
+            'fantasia': 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+            'ciencia-ficcion': 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)',
+            'utopia': 'linear-gradient(135deg, #ffeedf 0%, #ffc6a5 100%)',
+            'aventura': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'general': 'linear-gradient(135deg, #e2ebf0 0%, #cfd9df 100%)'
+          };
+          const categoryEmojis = {
+            'fantasia': '✨',
+            'ciencia-ficcion': '🚀',
+            'utopia': '🕊️',
+            'aventura': '🧭',
+            'general': '📖'
+          };
+          %>
+          <% if (typeof categorias !== 'undefined' && categorias && categorias.length > 0) { %>
+            <% categorias.forEach(cat => { %>
+              <% 
+                const normKey = cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                const gradient = categoryGradients[normKey] || categoryGradients['general'];
+                const emoji = categoryEmojis[normKey] || categoryEmojis['general'];
+              %>
+              <a href="/categoria/<%= normKey %>" class="category-card-premium" style="background: <%= gradient %>">
+                <div class="category-card-overlay"></div>
+                <div class="category-card-content">
+                  <span class="category-emoji"><%= emoji %></span>
+                  <h3 class="category-name"><%= cat.nombre %></h3>
+                </div>
+              </a>
+            <% }) %>
+          <% } else { %>
+            <!-- Fallback estático en caso de que no haya cargado de la DB -->
+            <a href="/categoria/ciencia-ficcion" class="category-card-premium" style="background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%)">
+              <div class="category-card-overlay"></div>
+              <div class="category-card-content">
+                <span class="category-emoji">🚀</span>
+                <h3 class="category-name">Ciencia Ficción</h3>
+              </div>
+            </a>
+            <a href="/categoria/utopia" class="category-card-premium" style="background: linear-gradient(135deg, #ffeedf 0%, #ffc6a5 100%)">
+              <div class="category-card-overlay"></div>
+              <div class="category-card-content">
+                <span class="category-emoji">🕊️</span>
+                <h3 class="category-name">Utopía</h3>
+              </div>
+            </a>
+            <a href="/categoria/aventura" class="category-card-premium" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+              <div class="category-card-overlay"></div>
+              <div class="category-card-content">
+                <span class="category-emoji">🧭</span>
+                <h3 class="category-name">Aventura</h3>
+              </div>
+            </a>
+            <a href="/categoria/fantasia" class="category-card-premium" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)">
+              <div class="category-card-overlay"></div>
+              <div class="category-card-content">
+                <span class="category-emoji">✨</span>
+                <h3 class="category-name">Fantasía</h3>
+              </div>
+            </a>
+          <% } %>
+        </div>
+      </div>
+
       <div class="library-header reveal-item">
         <div class="library-tabs">
           <button class="tab-btn active" data-target="home-tab">Inicio</button>

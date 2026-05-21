@@ -82,13 +82,18 @@
 
           <div class="form-group">
             <label for="categoria">Categoría</label>
-            <select id="categoria" name="categoria_id" required> <!-- Changed name to match controller -->
+            <select id="categoria" name="categoria_id" required>
               <option value="">Selecciona una categoría</option>
-              <option value="1">Fantasía</option> <!-- Assumption: IDs are 1-based, need to verify -->
-              <option value="2">Romance</option>
-              <option value="3">Aventura</option>
-              <option value="4">Drama</option>
-              <option value="5">Infantil</option>
+              <% if (typeof categorias !== 'undefined' && categorias && categorias.length > 0) { %>
+                <% categorias.forEach(cat => { %>
+                  <option value="<%= cat.id_categoria %>"><%= cat.nombre %></option>
+                <% }) %>
+              <% } else { %>
+                <option value="1">Fantasía</option>
+                <option value="3">Aventura</option>
+                <option value="8">Ciencia Ficción</option>
+                <option value="9">Utopía</option>
+              <% } %>
             </select>
           </div>
 
