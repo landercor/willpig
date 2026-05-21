@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Detalle de Historia</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: sans-serif; 
+    }
+    body { 
+      background: #f0f2f5; 
+      padding: 20px; 
+      display: flex; 
+      justify-content: center; 
+    }
+    .story-page { 
+      background: #ffffff; 
+      max-width: 650px; 
+      width: 100%; 
+      border-radius: 8px; 
+      overflow: hidden; 
+      border: 1px solid #d4d4d8; 
+      position: relative; 
+    }
+    .banner { 
+      background: linear-gradient(135deg, #963700, #ff8f44); 
+      padding: 20px; 
+      display: flex; 
+      gap: 15px; 
+      color: #ffffff; 
+    }
+    .cover { 
+      width: 80px; 
+      height: 110px; 
+      background: #ffffff; 
+      border-radius: 4px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 11px; 
+      color: #ccc; 
+      cursor: pointer; 
+    }
+    .cover img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+    }
+    .story-info { 
+      flex: 1; 
+    }
+    .story-title { 
+      font-size: 20px; 
+      font-weight: 600; 
+      margin-bottom: 5px; 
+    }
+    .story-stats { 
+      font-size: 12px; 
+      margin-bottom: 10px; 
+      opacity: 0.9; 
+    }
+    .author { 
+      font-size: 12px; 
+      font-weight: 600; 
+    }
+    .body-section { 
+      padding: 15px; 
+    }
+    .btn-edit { 
+      background: #f5a623; 
+      color: #ffffff; 
+      border: none; 
+      border-radius: 20px; 
+      padding: 6px 14px; 
+      font-size: 13px; 
+      cursor: pointer; 
+    }
+    .story-desc { 
+      font-size: 13px; 
+      color: #71717a; 
+      margin: 15px 0; 
+    }
+    .tag { 
+      background: #f5a623; 
+      color: #7a4a00; 
+      padding: 4px 10px; 
+      border-radius: 12px; 
+      font-size: 11px; 
+    }
+    .toc-header { 
+      display: flex; 
+      justify-content: space-between; 
+      border-bottom: 2px solid #ffffff; 
+      padding-bottom: 5px; 
+      margin-top: 20px; 
+      color: #ffffff; 
+      font-size: 14px; 
+      font-weight: bold; 
+    }
+    .parts-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 10px; 
+      font-size: 13px; 
+    }
+    .parts-table td, .parts-table th { 
+      padding: 8px; 
+      border-bottom: 1px solid #eeeeee; 
+      text-align: left; 
+    }
+    .badge { 
+      background: #f5ede0; 
+      color: #a05c00; 
+      padding: 2px 6px; 
+      border-radius: 4px; 
+      font-size: 11px; 
+    }
+    .modal-overlay { 
+      display: none; 
+      position: absolute; 
+      top: 0; left: 0; width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.4); 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .modal { 
+      background: #ffffff; 
+      padding: 15px; 
+      border-radius: 6px; 
+      width: 260px; 
+    }
+    .modal input { 
+      width: 100%; 
+      padding: 6px; 
+      margin-bottom: 10px; 
+    }
+    .story-title[contenteditable="true"], 
+    .story-desc[contenteditable="true"] { 
+      outline: 2px dashed #ffffff; 
+      padding: 2px; 
+    }
+  </style>
+</head>
+<body>
+
+<div class="story-page" id="app">
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h3>Nueva parte</h3>
+      <input type="text" id="modal-input" placeholder="Título...">
+      <br>
+      <button onclick="closeModal()">Cancelar</button> 
+      <button onclick="saveModal()" style="background:#f5a623; color:#fff; border:none; padding:4px 8px; cursor:pointer;">Guardar</button>
+    </div>
+  </div>
+
+  <div class="banner">
+    <div class="cover" onclick="document.getElementById('cover-upload').click()">
+      <img id="cover-img" style="display:none"> 
+      <span id="cover-ph">Portada</span>
+    </div>
+    <input type="file" id="cover-upload" style="display:none" accept="image/*" onchange="changeCover(event)">
+    
+    <div class="story-info">
+      <div class="story-title" id="story-title">Ejemplo</div>
+      <div class="story-stats"><span id="stat-parts">1 Parte</span> • 0 Lecturas • 0 Votos</div>
+      <div class="author">Por AleDawson</div>
+    </div>
+  </div>
+
+  <div class="body-section">
+    <button class="btn-edit" id="edit-btn" onclick="toggleEditMode()">Editar historia</button>
+    <div class="story-desc" id="story-desc">sdhjfdhjfdjkdsfdff</div>
+    <span class="tag">No ficción</span>
+    
+    <div class="toc-header">
+      <span>Tabla de Contenidos</span>
+      <a href="#" onclick="openModal()" style="color:#0284c7; text-decoration:none;">+ Nueva parte</a>
+    </div>
+    
+    <table class="parts-table">
+      <thead>
+        <tr><th>Parte</th><th>Fecha</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody id="parts-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+    
+var editMode = false;
+var parts = [{title: "Parte 1 sin título", date: "Dec 18, 2014"}];
+
+// --- FUNCIONES INTERACTIVAS ---
+function toggleEditMode() {
+  editMode = !editMode;
+  document.getElementById('story-title').contentEditable = editMode;
+  document.getElementById('story-desc').contentEditable = editMode;
+  
+  var btn = document.getElementById('edit-btn');
+  btn.textContent = editMode ? "Guardar cambios" : "Editar historia";
+  btn.style.background = editMode ? "#9b3e00" : "#ff893a";
+  renderParts();
+}
+
+function renderParts() {
+  document.getElementById('stat-parts').textContent = parts.length + ' Parte' + (parts.length !== 1 ? 's' : '');
+  document.getElementById('parts-tbody').innerHTML = parts.map((p, i) => `
+    <tr>
+      <td style="color:#0284c7; font-weight:500;">${p.title}</td>
+      <td>${p.date}</td>
+      <td><span class="badge">Borrador</span></td>
+      <td>${editMode ? `<i class="ti ti-trash" onclick="deletePart(${i})" style="cursor:pointer;color:red;"></i>` : '—'}</td>
+    </tr>`).join('');
+}
+
+function openModal() { document.getElementById('modal-overlay').style.display = 'flex'; }
+function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; document.getElementById('modal-input').value = ''; }
+function deletePart(i) { if(confirm('¿Eliminar esta parte?')) { parts.splice(i, 1); renderParts(); } }
+
+function saveModal() {
+  var t = document.getElementById('modal-input').value.trim();
+  if(!t) return;
+  parts.push({title: t, date: new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})});
+  closeModal(); 
+  renderParts();
+}
+
+function changeCover(e) {
+  var f = e.target.files[0]; if(!f) return;
+  var r = new FileReader(); r.onload = function(ev){
+    document.getElementById('cover-img').src = ev.target.result;
+    document.getElementById('cover-img').style.display = 'block';
+    document.getElementById('cover-ph').style.display = 'none';
+  }; r.readAsDataURL(f);
+}
+
+renderParts();
+</script>
+</body>
+</html>
