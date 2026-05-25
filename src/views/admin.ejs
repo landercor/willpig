@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Willpig Studio | Panel de Administrador</title>
   <link rel="stylesheet" href="/css/modules/views/admin.css" />
-  <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
+  <link rel="icon" href="/img/img.ico/GABALI baloo.ico">}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 <body>
 
@@ -14,11 +15,11 @@
   <!-- ── SIDEBAR ─────────────────────────────────── -->
   <aside class="admin-sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-logo">⚙ Admin</span>
+      <span class="sidebar-logo">⚙ ADMIN</span>
       <small><%= loggerUser ? loggerUser.username : 'Admin' %></small>
     </div>
 
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav ">
       <a href="/admin"           class="nav-link <%= seccion === 'dashboard'  ? 'active' : '' %>">📊 Dashboard</a>
       <a href="/admin/usuarios"  class="nav-link <%= seccion === 'usuarios'   ? 'active' : '' %>">👤 Usuarios</a>
       <a href="/admin/historias" class="nav-link <%= seccion === 'historias'  ? 'active' : '' %>">📚 Historias</a>
@@ -45,33 +46,39 @@
          DASHBOARD
     ==================================================== -->
     <% if (seccion === 'dashboard') { %>
-      <h1 class="page-title">Dashboard</h1>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-num"><%= stats.totalUsuarios || 0 %></span>
-          <span class="stat-label">Usuarios</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-num"><%= stats.totalHistorias || 0 %></span>
-          <span class="stat-label">Historias</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-num"><%= stats.totalCapitulos || 0 %></span>
-          <span class="stat-label">Capítulos</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-num"><%= stats.totalCategorias || 0 %></span>
-          <span class="stat-label">Categorías</span>
+      <h1 class="page-title grid-col-2">Dashboard</h1>
+      <div class="text-description">
+        <p class="description-text pb-2">Esta seccion estan los controles de CRUD, para los administradores sirve para supervisar,
+          mediar y regular las interacciones en un espacio determinado,  (digital o físico). Su objetivo principal es garantizar que se cumplan las normas,
+          mantener un ambiente seguro, respetuoso y constructivo, y facilitar la participación de todos los involucrados.
+        </p>
+      </div>
+      <div class="container-box-flex d-flex justify-content-center">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-num"><%= stats.totalUsuarios || 0 %></span>
+            <span class="stat-label">Usuarios</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num"><%= stats.totalHistorias || 0 %></span>
+            <span class="stat-label">Historias</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num"><%= stats.totalCapitulos || 0 %></span>
+            <span class="stat-label">Capítulos</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-num"><%= stats.totalCategorias || 0 %></span>
+            <span class="stat-label">Categorías</span>
+          </div>
         </div>
       </div>
-
-      <div class="quick-links">
+      <div class="quick-links relative m-15">
         <h2>Accesos rápidos</h2>
-        <div class="link-grid">
-          <a href="/admin/usuarios"   class="quick-btn">👤 Gestionar Usuarios</a>
-          <a href="/admin/historias"  class="quick-btn">📚 Gestionar Historias</a>
-          <a href="/admin/categorias" class="quick-btn">🏷 Gestionar Categorías</a>
+        <div class="link-grid flex-row justify-content-center">
+          <a href="/admin/usuarios"   class="quick-btn grid-col-4 size-20">👤 Gestionar Usuarios</a>
+          <a href="/admin/historias"  class="quick-btn grid-col-4 size-20" >📚 Gestionar Historias</a>
+          <a href="/admin/categorias" class="quick-btn grid-col-4 size-20">🏷 Gestionar Categorías</a>
         </div>
       </div>
 
