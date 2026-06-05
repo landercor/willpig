@@ -43,8 +43,6 @@
             class="icon"><img src="/img/img.ico/svg/file-person.svg" alt="file-person"></span> Usuarios</a>
         <a href="/admin/historias" class="nav-link <%= seccion === 'historias'      ? 'active' : '' %>"><span
             class="icon"><img src="/img/img.ico/svg/book-half.svg" alt=""></span> Historias</a>
-        <a href="/admin/capitulos" class="nav-link <%= seccion === 'capitulos'      ? 'active' : '' %>"><span
-            class="icon"><img src="/img/img.ico/svg/journal-bookmark-fill.svg" alt=""></span> Capítulos</a>
 
         <div class="nav-section-label">Taxonomía</div>
         <a href="/admin/categorias" class="nav-link <%= seccion === 'categorias'     ? 'active' : '' %>"><span
@@ -58,7 +56,7 @@
       </nav>
 
       <div class="sidebar-footer">
-        <a href="/" class="nav-link"><span class="icon"><img src="/img/img.ico/svg/arrow-bar-left.svg" alt=""></span>
+        <a href="/principal" class="nav-link"><span class="icon"><img src="/img/img.ico/svg/arrow-bar-left.svg" alt=""></span>
           Volver al sitio</a>
       </div>
     </aside>
@@ -99,16 +97,6 @@
                 <%= stats.totalHistorias || 0 %>
               </span>
               <span class="stat-label">Historias</span>
-            </div>
-          </a>
-          <a href="/admin/capitulos" class="stat-card">
-            <div class="stat-icon purple"><img src="/img/img.ico/svg/journal-bookmark-fill.svg" alt="">
-            </div>
-            <div class="stat-body">
-              <span class="stat-num">
-                <%= stats.totalCapitulos || 0 %>
-              </span>
-              <span class="stat-label">Capítulos</span>
             </div>
           </a>
           <a href="/admin/categorias" class="stat-card">
@@ -153,11 +141,6 @@
             <span class="q-icon"><img src="/img/img.ico/svg/book-half.svg" alt=""></span>
             <span class="q-label">Gestionar Historias</span>
             <span class="q-desc">Nueva historia, editar</span>
-          </a>
-          <a href="/admin/capitulos" class="quick-card">
-            <span class="q-icon"><img src="/img/img.ico/svg/journal-bookmark-fill.svg" alt=""></span>
-            <span class="q-label">Capítulos</span>
-            <span class="q-desc">Añadir y organizar capítulos</span>
           </a>
           <a href="/admin/categorias" class="quick-card">
             <span class="q-icon"><img src="/img/img.ico/svg/usb-c.svg" alt=""></span>
@@ -234,6 +217,9 @@
           <% if (usuarios.length===0) { %>
             <p>No hay usuarios registrados.</p>
             <% } else { %>
+              <div style="margin-bottom:1rem; display:flex; justify-content:flex-end;">
+                <input type="text" id="search-users" class="form-control" placeholder="Buscar usuario..." style="max-width:300px;">
+              </div>
               <div class="table-wrap">
                 <table class="admin-table">
                   <thead>
@@ -362,6 +348,7 @@
                           onclick="closeModal('modal-new-historia')">&times;</button>
                       </div>
                       <form method="POST" action="/admin/historias/new">
+                        <input type="hidden" name="cuenta_usuario_id" value="<%= loggerUser?.id || loggerUser?.id_cuenta_usuario || '' %>">
                         <div class="form-grid">
                           <div class="form-group span-full">
                             <label>Título *</label>
@@ -448,6 +435,9 @@
                   <% if (historias.length===0) { %>
                     <p>No hay historias registradas. ¡Crea la primera!</p>
                     <% } else { %>
+                      <div style="margin-bottom:1rem; display:flex; justify-content:flex-end;">
+                        <input type="text" id="search-historias" class="form-control" placeholder="Buscar historia..." style="max-width:300px;">
+                      </div>
                       <div class="table-wrap">
                         <table class="admin-table">
                           <thead>
@@ -494,6 +484,8 @@
                                   <%= h.created_at ? new Date(h.created_at).toLocaleDateString('es') : '—' %>
                                 </td>
                                 <td style="display:flex;gap:6px;flex-wrap:wrap">
+                                  <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="openModal('modal-capitulos-<%= h.id_cuento %>')">Capítulos</button>
                                   <button type="button" class="btn btn-edit btn-sm"
                                     onclick="openModal('modal-edit-historia-<%= h.id_cuento %>')">Editar</button>
                                   <form method="POST" action="/admin/historias/<%= h.id_cuento %>/delete"
@@ -502,102 +494,129 @@
                                   </form>
                                 </td>
                               </tr>
-
-                              <!-- Modal Editar Historia -->
-                              <div id="modal-edit-historia-<%= h.id_cuento %>" class="modal-overlay">
-                                <div class="modal-content" style="max-width:640px">
-                                  <div class="modal-header">
-                                    <h2>Editar: <%= h.titulo %>
-                                    </h2>
-                                    <button type="button" class="close-modal"
-                                      onclick="closeModal('modal-edit-historia-<%= h.id_cuento %>')">&times;</button>
-                                  </div>
-                                  <form method="POST" action="/admin/historias/<%= h.id_cuento %>/edit">
-                                    <div class="form-grid">
-                                      <div class="form-group span-full">
-                                        <label>Título</label>
-                                        <input type="text" name="titulo" class="form-control" value="<%= h.titulo %>"
-                                          required>
-                                      </div>
-                                      <div class="form-group span-full">
-                                        <label>Descripción</label>
-                                        <textarea name="descripcion"
-                                          class="form-control"><%= h.descripcion || '' %></textarea>
-                                      </div>
-                                      <div class="form-group span-full">
-                                        <label>URL Portada</label>
-                                        <input type="url" name="portada_url" id="portada_<%= h.id_cuento %>"
-                                          class="form-control" value="<%= h.portada_url || '' %>"
-                                          oninput="previewPortada('portada_<%= h.id_cuento %>','prev_<%= h.id_cuento %>')">
-                                        <% if (h.portada_url) { %>
-                                          <img id="prev_<%= h.id_cuento %>" class="portada-preview"
-                                            src="<%= h.portada_url %>" alt="portada" style="display:block">
-                                          <% } else { %>
-                                            <img id="prev_<%= h.id_cuento %>" class="portada-preview" alt="portada">
-                                            <% } %>
-                                      </div>
-                                      <div class="form-group">
-                                        <label>Categoría</label>
-                                        <select name="categoria_id" class="form-control">
-                                          <option value="">Sin categoría</option>
-                                          <% (categorias || []).forEach(cat=> { %>
-                                            <option value="<%= cat.id_categoria %>" <%=h.categoria_id==cat.id_categoria
-                                              ? 'selected' : '' %>><%= cat.nombre %>
-                                            </option>
-                                            <% }) %>
-                                        </select>
-                                      </div>
-                                      <div class="form-group">
-                                        <label>Estado</label>
-                                        <select name="estado" class="form-control">
-                                          <option value="borrador" <%=h.estado==='borrador' ? 'selected' : '' %>
-                                            >Borrador</option>
-                                          <option value="progreso" <%=h.estado==='progreso' ? 'selected' : '' %>>En
-                                            progreso</option>
-                                          <option value="publicado" <%=h.estado==='publicado' ? 'selected' : '' %>
-                                            >Publicado</option>
-                                        </select>
-                                      </div>
-                                      <div class="form-group">
-                                        <label>Visibilidad</label>
-                                        <select name="visibilidad" class="form-control">
-                                          <option value="publica" <%=h.visibilidad==='publica' ? 'selected' : '' %>
-                                            >Pública</option>
-                                          <option value="privada" <%=h.visibilidad==='privada' ? 'selected' : '' %>
-                                            >Privada</option>
-                                        </select>
-                                      </div>
-                                      <div class="form-group">
-                                        <label>Audiencia</label>
-                                        <select name="audiencia" class="form-control">
-                                          <option value="general" <%=h.audiencia==='general' ? 'selected' : '' %>
-                                            >General</option>
-                                          <option value="adolescentes" <%=h.audiencia==='adolescentes' ? 'selected' : ''
-                                            %>>Adolescentes</option>
-                                          <option value="adultos" <%=h.audiencia==='adultos' ? 'selected' : '' %>
-                                            >Adultos</option>
-                                        </select>
-                                      </div>
-                                      <div class="form-group">
-                                        <label>Idioma</label>
-                                        <select name="idioma" class="form-control">
-                                          <option value="es" <%=h.idioma==='es' ? 'selected' : '' %>>Español</option>
-                                          <option value="en" <%=h.idioma==='en' ? 'selected' : '' %>>Inglés</option>
-                                        </select>
-                                      </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                      <button type="button" class="btn btn-outline"
-                                        onclick="closeModal('modal-edit-historia-<%= h.id_cuento %>')">Cancelar</button>
-                                      <button type="submit" class="btn btn-ok">Guardar</button>
-                                    </div>
-                                  </form>
-                                </div>
-                              </div>
-                              <% }) %>
+                              <% }); %>
                           </tbody>
                         </table>
                       </div>
+
+                      <!-- Modales de Historias (Fuera de la tabla para HTML válido) -->
+                      <% historias.forEach(h=> { %>
+                        <!-- Modal Editar Historia -->
+                        <div id="modal-edit-historia-<%= h.id_cuento %>" class="modal-overlay">
+                          <div class="modal-content" style="max-width:640px">
+                            <div class="modal-header">
+                              <h2>Editar: <%= h.titulo %></h2>
+                              <button type="button" class="close-modal" onclick="closeModal('modal-edit-historia-<%= h.id_cuento %>')">&times;</button>
+                            </div>
+                            <form method="POST" action="/admin/historias/<%= h.id_cuento %>/edit">
+                              <div class="form-grid">
+                                <div class="form-group span-full">
+                                  <label>Título</label>
+                                  <input type="text" name="titulo" class="form-control" value="<%= h.titulo %>" required>
+                                </div>
+                                <div class="form-group span-full">
+                                  <label>Descripción</label>
+                                  <textarea name="descripcion" class="form-control"><%= h.descripcion || '' %></textarea>
+                                </div>
+                                <div class="form-group span-full">
+                                  <label>URL Portada</label>
+                                  <input type="url" name="portada_url" id="portada_<%= h.id_cuento %>" class="form-control" value="<%= h.portada_url || '' %>" oninput="previewPortada('portada_<%= h.id_cuento %>','prev_<%= h.id_cuento %>')">
+                                  <% if (h.portada_url) { %>
+                                    <img id="prev_<%= h.id_cuento %>" class="portada-preview" src="<%= h.portada_url %>" alt="portada" style="display:block">
+                                  <% } else { %>
+                                    <img id="prev_<%= h.id_cuento %>" class="portada-preview" alt="portada">
+                                  <% } %>
+                                </div>
+                                <div class="form-group">
+                                  <label>Estado</label>
+                                  <select name="estado" class="form-control">
+                                    <option value="borrador" <%= h.estado === 'borrador' ? 'selected' : '' %>>Borrador</option>
+                                    <option value="progreso" <%= h.estado === 'progreso' ? 'selected' : '' %>>En progreso</option>
+                                    <option value="publicado" <%= h.estado === 'publicado' ? 'selected' : '' %>>Publicado</option>
+                                    <option value="pausado" <%= h.estado === 'pausado' ? 'selected' : '' %>>Pausado</option>
+                                    <option value="cancelado" <%= h.estado === 'cancelado' ? 'selected' : '' %>>Cancelado</option>
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label>Visibilidad</label>
+                                  <select name="visibilidad" class="form-control">
+                                    <option value="publica" <%= h.visibilidad === 'publica' ? 'selected' : '' %>>Pública</option>
+                                    <option value="privada" <%= h.visibilidad === 'privada' ? 'selected' : '' %>>Privada</option>
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label>Audiencia</label>
+                                  <select name="audiencia" class="form-control">
+                                    <option value="general" <%= h.audiencia === 'general' ? 'selected' : '' %>>General</option>
+                                    <option value="adolescentes" <%= h.audiencia === 'adolescentes' ? 'selected' : '' %>>Adolescentes</option>
+                                    <option value="adultos" <%= h.audiencia === 'adultos' ? 'selected' : '' %>>Adultos</option>
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label>Derechos</label>
+                                  <select name="derechos" class="form-control">
+                                    <option value="todos" <%= h.derechos === 'todos' ? 'selected' : '' %>>Todos los derechos</option>
+                                    <option value="cc_by" <%= h.derechos === 'cc_by' ? 'selected' : '' %>>CC BY</option>
+                                    <option value="cc_by_sa" <%= h.derechos === 'cc_by_sa' ? 'selected' : '' %>>CC BY-SA</option>
+                                    <option value="dominio_publico" <%= h.derechos === 'dominio_publico' ? 'selected' : '' %>>Dominio Público</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-outline" onclick="closeModal('modal-edit-historia-<%= h.id_cuento %>')">Cancelar</button>
+                                <button type="submit" class="btn btn-ok">Guardar</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+
+                        <!-- Modal Capítulos -->
+                        <div id="modal-capitulos-<%= h.id_cuento %>" class="modal-overlay">
+                          <div class="modal-content" style="max-width:800px">
+                            <div class="modal-header">
+                              <h2>Capítulos: <%= h.titulo %></h2>
+                              <button type="button" class="close-modal" onclick="closeModal('modal-capitulos-<%= h.id_cuento %>')">&times;</button>
+                            </div>
+                            <div style="margin-bottom: 1rem; padding: 1rem; background: var(--bg-alt); border-radius: var(--radius-md);">
+                              <form method="POST" action="/admin/capitulos/new" style="display:flex; gap:10px; align-items:center; flex-wrap: wrap;">
+                                <input type="hidden" name="cuento_id" value="<%= h.id_cuento %>">
+                                <input type="text" name="titulo" class="form-control" placeholder="Título del nuevo capítulo" required style="flex:1; min-width: 200px;">
+                                <button type="submit" class="btn btn-ok">+ Añadir Capítulo</button>
+                              </form>
+                            </div>
+                            <div class="table-wrap">
+                              <table class="admin-table">
+                                <thead><tr><th>ID</th><th>Título</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                                <tbody>
+                                  <% 
+                                    const caps = capitulos.filter(c => c.cuento_id === h.id_cuento);
+                                    if (caps.length === 0) {
+                                  %>
+                                    <tr><td colspan="4">No hay capítulos para esta historia.</td></tr>
+                                  <% } else { caps.forEach(c => { %>
+                                    <tr>
+                                      <td><%= c.id_capitulo %></td>
+                                      <td>
+                                        <form method="POST" action="/admin/capitulos/<%= c.id_capitulo %>/edit" style="display:flex;gap:5px;">
+                                          <input type="hidden" name="cuento_id" value="<%= h.id_cuento %>">
+                                          <input type="text" name="titulo" value="<%= c.titulo %>" class="form-control" style="width:200px;padding:4px;font-size:0.9rem;" required>
+                                          <button type="submit" class="btn btn-edit btn-sm">Guardar</button>
+                                        </form>
+                                      </td>
+                                      <td><%= c.created_at ? new Date(c.created_at).toLocaleDateString() : '' %></td>
+                                      <td>
+                                        <form method="POST" action="/admin/capitulos/<%= c.id_capitulo %>/delete" onsubmit="return confirm('¿Eliminar capítulo?')">
+                                          <button type="submit" class="btn btn-del btn-sm">Eliminar</button>
+                                        </form>
+                                      </td>
+                                    </tr>
+                                  <% }); } %>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      <% }); %>
                       <% } %>
 
                         <!-- ====================================================
@@ -660,123 +679,6 @@
                                 </table>
                               </div>
                               <% } %>
-
-                                <!-- ====================================================
-         CAPÍTULOS
-    ==================================================== -->
-                                <% } else if (seccion==='capitulos' ) { %>
-                                  <div class="page-header">
-                                    <div>
-                                      <h1 class="page-title">Gestión de Capítulos</h1>
-                                      <p class="page-subtitle">Administra los capítulos de todas las historias</p>
-                                    </div>
-                                    <button type="button" class="btn btn-primary"
-                                      onclick="openModal('modal-new-capitulo')">+ Nuevo Capítulo</button>
-                                  </div>
-
-                                  <!-- Modal: Nuevo Capítulo -->
-                                  <div id="modal-new-capitulo" class="modal-overlay">
-                                    <div class="modal-content">
-                                      <div class="modal-header">
-                                        <h2>Nuevo Capítulo</h2>
-                                        <button type="button" class="close-modal"
-                                          onclick="closeModal('modal-new-capitulo')">&times;</button>
-                                      </div>
-                                      <form method="POST" action="/admin/capitulos/new">
-                                        <div class="form-grid">
-                                          <div class="form-group span-full">
-                                            <label>ID del Cuento *</label>
-                                            <input type="number" name="cuento_id" class="form-control"
-                                              placeholder="ID del cuento al que pertenece" required>
-                                          </div>
-                                          <div class="form-group span-full">
-                                            <label>Título del Capítulo *</label>
-                                            <input type="text" name="titulo" class="form-control"
-                                              placeholder="Título del capítulo" required>
-                                          </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                          <button type="button" class="btn btn-outline"
-                                            onclick="closeModal('modal-new-capitulo')">Cancelar</button>
-                                          <button type="submit" class="btn btn-ok">✓ Crear Capítulo</button>
-                                        </div>
-                                      </form>
-                                    </div>
-                                  </div>
-
-                                  <% if (capitulos.length===0) { %>
-                                    <p>No hay capítulos registrados.</p>
-                                    <% } else { %>
-                                      <div class="table-wrap">
-                                        <table class="admin-table">
-                                          <thead>
-                                            <tr>
-                                              <th>#</th>
-                                              <th>Título</th>
-                                              <th>Cuento</th>
-                                              <th>Fecha</th>
-                                              <th>Editar</th>
-                                              <th>Eliminar</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            <% capitulos.forEach(c=> { %>
-                                              <tr>
-                                                <td>
-                                                  <%= c.id_capitulo %>
-                                                </td>
-                                                <td>
-                                                  <%= c.titulo %>
-                                                </td>
-                                                <td>
-                                                  <%= c.cuentos ? c.cuentos.titulo : c.cuento_id %>
-                                                </td>
-                                                <td>
-                                                  <%= c.created_at ? new Date(c.created_at).toLocaleDateString() : '' %>
-                                                </td>
-                                                <td>
-                                                  <button type="button" class="btn btn-edit btn-sm"
-                                                    onclick="openModal('modal-edit-cap-<%= c.id_capitulo %>')">Editar</button>
-                                                  <div id="modal-edit-cap-<%= c.id_capitulo %>" class="modal-overlay">
-                                                    <div class="modal-content">
-                                                      <div class="modal-header">
-                                                        <h2>Editar Capítulo</h2>
-                                                        <button type="button" class="close-modal"
-                                                          onclick="closeModal('modal-edit-cap-<%= c.id_capitulo %>')">&times;</button>
-                                                      </div>
-                                                      <form method="POST"
-                                                        action="/admin/capitulos/<%= c.id_capitulo %>/edit">
-                                                        <div class="form-grid">
-                                                          <div class="form-group span-full"><label>ID
-                                                              Cuento</label><input type="number" name="cuento_id"
-                                                              class="form-control" value="<%= c.cuento_id %>" required>
-                                                          </div>
-                                                          <div class="form-group span-full"><label>Título</label><input
-                                                              type="text" name="titulo" class="form-control"
-                                                              value="<%= c.titulo %>" required></div>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                          <button type="button" class="btn btn-outline"
-                                                            onclick="closeModal('modal-edit-cap-<%= c.id_capitulo %>')">Cancelar</button>
-                                                          <button type="submit" class="btn btn-ok">Guardar</button>
-                                                        </div>
-                                                      </form>
-                                                    </div>
-                                                  </div>
-                                                </td>
-                                                <td>
-                                                  <form method="POST"
-                                                    action="/admin/capitulos/<%= c.id_capitulo %>/delete"
-                                                    onsubmit="return confirm('¿Eliminar capítulo?')">
-                                                    <button type="submit" class="btn btn-del btn-sm">Eliminar</button>
-                                                  </form>
-                                                </td>
-                                              </tr>
-                                              <% }) %>
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                      <% } %>
 
                                         <!-- ====================================================
          ETIQUETAS
@@ -1032,6 +934,145 @@
         window.history.replaceState({}, '', clean);
       }
     })();
+
+    // ── Búsqueda de Usuarios e Historias ────────────────────────
+    function bindSearch(inputId, tableSelector, cellIndexes) {
+      const searchInput = document.getElementById(inputId);
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          const query = this.value.toLowerCase();
+          const rows = document.querySelectorAll(`${tableSelector} tbody tr`);
+          rows.forEach(row => {
+            if (row.closest('.modal-overlay')) return; 
+            
+            let match = false;
+            cellIndexes.forEach(index => {
+               const text = row.cells[index]?.textContent.toLowerCase() || '';
+               if (text.includes(query)) match = true;
+            });
+
+            row.style.display = match ? '' : 'none';
+          });
+        });
+      }
+    }
+
+    // Bind para usuarios: Búsqueda por Username (index 1) y Email (index 2)
+    bindSearch('search-users', '.admin-table', [1, 2]);
+
+    // Bind para historias: Búsqueda por Título (index 1) y Autor (index 2)
+    bindSearch('search-historias', '.admin-table', [1, 2]);
+
+    // ── Paginación de Tablas ─────────────────────────────────────
+    function paginateTables(limit = 10) {
+      const tables = document.querySelectorAll('.admin-table');
+      tables.forEach(table => {
+        // Ignorar tablas dentro de modales
+        if (table.closest('.modal-overlay')) return;
+        
+        const tbody = table.querySelector('tbody');
+        if (!tbody) return;
+        
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        if (rows.length <= limit) return;
+
+        let currentPage = 1;
+        const totalPages = Math.ceil(rows.length / limit);
+
+        const renderPage = (page) => {
+          rows.forEach((row, index) => {
+            row.style.display = (index >= (page - 1) * limit && index < page * limit) ? '' : 'none';
+          });
+        };
+
+        const renderControls = () => {
+          let controls = table.nextElementSibling;
+          if (controls && controls.classList.contains('pagination-controls')) {
+            controls.remove();
+          }
+          controls = document.createElement('div');
+          controls.className = 'pagination-controls';
+          controls.style = 'margin-top: 1rem; display: flex; gap: 5px; justify-content: center;';
+          
+          for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-outline btn-sm';
+            btn.textContent = i;
+            if (i === currentPage) {
+              btn.style.background = 'var(--primary)';
+              btn.style.color = '#fff';
+            }
+            btn.onclick = () => {
+              currentPage = i;
+              renderPage(currentPage);
+              renderControls();
+            };
+            controls.appendChild(btn);
+          }
+          table.parentNode.insertBefore(controls, table.nextSibling);
+        };
+
+        renderPage(currentPage);
+        renderControls();
+      });
+    }
+
+    // ── Navegación SPA (Fetch e inserción del <main>) ────────────
+    function initSPA() {
+      const links = document.querySelectorAll('.sidebar-nav a.nav-link');
+      links.forEach(link => {
+        if (link.closest('.sidebar-footer')) return; // ignorar botón volver al sitio
+        
+        link.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const url = link.href;
+          
+          links.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+
+          if (window.innerWidth <= 768) {
+             adminSidebar.classList.remove('open');
+             backdrop.classList.remove('active');
+          }
+
+          try {
+            const res = await fetch(url);
+            if (res.ok) {
+              const html = await res.text();
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, 'text/html');
+              const newMain = doc.querySelector('.admin-main');
+              const currentMain = document.querySelector('.admin-main');
+              
+              if (newMain && currentMain) {
+                currentMain.style.opacity = '0';
+                setTimeout(() => {
+                  currentMain.innerHTML = newMain.innerHTML;
+                  currentMain.style.opacity = '1';
+                  
+                  // Re-inicializar eventos
+                  paginateTables();
+                  bindSearch('search-users', '.admin-table', [1, 2]);
+                  bindSearch('search-historias', '.admin-table', [1, 2]);
+                }, 200);
+                
+                window.history.pushState({}, '', url);
+              }
+            } else {
+              window.location.href = url;
+            }
+          } catch (err) {
+            window.location.href = url;
+          }
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      paginateTables();
+      initSPA();
+      document.querySelector('.admin-main').style.transition = 'opacity 0.2s ease-in-out';
+    });
   </script>
 
 </body>

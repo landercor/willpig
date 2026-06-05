@@ -151,12 +151,13 @@ export const deleteUsuario = async (req, res) => {
 
 export const getHistorias = async (req, res) => {
   try {
-    const [{ data: historias, error }, { data: categorias }] = await Promise.all([
+    const [{ data: historias, error }, { data: categorias }, { data: capitulos }] = await Promise.all([
       supabase
         .from('cuentos')
         .select(`id_cuento, titulo, descripcion, portada_url, estado, visibilidad, audiencia, idioma, vistas, created_at, categoria_id, cuenta_usuario ( username )`)
         .order('created_at', { ascending: false }),
-      supabase.from('categorias').select('id_categoria, nombre').order('nombre', { ascending: true })
+      supabase.from('categorias').select('id_categoria, nombre').order('nombre', { ascending: true }),
+      supabase.from('capitulos').select('id_capitulo, titulo, cuento_id, created_at, contenido').order('created_at', { ascending: true })
     ]);
 
     if (error) throw error;
@@ -167,6 +168,7 @@ export const getHistorias = async (req, res) => {
       seccion: 'historias',
       historias: historias || [],
       categorias: categorias || [],
+      capitulos: capitulos || [],
       mensaje: req.query.msg || null,
       error: req.query.error || null
     });
@@ -179,6 +181,7 @@ export const getHistorias = async (req, res) => {
 export const createHistoria = async (req, res) => {
   const {
     titulo, descripcion, portada_url, categoria_id,
+    cuenta_usuario_id,
     estado = 'borrador', visibilidad = 'publica',
     audiencia = 'general', idioma = 'es',
     derechos = 'todos', clasificacion = 'todo'
@@ -189,14 +192,35 @@ export const createHistoria = async (req, res) => {
   }
 
   try {
+    const finalUserId = cuenta_usuario_id
+      || req.session?.userId
+      || req.session?.user?.id;
+
+    console.log('=== DEBUG createHistoria ===> cuenta_usuario_id del form:', cuenta_usuario_id, '| de sesión:', req.session?.userId);
+
+    if (!finalUserId) {
+      return res.redirect('/admin/historias?error=No+se+pudo+identificar+al+usuario.+Vuelve+a+iniciar+sesion');
+    }
+
+    // categoria_id es NOT NULL en la BD - si no viene, obtener la primera disponible
+    let finalCategoriaId = categoria_id ? parseInt(categoria_id) : null;
+    if (!finalCategoriaId) {
+      const { data: firstCat } = await supabase
+        .from('categorias')
+        .select('id_categoria')
+        .limit(1)
+        .single();
+      if (firstCat) finalCategoriaId = firstCat.id_categoria;
+    }
+
     const insertData = {
       titulo: titulo.trim(),
       descripcion: descripcion?.trim() || null,
       portada_url: portada_url?.trim() || null,
+      cuenta_usuario_id: finalUserId,
+      categoria_id: finalCategoriaId,
       estado, visibilidad, audiencia, idioma, derechos, clasificacion
     };
-
-    if (categoria_id) insertData.categoria_id = parseInt(categoria_id);
 
     const { error } = await supabase.from('cuentos').insert([insertData]);
     if (error) throw error;
@@ -369,10 +393,10 @@ export const createCapitulo = async (req, res) => {
       .insert([{ titulo, cuento_id, contenido }]);
 
     if (error) throw error;
-    res.redirect('/admin/capitulos?msg=Capitulo+creado');
+    res.redirect('/admin/historias?msg=Capitulo+creado');
   } catch (err) {
     console.error('Error crear capitulo:', err);
-    res.redirect('/admin/capitulos?error=Error+al+crear+capitulo');
+    res.redirect('/admin/historias?error=Error+al+crear+capitulo');
   }
 };
 
@@ -386,10 +410,10 @@ export const editCapitulo = async (req, res) => {
       .eq('id_capitulo', id);
 
     if (error) throw error;
-    res.redirect('/admin/capitulos?msg=Capitulo+actualizado');
+    res.redirect('/admin/historias?msg=Capitulo+actualizado');
   } catch (err) {
     console.error('Error editar capitulo:', err);
-    res.redirect('/admin/capitulos?error=Error+al+actualizar');
+    res.redirect('/admin/historias?error=Error+al+actualizar');
   }
 };
 
@@ -402,10 +426,10 @@ export const deleteCapitulo = async (req, res) => {
       .eq('id_capitulo', id);
 
     if (error) throw error;
-    res.redirect('/admin/capitulos?msg=Capitulo+eliminado');
+    res.redirect('/admin/historias?msg=Capitulo+eliminado');
   } catch (err) {
     console.error('Error eliminar capitulo:', err);
-    res.redirect('/admin/capitulos?error=Error+al+eliminar');
+    res.redirect('/admin/historias?error=Error+al+eliminar');
   }
 };
 
