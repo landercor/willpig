@@ -74,6 +74,108 @@
                   </div>
                 </div>
 
+                <!-- NOTIFICACIONES (Panel desplegable) -->
+                <div class="dropdown notifications-dropdown" id="notifDropdown" style="position:relative;">
+                  <button class="notif-trigger" id="notifTrigger"
+                    style="background:none;border:none;cursor:pointer;position:relative;padding:6px;border-radius:50%;transition:background 0.2s;color:inherit;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <% if (typeof notifCount !== 'undefined' && notifCount > 0) { %>
+                      <span id="notifBadge" style="position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;"><%= notifCount %></span>
+                    <% } else { %>
+                      <span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;align-items:center;justify-content:center;line-height:1;"></span>
+                    <% } %>
+                  </button>
+
+                  <!-- Panel de notificaciones -->
+                  <div id="notifPanel"
+                    style="display:none;position:absolute;right:0;top:calc(100% + 10px);width:340px;background:var(--bg-card,#1e1e2e);border:1px solid rgba(255,255,255,0.08);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:9999;overflow:hidden;">
+                    <!-- Header del panel -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                      <span style="font-weight:700;font-size:0.95rem;">Notificaciones</span>
+                      <button onclick="markAllRead()" style="background:none;border:none;cursor:pointer;color:#a78bfa;font-size:0.78rem;font-weight:600;">Marcar todo leído</button>
+                    </div>
+                    <!-- Lista -->
+                    <div id="notifList" style="max-height:320px;overflow-y:auto;"></div>
+                    <!-- Footer -->
+                    <div style="padding:10px 18px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+                      <a href="/principal/biblioteca" style="color:#a78bfa;font-size:0.82rem;text-decoration:none;">Ver biblioteca →</a>
+                    </div>
+                  </div>
+                </div>
+
+                <script>
+                  (function() {
+                    const trigger = document.getElementById('notifTrigger');
+                    const panel   = document.getElementById('notifPanel');
+                    const badge   = document.getElementById('notifBadge');
+                    const list    = document.getElementById('notifList');
+                    let loaded = false;
+
+                    function timeAgoNotif(d) {
+                      const diff = Math.floor((Date.now() - new Date(d)) / 1000);
+                      if (diff < 60) return 'Ahora';
+                      if (diff < 3600) return `Hace ${Math.floor(diff/60)} min`;
+                      if (diff < 86400) return `Hace ${Math.floor(diff/3600)} h`;
+                      return new Date(d).toLocaleDateString('es-ES', { day:'numeric', month:'short' });
+                    }
+
+                    async function loadNotifs() {
+                      list.innerHTML = '<p style="text-align:center;padding:20px;color:#666;">Cargando...</p>';
+                      try {
+                        const r = await fetch('/usuario/notificaciones');
+                        const data = await r.json();
+                        const notifs = data.notificaciones || [];
+                        if (notifs.length === 0) {
+                          list.innerHTML = '<p style="text-align:center;padding:24px;color:#666;font-size:0.875rem;">Sin notificaciones nuevas</p>';
+                        } else {
+                          list.innerHTML = notifs.map(n => `
+                            <div style="display:flex;gap:12px;padding:13px 18px;border-bottom:1px solid rgba(255,255,255,0.04);background:${n.leida ? 'transparent' : 'rgba(167,139,250,0.05)'};">
+                              <div style="flex-shrink:0;width:8px;height:8px;border-radius:50%;background:${n.leida ? 'transparent' : '#a78bfa'};margin-top:6px;"></div>
+                              <div style="flex:1;">
+                                <p style="margin:0;font-size:0.875rem;color:#ddd;line-height:1.4;">${n.mensaje || tipoLabel(n.tipo)}</p>
+                                <span style="font-size:0.75rem;color:#666;">${timeAgoNotif(n.created_at || n.fecha)}</span>
+                              </div>
+                            </div>`).join('');
+                        }
+                        // Ocultar badge tras abrir
+                        if (badge) badge.style.display = 'none';
+                      } catch(e) {
+                        list.innerHTML = '<p style="text-align:center;padding:20px;color:#666;">Error al cargar</p>';
+                      }
+                    }
+
+                    function tipoLabel(tipo) {
+                      const map = { nuevo_seguidor: 'Alguien te siguió', like: 'Le gustó tu historia', comentario: 'Nuevo comentario en tu historia' };
+                      return map[tipo] || 'Nueva notificación';
+                    }
+
+                    async function markAllRead() {
+                      await fetch('/usuario/notificaciones/leer', { method:'POST' }).catch(()=>{});
+                      if (badge) badge.style.display = 'none';
+                      await loadNotifs();
+                    }
+
+                    trigger?.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                      const isOpen = panel.style.display === 'block';
+                      panel.style.display = isOpen ? 'none' : 'block';
+                      if (!isOpen && !loaded) { loaded = true; loadNotifs(); }
+                      else if (!isOpen) { loadNotifs(); }
+                    });
+
+                    document.addEventListener('click', (e) => {
+                      if (!document.getElementById('notifDropdown')?.contains(e.target)) {
+                        if (panel) panel.style.display = 'none';
+                      }
+                    });
+                  })();
+                </script>
+
+
                 <!-- PERFIL -->
                 <div class="dropdown profile">
                   <div class="dropdown-trigger">

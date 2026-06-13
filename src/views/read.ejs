@@ -10,43 +10,193 @@
     <link rel="stylesheet" href="/css/style1.2.css">
     <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
 
+    <style>
+        /* Wattpad-like Reading Layout */
+        .reading-mode {
+            background-color: #fcfcfc;
+            color: #333;
+            transition: background 0.3s, color 0.3s;
+            padding-top: 60px; /* Space for navbar */
+        }
+        
+        .theme-dark .reading-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .theme-sepia .reading-mode {
+            background-color: #f4ecd8;
+            color: #5b4636;
+        }
+
+        .reading-toolbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .theme-dark .reading-toolbar {
+            background: rgba(30, 30, 30, 0.95);
+            border-color: rgba(255,255,255,0.05);
+        }
+
+        .reading-toolbar .control-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 16px;
+            transition: background 0.2s;
+        }
+
+        .reading-toolbar .control-btn:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .theme-dark .reading-toolbar .control-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .reading-container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 40px 20px 100px;
+        }
+
+        .reading-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .story-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #888;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .chapter-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin: 0;
+        }
+
+        .chapter-content {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            font-family: Georgia, 'Times New Roman', serif; /* Classic reading font */
+        }
+
+        /* Font Size Classes */
+        .font-small .chapter-content { font-size: 1rem; }
+        .font-large .chapter-content { font-size: 1.3rem; }
+        .font-xlarge .chapter-content { font-size: 1.5rem; }
+
+        .chapter-content p {
+            margin-bottom: 1.5em;
+        }
+
+        .chapter-nav-bottom {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .theme-dark .chapter-nav-bottom {
+            border-top-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-btn {
+            padding: 10px 24px;
+            border-radius: 24px;
+            text-decoration: none;
+            color: #fff;
+            background: #a78bfa;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .nav-btn:hover {
+            opacity: 0.9;
+        }
+
+        .nav-btn.disabled {
+            background: #ccc;
+            color: #888;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .theme-dark .nav-btn.disabled {
+            background: #444;
+            color: #666;
+        }
+    </style>
 </head>
 
 <body class="reading-mode">
+    <%- include('partials/navbar', { loggerUser }) %>
 
-    <!-- Controles -->
-    <div class="reading-controls">
-        <a href="/historias/<%= cuento.id_cuento %>" class="control-btn" title="Volver">← Volver a la historia</a>
-        <button class="control-btn" onclick="toggleTheme()" title="Cambiar Tema">Cambiar Tema</button>
-        <button class="control-btn" onclick="changeFontSize()" title="Tamaño Letra">Aa</button>
+    <div class="reading-toolbar">
+        <a href="/historias/<%= cuento.id_cuento %>" class="control-btn" title="Volver a la historia">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+            <span>Volver</span>
+        </a>
+        <button class="control-btn" onclick="toggleTheme()" title="Cambiar Tema">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>
+            <span>Tema</span>
+        </button>
+        <button class="control-btn" onclick="changeFontSize()" title="Tamaño Letra">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/></svg>
+            <span>Aa</span>
+        </button>
     </div>
 
     <div class="reading-container">
-        <header>
-            <h4 style="opacity: 0.6; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">
-                <%= cuento.titulo %>
-            </h4>
-            <h1>
-                <%= capitulo.titulo %>
-            </h1>
+        <header class="reading-header">
+            <a href="/historias/<%= cuento.id_cuento %>" style="text-decoration: none;">
+                <span class="story-title"><%= cuento.titulo %></span>
+            </a>
+            <h1 class="chapter-title"><%= capitulo.titulo %></h1>
         </header>
 
         <div class="chapter-content">
             <%- capitulo.contenido %>
         </div>
 
-        <div class="chapter-nav">
+        <div class="chapter-nav-bottom">
             <% if (prevId) { %>
                 <a href="/capitulos/read/<%= prevId %>" class="nav-btn">← Anterior</a>
-                <% } else { %>
-                    <span class="nav-btn disabled">← Anterior</span>
-                    <% } %>
+            <% } else { %>
+                <span class="nav-btn disabled">← Anterior</span>
+            <% } %>
 
-                        <% if (nextId) { %>
-                            <a href="/capitulos/read/<%= nextId %>" class="nav-btn">Siguiente →</a>
-                            <% } else { %>
-                                <span class="nav-btn disabled">Siguiente →</span>
-                                <% } %>
+            <% if (nextId) { %>
+                <a href="/capitulos/read/<%= nextId %>" class="nav-btn">Siguiente →</a>
+            <% } else { %>
+                <span class="nav-btn disabled">Siguiente →</span>
+            <% } %>
         </div>
     </div>
 
@@ -63,18 +213,15 @@
         }
 
         function toggleTheme() {
-            // Quitar clase actual
             if (themes[currentThemeIndex]) {
                 document.body.classList.remove(themes[currentThemeIndex]);
             }
-            // Avanzar índice
             currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-            // Añadir nueva clase
             if (themes[currentThemeIndex]) {
                 document.body.classList.add(themes[currentThemeIndex]);
                 localStorage.setItem('readingTheme', themes[currentThemeIndex]);
             } else {
-                localStorage.removeItem('readingTheme'); // Default
+                localStorage.removeItem('readingTheme');
             }
         }
 
@@ -102,5 +249,4 @@
         }
     </script>
 </body>
-
 </html>

@@ -151,7 +151,7 @@
             <section class="featured-story mb-3 reveal-item">
               <div class="featured-image">
                 <img
-                  src="<%= historiaDestacada.portada_url || '/img/default-portada.jpg' %>"
+                  src="<%= historiaDestacada.portada_url || historiaDestacada.portada || '/img/default-portada.jpg' %>"
                   alt="<%= historiaDestacada.titulo %>">
                 <div class="featured-badge">Destacada</div>
               </div>
@@ -161,7 +161,8 @@
                   <%= historiaDestacada.titulo %>
                 </h3>
                 <p>
-                  <%= historiaDestacada.sinopsis || 'Una aventura increíble y popular elegida por los lectores de Willpig Studio.' %>
+                  <%= historiaDestacada.sinopsis
+                    || 'Una aventura increíble y popular elegida por los lectores de Willpig Studio.' %>
                 </p>
                 <div class="featured-meta">
                   <div class="meta-item"><img src="/img/img.ico/vistas-icon.svg" class="icon-eye"> <span>
@@ -183,7 +184,8 @@
                       <h3 class="category-title">
                         <%= cat %>
                       </h3>
-                      <a href="/categoria/<%= cat.toLowerCase() %>" class="view-all">Ver todo</a>
+                      <% const catNorm = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-'); %>
+                      <a href="/categoria/<%= catNorm %>" class="view-all">Ver todo</a>
                     </div>
                     <div class="scroll-wrapper">
                       <div class="scroll-container">
@@ -191,7 +193,7 @@
                           <div class="carousel-item">
                             <div class="card-inner">
                               <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
-                                <img src="<%= historia.portada_url || '/img/default-portada.jpg' %>"
+                                <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>"
                                   class="cover" alt="<%= historia.titulo %>">
                                 <div class="card-overlay">
                                   <span class="btn-play-mini">▶</span>
@@ -234,7 +236,7 @@
                 <div class="library-item">
                   <div class="card-inner">
                     <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
-                      <img src="<%= historia.portada_url || '/img/default-portada.jpg' %>" class="cover"
+                      <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>" class="cover"
                         alt="<%= historia.titulo %>">
                       <div class="card-overlay">
                         <span class="btn-play-mini">▶</span>
@@ -287,7 +289,7 @@
                 <div class="library-item">
                   <div class="card-inner">
                     <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
-                      <img src="<%= historia.portada_url || '/img/default-portada.jpg' %>" class="cover"
+                      <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>" class="cover"
                         alt="<%= historia.titulo %>">
                       <div class="card-overlay">
                         <span class="btn-play-mini">▶</span>

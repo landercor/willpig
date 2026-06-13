@@ -8,8 +8,7 @@ import {
   getStoryById,
   getMyStories,
   getEditStory,
-  getEditMetadata,
-  getNewChapter
+  getEditMetadata
 } from '../controllers/story.controller.js'
 
 import upload from '../middlewares/upload.js'
@@ -25,7 +24,6 @@ router.get('/crear', isAuth, (req, res) => {
 router.get('/mis', isAuth, getMyStories);
 router.get('/editar/:id', isAuth, getEditStory);
 router.get('/editar-meta/:id', isAuth, getEditMetadata);
-router.get('/editar/:id/capitulos/nuevo', isAuth, getNewChapter);
 
 router.post('/new', isAuth, validateCsrfToken, upload.single('portada'), createStory)
 router.post('/editar/:id', isAuth, validateCsrfToken, upload.single('portada'), editStory)

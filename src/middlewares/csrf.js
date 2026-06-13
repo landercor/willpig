@@ -23,7 +23,7 @@ export const generateCsrfToken = (req, res, next) => {
  * el almacenado en la sesión. Rechaza con 403 si no coincide o falta.
  */
 export const validateCsrfToken = (req, res, next) => {
-  const tokenFromBody = req.body?._csrf;
+  const tokenFromBody = req.body?._csrf || req.get('csrf-token') || req.get('x-csrf-token');
   const tokenFromSession = req.session?.csrfToken;
 
   if (!tokenFromBody || !tokenFromSession) {

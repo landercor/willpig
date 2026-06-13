@@ -43,7 +43,7 @@
             <section class="chapters-section">
                 <div class="section-header">
                     <h3>Capítulos (<%= cuento.capitulos ? cuento.capitulos.length : 0 %>)</h3>
-                    <a href="/historias/editar/<%= cuento.id_cuento %>/capitulos/nuevo" class="btn-savever">+ Escribir Capítulos</a>
+                    <a href="/capitulos/nuevo/<%= cuento.id_cuento %>" class="btn-savever">+ Escribir Capítulos</a>
                 </div>
                 <div class="chapter-list">
                     <% if (cuento.capitulos && cuento.capitulos.length> 0) { %>

@@ -11,8 +11,7 @@
   <header class="ws-topbar">
     <div class="container">
       <div class="brand">Willpig Studio</div>
-      <div class="user-actions">
-        <a href="javascript:history.back()" class="btn btn-outline" style="border:none; color:inherit; font-weight:bold; margin-right: 15px;">← Volver</a>
+      <div class="top-actions">
         <% if (loggerUser) { %>
           <a class="btn btn-create" href="/historias/crear">＋</a>
         <% } %>
@@ -38,8 +37,8 @@
               </form>
               <a class="btn btn-message" href="/messages/compose?to=<%= user.username %>">Mensaje</a>
             <% } else if (!loggerUser) { %>
-              <a class="btn btn-follow" href="/auth/login">Seguir</a>
-              <a class="btn btn-message" href="/auth/login">Mensaje</a>
+              <a class="btn btn-follow" href="/login">Seguir</a>
+              <a class="btn btn-message" href="/login">Mensaje</a>
             <% } %>
           </div>
         </div>
@@ -103,6 +102,6 @@
     </section>
   </main>
 
-  <%= include('partials/footer') %>
+  <%- include('partials/footer') %>
 </body>
 </html>

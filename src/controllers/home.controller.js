@@ -1,6 +1,5 @@
 // controllers/homeController.js
 import { supabaseAdmin as supabase } from "../config/db.js";
-import { historiaService } from '../services/historia.service.js';
 
 export const verBiblioteca = async (req, res) => {
     try {
@@ -22,7 +21,7 @@ export const verBiblioteca = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error cargando cuentos:', error);
+        console.error('Error cargando historias:', error);
         res.render('biblioteca', {
             tituloPagina: 'Biblioteca | Willpig Studio',
             historias: [],
@@ -82,11 +81,11 @@ export const verPrincipal = async (req, res) => {
         let carruselData = [];
         if (historias && historias.length > 0) {
             // Filtrar cuentos que tengan alguna portada
-            const cuentosConPortada = historias.filter(c => c.portada_url);
-            if (cuentosConPortada.length > 0) {
-                carruselData = cuentosConPortada.slice(0, 5).map(c => ({
+            const historiasConPortada = historias.filter(c => c.portada_url || c.portada);
+            if (historiasConPortada.length > 0) {
+                carruselData = historiasConPortada.slice(0, 5).map(c => ({
                     titulo: c.titulo,
-                    imagen: c.portada_url,
+                    imagen: c.portada_url || c.portada,
                     link: `/historias/${c.id_cuento}`
                 }));
             }
@@ -126,21 +125,32 @@ export const verPrincipal = async (req, res) => {
 
 export const verBusqueda = async (req, res) => {
     const q = req.query.q || '';
-    const autor = req.query.autor || '';
-    const categoria_id = req.query.categoria_id || '';
-    const audiencia = req.query.audiencia || '';
-    const sort = req.query.sort || 'fecha';
-    const page = parseInt(req.query.page) || 1;
-
     try {
-        const result = await historiaService.searchHistorias(q, page, 20, { autor, categoria_id, audiencia, sort });
+        // Buscar historias
+        const { data: resultados } = await supabase
+            .from('cuentos')
+            .select(`*, cuenta_usuario ( id_cuenta_usuario, username, avatar_url )`)
+            .eq('estado', 'publicado')
+            .eq('visibilidad', 'publica')
+            .ilike('titulo', `%${q}%`)
+            .order('created_at', { ascending: false });
+
+        // Buscar usuarios
+        let usuarios = [];
+        if (q.trim().length > 0) {
+            const { data: usuariosData } = await supabase
+                .from('cuenta_usuario')
+                .select('id_cuenta_usuario, username, avatar_url, biografia')
+                .ilike('username', `%${q}%`)
+                .limit(12);
+            usuarios = usuariosData || [];
+        }
 
         res.render('busqueda', {
-            tituloPagina: `Resultados de búsqueda | Willpig Studio`,
-            resultados: result.resultados || [],
-            query: req.query,
-            page,
-            totalPages: result.totalPages,
+            tituloPagina: `Resultados para: ${q} | Willpig Studio`,
+            resultados: resultados || [],
+            usuarios,
+            query: q,
             loggerUser: req.session.user
         });
     } catch (error) {
@@ -148,9 +158,8 @@ export const verBusqueda = async (req, res) => {
         res.render('busqueda', {
             tituloPagina: 'Búsqueda | Willpig Studio',
             resultados: [],
-            query: req.query,
-            page: 1,
-            totalPages: 0,
+            usuarios: [],
+            query: q,
             loggerUser: req.session.user
         });
     }
@@ -186,7 +195,7 @@ export const verCategoria = async (req, res) => {
         const nombreDisplay = matchingCats[0].nombre;
 
         // 2. Traer todos los cuentos de estas categorías
-        const { data: historias, error: storiesError } = await supabase
+        const { data: cuentos, error: storiesError } = await supabase
             .from('cuentos')
             .select(`
                 *,
@@ -203,7 +212,7 @@ export const verCategoria = async (req, res) => {
         res.render('categoria', {
             tituloPagina: `${nombreDisplay} | Willpig Studio`,
             categoriaNombre: nombreDisplay,
-            historias: historias || [],
+            historias: cuentos || [],
             loggerUser: req.session.user
         });
 
@@ -215,4 +224,3 @@ export const verCategoria = async (req, res) => {
         });
     }
 };
-

@@ -36,6 +36,7 @@ app.use(passport.initialize());
 import storyRoutes from "./routes/story.routes.js"; // Importar rutas de historias
 import userRoutes from "./routes/user.routes.js"; // Importar rutas de usuario
 import adminRoutes from "./routes/admin.routes.js"; // Importar rutas de administrador
+import socialRoutes from "./routes/social.routes.js"; // Importar rutas sociales
 
 app.get("/", (req, res) => {
   if (req.session && req.session.user) {
@@ -83,12 +84,35 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// Middleware global para notificaciones (Badge)
+app.use(async (req, res, next) => {
+  res.locals.notifCount = 0;
+  if (req.session && req.session.user) {
+    try {
+      const userId = req.session.user.id_cuenta_usuario || req.session.user.id;
+      const { count, error } = await supabaseAdmin
+        .from('notificaciones')
+        .select('*', { count: 'exact', head: true })
+        .eq('usuario_destino_id', userId)
+        .eq('leida', false);
+
+      if (!error) {
+        res.locals.notifCount = count || 0;
+      }
+    } catch (err) {
+      console.error('Error al cargar notificaciones:', err);
+    }
+  }
+  next();
+});
+
 app.use("/auth", authRoutes);
 app.use("/principal", homeRoutes);
 app.use("/capitulos", chapterRoutes);
 app.use("/historias", storyRoutes);
 app.use("/usuario", userRoutes); // Montar rutas de usuario
 app.use("/admin", adminRoutes); // Montar rutas de administrador
+app.use("/social", socialRoutes); // Montar rutas sociales
 app.use("/uploads", express.static("uploads"));
 app.use("/", homeRoutes);
 

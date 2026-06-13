@@ -7,68 +7,112 @@
   <title><%= tituloPagina %></title>
   <link rel="stylesheet" href="/css/style1.2.css" />
   <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
+  <style>
+    .search-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary, #e2e2e2);
+      margin: 28px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-section-title .badge {
+      background: rgba(167,139,250,0.15);
+      color: var(--accent, #a78bfa);
+      padding: 1px 8px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    /* USUARIOS */
+    .users-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-card, rgba(255,255,255,0.04));
+      border: 1px solid var(--border, rgba(255,255,255,0.08));
+      border-radius: 14px;
+      text-decoration: none;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .user-card:hover {
+      border-color: var(--accent, #a78bfa);
+      transform: translateY(-2px);
+    }
+    .user-card img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .user-card-info { overflow: hidden; }
+    .user-card-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary, #e2e2e2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-card-bio {
+      font-size: 0.75rem;
+      color: var(--text-muted, #888);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+  </style>
 </head>
 
 <body>
   <%- include('partials/navbar', { loggerUser }) %>
 
-  <!-- ===== BÚSQUEDA ===== -->
   <section class="library-page search-page">
     <div class="library-header">
       <h1 class="text-primary">Resultados de búsqueda</h1>
-      <p class="text-muted mt-05">
-        <% if (query.q) { %>Buscando por: "<%= query.q %>"<% } %>
-        <% if (query.autor) { %> - Autor: @<%= query.autor %><% } %>
-      </p>
-    </div>
-
-    <!-- Filtros de búsqueda -->
-    <div class="search-filters" style="margin: 1.5rem auto; padding: 1.5rem; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color); max-width: 1200px;">
-      <form action="/buscar" method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
-        <input type="hidden" name="q" value="<%= query.q || '' %>">
-        <input type="hidden" name="autor" value="<%= query.autor || '' %>">
-        
-        <div class="form-group mb-0" style="flex: 1; min-width: 150px;">
-          <label class="form-label" style="font-size: 0.85rem; color: var(--text-muted);">Categoría</label>
-          <select name="categoria_id" class="form-input">
-            <option value="">Todas</option>
-            <% if (categorias && categorias.length > 0) { %>
-              <% categorias.forEach(cat => { %>
-                <option value="<%= cat.id_categoria %>" <%= query.categoria_id == cat.id_categoria ? 'selected' : '' %>><%= cat.nombre %></option>
-              <% }) %>
-            <% } %>
-          </select>
-        </div>
-
-        <div class="form-group mb-0" style="flex: 1; min-width: 150px;">
-          <label class="form-label" style="font-size: 0.85rem; color: var(--text-muted);">Audiencia</label>
-          <select name="audiencia" class="form-input">
-            <option value="">Todas</option>
-            <option value="infantil" <%= query.audiencia === 'infantil' ? 'selected' : '' %>>Infantil</option>
-            <option value="juvenil" <%= query.audiencia === 'juvenil' ? 'selected' : '' %>>Juvenil</option>
-            <option value="jovenes_adultos" <%= query.audiencia === 'jovenes_adultos' ? 'selected' : '' %>>Jóvenes Adultos</option>
-            <option value="adultos" <%= query.audiencia === 'adultos' ? 'selected' : '' %>>Adultos (+18)</option>
-          </select>
-        </div>
-
-        <div class="form-group mb-0" style="flex: 1; min-width: 150px;">
-          <label class="form-label" style="font-size: 0.85rem; color: var(--text-muted);">Ordenar por</label>
-          <select name="sort" class="form-input">
-            <option value="fecha" <%= query.sort === 'fecha' ? 'selected' : '' %>>Más recientes</option>
-            <option value="vistas" <%= query.sort === 'vistas' ? 'selected' : '' %>>Más vistas</option>
-          </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary" style="height: 42px; padding: 0 1.5rem;">Aplicar Filtros</button>
-      </form>
+      <p class="text-muted mt-05">Buscando por: "<%= query %>"</p>
     </div>
 
     <div class="library-content">
-      <div id="search-results" class="tab-content active mt-2">
-        
+
+      <!-- USUARIOS ENCONTRADOS -->
+      <% if (typeof usuarios !== 'undefined' && usuarios && usuarios.length > 0) { %>
+        <h2 class="search-section-title">
+          👤 Usuarios
+          <span class="badge"><%= usuarios.length %></span>
+        </h2>
+        <div class="users-grid">
+          <% usuarios.forEach(u => { %>
+            <a href="/usuario/profile/<%= u.id_cuenta_usuario %>" class="user-card">
+              <img src="<%= u.avatar_url || '/img/img.ico/user-icon.png' %>" alt="Avatar de <%= u.username %>">
+              <div class="user-card-info">
+                <div class="user-card-name">@<%= u.username %></div>
+                <div class="user-card-bio"><%= u.biografia || 'Sin descripción' %></div>
+              </div>
+            </a>
+          <% }); %>
+        </div>
+      <% } %>
+
+      <!-- HISTORIAS ENCONTRADAS -->
+      <h2 class="search-section-title">
+        📚 Historias
+        <span class="badge"><%= resultados.length %></span>
+      </h2>
+      <div id="search-results" class="tab-content active">
         <div class="library-grid">
           <% if (resultados && resultados.length > 0) { %>
-            <% resultados.forEach(historia=> { %>
+            <% resultados.forEach(historia => { %>
               <div class="library-item">
                 <a href="/historias/<%= historia.id_cuento || '#' %>">
                   <img src="<%= historia.portada_url || '/img/default-portada.jpg' %>" class="cover" alt="<%= historia.titulo %>">
@@ -76,40 +120,24 @@
                 <p class="title"><%= historia.titulo %></p>
                 <div class="author">
                   <img src="<%= (historia.cuenta_usuario && historia.cuenta_usuario.avatar_url) || '/img/img.ico/user-icon.png' %>" alt="autor">
-                  <span>@<%= (historia.cuenta_usuario && historia.cuenta_usuario.username) || 'Anónimo' %></span>
+                  <a href="/usuario/profile/<%= historia.cuenta_usuario && historia.cuenta_usuario.id_cuenta_usuario %>">
+                    <span>@<%= (historia.cuenta_usuario && historia.cuenta_usuario.username) || 'Anónimo' %></span>
+                  </a>
                 </div>
                 <div class="meta">
                   <img src="/img/img.ico/vistas-icon.svg" class="icon-eye"> <%= historia.vistas || 0 %>
                 </div>
               </div>
-            <% }) %>
+            <% }); %>
           <% } else { %>
             <div class="empty-state empty-card text-center text-muted p-3 col-full">
-              <h3 class="mb-05">No encontramos historias.</h3>
-              <p>Intenta buscar con otras palabras o cambiar los filtros.</p>
+              <h3 class="mb-05">No encontramos historias que coincidan con "<%= query %>"</h3>
+              <p>Intenta buscar con otras palabras o explora la página principal.</p>
               <a href="/"><button class="btn btn-primary mt-1-5">Volver al Inicio</button></a>
             </div>
           <% } %>
         </div>
-
       </div>
-
-      <!-- Paginación -->
-      <% if (totalPages > 1) { %>
-        <div class="pagination mt-3" style="display: flex; justify-content: center; gap: 0.5rem;">
-          <% 
-            let queryString = '';
-            if(query.q) queryString += '&q=' + encodeURIComponent(query.q);
-            if(query.autor) queryString += '&autor=' + encodeURIComponent(query.autor);
-            if(query.categoria_id) queryString += '&categoria_id=' + query.categoria_id;
-            if(query.audiencia) queryString += '&audiencia=' + query.audiencia;
-            if(query.sort) queryString += '&sort=' + query.sort;
-          %>
-          <% for(let i = 1; i <= totalPages; i++) { %>
-            <a href="/buscar?page=<%= i %><%= queryString %>" class="btn <%= page == i ? 'btn-primary' : 'btn-outline' %>"><%= i %></a>
-          <% } %>
-        </div>
-      <% } %>
 
     </div>
   </section>

@@ -1,122 +1,476 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>
-    <%= profile.title %> | Willpig Studio
-  </title>
+  <title><%= profile.title %> | Willpig Studio</title>
   <link rel="stylesheet" href="/css/style1.2.css">
   <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
+  <style>
+    /* ── PROFILE COVER ── */
+    .profile-cover-wrapper {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    .profile-cover-wrapper img.cover-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.85;
+    }
+    .cover-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.7) 100%);
+    }
+    .change-cover-btn {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+    .change-cover-btn:hover { background: rgba(0,0,0,0.75); }
 
+    /* ── PROFILE HEADER CARD ── */
+    .profile-header-card {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      max-width: 960px;
+      margin: -50px auto 0;
+      padding: 0 24px 24px;
+    }
+    .profile-identity {
+      display: flex;
+      align-items: flex-end;
+      gap: 18px;
+    }
+    .profile-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .profile-avatar-wrap img {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      border: 4px solid var(--bg-card, #1e1e2e);
+      object-fit: cover;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .profile-name-block h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0 0 2px;
+      color: var(--text-primary, #e2e2e2);
+    }
+    .profile-name-block .username {
+      color: var(--text-muted, #888);
+      font-size: 0.9rem;
+    }
+    .profile-bio-inline {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: var(--text-secondary, #aaa);
+      max-width: 400px;
+      line-height: 1.5;
+    }
+
+    /* ── STATS BAR ── */
+    .profile-stats-bar {
+      display: flex;
+      gap: 28px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      text-align: center;
+      cursor: default;
+    }
+    .stat-item .stat-num {
+      display: block;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent, #a78bfa);
+    }
+    .stat-item .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted, #888);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .profile-action-btns {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-edit-profile {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 20px;
+      background: transparent;
+      border: 1.5px solid var(--border, rgba(255,255,255,0.15));
+      border-radius: 24px;
+      color: var(--text-primary, #e2e2e2);
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-edit-profile:hover {
+      border-color: var(--accent, #a78bfa);
+      color: var(--accent, #a78bfa);
+      background: rgba(167,139,250,0.08);
+    }
+    .btn-follow {
+      padding: 9px 24px;
+      border-radius: 24px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      background: var(--accent, #a78bfa);
+      color: #fff;
+    }
+    .btn-follow:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-follow.following {
+      background: transparent;
+      border: 1.5px solid var(--accent, #a78bfa);
+      color: var(--accent, #a78bfa);
+    }
+    .btn-follow.following:hover {
+      background: rgba(239,68,68,0.1);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .profile-body {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 28px;
+    }
+    @media (max-width: 680px) {
+      .profile-body { grid-template-columns: 1fr; }
+    }
+
+    /* ── SIDEBAR ── */
+    .profile-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .sidebar-card {
+      background: var(--bg-card, rgba(255,255,255,0.04));
+      border: 1px solid var(--border, rgba(255,255,255,0.08));
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .sidebar-card h4 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-muted, #888);
+      margin: 0 0 12px;
+    }
+    .sidebar-card p { font-size: 0.875rem; color: var(--text-secondary, #aaa); margin: 0; line-height: 1.6; }
+    .joined-date { font-size: 0.8rem; color: var(--text-muted, #888); }
+
+    /* ── MAIN WORKS AREA ── */
+    .profile-main { display: flex; flex-direction: column; gap: 28px; }
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary, #e2e2e2);
+      margin: 0 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title .count-badge {
+      background: var(--accent, rgba(167,139,250,0.15));
+      color: var(--accent, #a78bfa);
+      padding: 1px 8px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+    }
+
+    /* ── BOOK GRID ── */
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 16px;
+    }
+    .book-card {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .book-card a { display: block; position: relative; }
+    .book-cover {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .book-card a:hover .book-cover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .book-badge {
+      position: absolute;
+      top: 7px;
+      left: 7px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .book-badge.borrador { background: #f59e0b; color: #000; }
+    .book-badge.privado { background: #6b7280; color: #fff; }
+    .book-title {
+      font-size: 0.8rem;
+      color: var(--text-secondary, #aaa);
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--text-muted, #666);
+      font-size: 0.875rem;
+      background: var(--bg-card, rgba(255,255,255,0.02));
+      border: 1px dashed var(--border, rgba(255,255,255,0.08));
+      border-radius: 14px;
+    }
+    .empty-state span { display: block; font-size: 2rem; margin-bottom: 8px; }
+  </style>
 </head>
 
 <body>
   <%- include('partials/navbar', { loggerUser }) %>
 
-    <div class="profile-header">
-      <% if (user.coverImage) { %>
-        <img class="cover-img" src="<%= user.coverImage %>" alt="Portada">
+  <!-- PORTADA -->
+  <div class="profile-cover-wrapper">
+    <% if (user.coverImage) { %>
+      <img class="cover-img" src="<%= user.coverImage %>" alt="Portada de <%= user.username %>">
+    <% } %>
+    <div class="cover-overlay"></div>
+    <% if (user.isOwner) { %>
+      <a href="/usuario/perfil/editar" class="change-cover-btn">
+        📷 Cambiar banner
+      </a>
+    <% } %>
+  </div>
+
+  <!-- HEADER CARD -->
+  <div class="profile-header-card">
+    <div class="profile-identity">
+      <div class="profile-avatar-wrap">
+        <img src="<%= user.avatar || '/img/default-avatar.svg' %>" alt="Avatar de <%= user.username %>">
+      </div>
+      <div class="profile-name-block">
+        <h2><%= user.name %></h2>
+        <span class="username">@<%= user.username %></span>
+        <% if (user.bio) { %>
+          <p class="profile-bio-inline"><%= user.bio %></p>
+        <% } %>
+        <div class="profile-stats-bar">
+          <div class="stat-item">
+            <span class="stat-num"><%= user.works.length %></span>
+            <span class="stat-label">Obras</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num" id="followersCount"><%= user.followersCount %></span>
+            <span class="stat-label">Seguidores</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num"><%= user.followingCount %></span>
+            <span class="stat-label">Siguiendo</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num"><%= user.readingList ? user.readingList.length : 0 %></span>
+            <span class="stat-label">Lista</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTONES DE ACCIÓN -->
+    <div class="profile-action-btns">
+      <% if (loggerUser && String(user._id) === String(loggerUser.id)) { %>
+        <a href="/usuario/perfil/editar" class="btn-edit-profile">
+          ✏️ Editar perfil
+        </a>
+      <% } else { %>
+        <button id="followBtn"
+          data-userid="<%= user._id %>"
+          class="btn-follow <%= user.isFollowing ? 'following' : '' %>">
+          <%= user.isFollowing ? '✓ Siguiendo' : '+ Seguir' %>
+        </button>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- CUERPO PRINCIPAL -->
+  <div class="profile-body">
+
+    <!-- SIDEBAR -->
+    <aside class="profile-sidebar">
+      <% if (user.bio) { %>
+        <div class="sidebar-card">
+          <h4>Sobre mí</h4>
+          <p><%= user.bio %></p>
+        </div>
+      <% } else if (user.isOwner) { %>
+        <div class="sidebar-card">
+          <h4>Sobre mí</h4>
+          <p style="color:var(--text-muted,#666); font-style:italic;">
+            Aún no has añadido una descripción.
+            <a href="/usuario/perfil/editar" style="color:var(--accent,#a78bfa);">Añadir ahora</a>
+          </p>
+        </div>
+      <% } %>
+      <div class="sidebar-card">
+        <h4>Miembro desde</h4>
+        <p class="joined-date">📅 <%= user.joined %></p>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="profile-main">
+
+      <!-- LISTA DE LECTURA -->
+      <section>
+        <h3 class="section-title">
+          📚 Lista de lectura
+          <span class="count-badge"><%= user.readingList ? user.readingList.length : 0 %></span>
+        </h3>
+        <% if (user.readingList && user.readingList.length > 0) { %>
+          <div class="books-grid">
+            <% user.readingList.forEach(book => { %>
+              <div class="book-card">
+                <a href="/historias/<%= book.id_cuento %>">
+                  <img class="book-cover" src="<%= book.portada_url || '/img/default-portada.jpg' %>" alt="<%= book.titulo %>">
+                </a>
+                <p class="book-title"><%= book.titulo %></p>
+              </div>
+            <% }); %>
+          </div>
         <% } else { %>
-          <div class="cover-img default-cover"></div>
-          <% } %>
+          <div class="empty-state">
+            <span>📖</span>
+            <%= user.isOwner ? 'Aún no tienes historias en tu lista de lectura.' : 'Este usuario no tiene historias en su lista pública.' %>
+          </div>
+        <% } %>
+      </section>
 
-            <% if (loggerUser && loggerUser.id && String(user._id)===String(loggerUser.id)) { %>
-              <button class="add-cover-btn">
-                <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"
-                  style="vertical-align: middle; margin-right: 5px;">
-                  <path
-                    d="M4 4h3l2-2h6l2 2h3a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm8 3a5 5 0 100 10 5 5 0 000-10zm0 2a3 3 0 110 6 3 3 0 010-6z" />
-                </svg>
-                Añadir Banner
-              </button>
-              <% } %>
-
-                <div class="profile-info">
-                  <img class="profile-avatar" src="<%= user.avatar || '/img/default-avatar.svg' %>" alt="Avatar">
-                  <h2>
-                    <%= user.name %>
-                  </h2>
-                  <span class="username">@<%= user.username %></span>
-                  <div class="profile-stats">
-                    <span>
-                      <%= user.works.length %> Obras
-                    </span>
-                    <span>
-                      <%= user.readingLists.length %> Listas de lectura
-                    </span>
-                    <span>
-                      <%= user.followers.length %> Seguidores
-                    </span>
-                  </div>
-                </div>
-                <% if (loggerUser && loggerUser.id && String(user._id)===String(loggerUser.id)) { %>
-                  <a href="#" class="edit-btn">Editar perfil (Próximamente)</a>
+      <!-- OBRAS CREADAS -->
+      <section>
+        <h3 class="section-title">
+          ✍️ Obras creadas
+          <span class="count-badge"><%= user.works.length %></span>
+        </h3>
+        <% if (user.works && user.works.length > 0) { %>
+          <div class="books-grid">
+            <% user.works.forEach(work => { %>
+              <div class="book-card">
+                <a href="/historias/<%= work.id_cuento %>">
+                  <% if (work.estado === 'borrador') { %>
+                    <span class="book-badge borrador">Borrador</span>
+                  <% } else if (work.visibilidad === 'privada') { %>
+                    <span class="book-badge privado">Privado</span>
                   <% } %>
-    </div>
-
-    <div class="profile-content">
-      <div class="sidebar">
-        <button class="desc-btn">Añadir descripción</button>
-        <p>Se unió el <%= user.joined %>
-        </p>
-
-        <h4>Siguiendo</h4>
-        <div class="following-list">
-          <% user.following.slice(0,4).forEach(f=> { %>
-            <img src="<%= f.avatar %>" alt="">
-            <% }) %>
-              <span>+<%= user.following.length - 4 %></span>
-        </div>
-      </div>
-
-      <div class="main-section">
-        <h3>Listas de lectura</h3>
-        <div class="library-grid mt-1 mb-2">
-          <% if (user.readingLists && user.readingLists.length> 0) { %>
-            <% user.readingLists.forEach(list=> { %>
-              <div class="library-item">
-                <a href="#">
-                  <img src="<%= list.thumbnail || '/img/default-portada.jpg' %>" class="cover" alt="Lista">
+                  <img class="book-cover" src="<%= work.portada_url || '/img/default-portada.jpg' %>" alt="<%= work.titulo %>">
                 </a>
-                <p class="title mt-05">
-                  <%= list.title || 'Lista de lectura' %>
-                </p>
+                <p class="book-title"><%= work.titulo || 'Historia sin título' %></p>
               </div>
-              <% }) %>
-                <% } else { %>
-                  <p class="empty-text text-muted">No hay listas de lectura públicas aún.</p>
-                  <% } %>
-        </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <span>🖊️</span>
+            <%= user.isOwner ? 'Aún no has publicado ninguna historia.' : 'Este usuario aún no tiene historias públicas.' %>
+          </div>
+        <% } %>
+      </section>
 
-        <h3>Obras creadas</h3>
-        <div class="library-grid mt-1">
-          <% if (user.works && user.works.length> 0) { %>
-            <% user.works.forEach(work=> { %>
-              <div class="library-item">
-                <% if (work.estado === 'borrador') { %>
-                  <span class="status-badge borrador">Borrador</span>
-                <% } else if (work.visibilidad === 'privada') { %>
-                  <span class="status-badge privado">Privado</span>
-                <% } %>
-                <a href="/historias/<%= work.id || work.id_cuento %>">
-                  <img src="<%= work.cover || work.portada_url || '/img/default-portada.jpg' %>" class="cover"
-                    alt="Obra">
-                </a>
-                <p class="title mt-05">
-                  <%= work.titulo || work.title || 'Historia sin título' %>
-                </p>
-              </div>
-              <% }) %>
-                <% } else { %>
-                  <p class="empty-text text-muted">Este usuario aún no ha publicado historias.</p>
-                  <% } %>
-        </div>
-      </div>
-    </div>
+    </main>
+  </div>
+
+  <!-- CSRF Token -->
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+
+  <script>
+    const followBtn = document.getElementById('followBtn');
+    if (followBtn) {
+      followBtn.addEventListener('click', async () => {
+        const userId = followBtn.dataset.userid;
+        const isFollowing = followBtn.classList.contains('following');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const url = isFollowing ? `/social/dejar/${userId}` : `/social/seguir/${userId}`;
+
+        followBtn.disabled = true;
+        try {
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken, 'Accept': 'application/json' }
+          });
+
+          if (resp.status === 401) { window.location.href = '/auth/login'; return; }
+
+          const data = await resp.json();
+          if (data.siguiendo) {
+            followBtn.classList.add('following');
+            followBtn.textContent = '✓ Siguiendo';
+          } else {
+            followBtn.classList.remove('following');
+            followBtn.textContent = '+ Seguir';
+          }
+          const counter = document.getElementById('followersCount');
+          if (counter && data.total !== undefined) counter.textContent = data.total;
+        } catch (err) {
+          console.error('Error toggling follow:', err);
+        } finally {
+          followBtn.disabled = false;
+        }
+      });
+    }
+  </script>
+
+  <%- include('partials/footer') %>
 </body>
-<%- include('partials/footer') %>
-
+</html>

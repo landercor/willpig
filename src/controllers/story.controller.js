@@ -1,6 +1,7 @@
 // controllers/story.controller.js
 import { supabaseAdmin as supabase } from '../config/db.js';
 import { historiaService } from '../services/historia.service.js';
+import { socialService } from '../services/social.service.js';
 
 // GET /api/cuentos — traer todos los cuentos públicos y publicados
 export const getStories = async (req, res) => {
@@ -14,7 +15,7 @@ export const getStories = async (req, res) => {
       estado,
       audiencia,
       created_at,
-      cuenta_usuario ( username, avatar_url ),
+      cuenta_usuario ( id_cuenta_usuario, username, avatar_url ),
       categorias ( nombre )
     `)
     .eq('estado', 'publicado')
@@ -36,7 +37,8 @@ export const getStoryById = async (req, res) => {
     }
 
     // --- VALIDACIÓN DE PRIVACIDAD ---
-    const isAuthor = req.session && req.session.user && (String(data.cuenta_usuario_id) === String(req.session.user.id));
+    const sessionId = req.session?.user?.id || req.session?.user?.id_cuenta_usuario;
+    const isAuthor = !!sessionId && String(data.cuenta_usuario_id) === String(sessionId);
     const isPublic = data.estado === 'publicado' && data.visibilidad === 'publica';
 
     if (!isPublic && !isAuthor) {
@@ -50,12 +52,41 @@ export const getStoryById = async (req, res) => {
     // Increment views for public stories loaded by someone else
     if (isPublic && !isAuthor) {
       await historiaService.incrementViews(id);
+      await supabase.from('cuentos').update({ vistas: (data.vistas || 0) + 1 }).eq('id_cuento', id);
     }
+
+    // Likes data
+    let isLiked = false;
+    let likesCount = 0;
+    
+    try {
+      const { count } = await supabase.from('likes_historias').select('*', { count: 'exact', head: true }).eq('cuento_id', id);
+      if (count) likesCount = count;
+
+      if (req.session && req.session.user) {
+        const loggerId = req.session.user.id_cuenta_usuario || req.session.user.id;
+        isLiked = await socialService.estadoLike(loggerId, id);
+      }
+    } catch (e) {
+      console.error('Error fetching likes:', e.message);
+    }
+
+    // Lista de lectura state
+    let isInList = false;
+    try {
+      if (req.session?.user) {
+        const loggerId = req.session.user.id_cuenta_usuario || req.session.user.id;
+        isInList = await socialService.estadoLista(loggerId, id);
+      }
+    } catch (e) { /* tabla puede no existir aún */ }
 
     res.render('story', {
       cuento: data,
-      user: req.session.user, // user del contexto de la historia
-      loggerUser: req.session.user // usuario logueado para el navbar
+      likesCount,
+      isLiked,
+      isInList,
+      user: req.session.user,
+      loggerUser: req.session.user
     })
   } catch (error) {
     console.error('Error in getStoryById:', error);
@@ -74,7 +105,7 @@ export const getStoriesByCategory = async (req, res) => {
       titulo,
       descripcion,
       portada_url,
-      cuenta_usuario ( username ),
+      cuenta_usuario ( id_cuenta_usuario, username ),
       categorias ( nombre )
     `)
     .eq('categoria_id', id)
@@ -297,43 +328,7 @@ export const getEditMetadata = async (req, res) => {
   }
 }
 
-// GET /historias/editar/:id/capitulos/nuevo — Crear nuevo capítulo
-export const getNewChapter = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    if (!req.session.user) {
-      return res.redirect('/auth/login');
-    }
-
-    // Verificar que el usuario sea el dueño de la historia
-    const { data: cuento, error: storyError } = await supabase
-      .from('cuentos')
-      .select('cuenta_usuario_id')
-      .eq('id_cuento', id)
-      .single();
-
-    if (storyError || !cuento) {
-      return res.status(404).render('404', { message: "Historia no encontrada" });
-    }
-
-    const userId = req.session.userId || req.session.user.id_cuenta_usuario || req.session.user.id;
-    if (String(cuento.cuenta_usuario_id) !== String(userId)) {
-      return res.status(403).render('404', { message: "No tienes permiso para crear capítulos en esta historia" });
-    }
-
-    res.render('chapter_editor', {
-      loggerUser: req.session.user,
-      storyId: id,
-      chapter: null // null indica que es nuevo
-    });
-
-  } catch (error) {
-    console.error('Error al obtener editor de capítulo:', error);
-    res.status(500).send("Error del servidor");
-  }
-}
-
+// Función eliminada, manejada por chapter.controller.js
 // POST /historias/editar/:id — Actualizar una historia
 export const editStory = async (req, res) => {
   const { id } = req.params;
