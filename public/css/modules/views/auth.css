@@ -8,21 +8,6 @@
   padding: 40px;
 }
 
-.login-pocketIN {
-  min-height: calc(100vh - 75px);
-  display: flex;
-  background: var(--bg-light);
-}
-
-.login-visual {
-  flex: 1;
-  background: var(--sage-beige);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
 .login-form-section {
   flex: 1;
   display: flex;

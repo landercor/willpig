@@ -1,14 +1,14 @@
 <%- include('layouts/header', { title: 'Iniciar sesión | Willpig Studio' , pageId: 'login' }) %>
-
+<!--
     <div class="login-pocketIN">
         <div class="login-visual">
             <img src="/img/img.ico/fondo_register2.jpg" alt="Imagen Login">
         </div>
-
-        <div class="login-form-section">
+    -->
+        <div class="register-container-igm">
             <div class="login-box">
                 <h1>Inicia sesión</h1>
-                <p>Bienvenido de nuevo a Willypig Studio</p>
+                <p>Bienvenido de nuevo a Willpig Studio</p>
 
                 <form action="/auth/login" method="POST" class="form-login">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
