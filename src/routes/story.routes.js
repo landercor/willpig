@@ -25,8 +25,8 @@ router.get('/mis', isAuth, getMyStories);
 router.get('/editar/:id', isAuth, getEditStory);
 router.get('/editar-meta/:id', isAuth, getEditMetadata);
 
-router.post('/new', isAuth, validateCsrfToken, upload.single('portada'), createStory)
-router.post('/editar/:id', isAuth, validateCsrfToken, upload.single('portada'), editStory)
+router.post('/new', isAuth, upload.single('portada'), validateCsrfToken, createStory)
+router.post('/editar/:id', isAuth, upload.single('portada'), validateCsrfToken, editStory) //
 router.get('/', getStories)
 router.get('/category/:id', getStoriesByCategory)
 router.get('/:id', getStoryById)

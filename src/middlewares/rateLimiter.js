@@ -10,7 +10,9 @@ export const authLimiter = rateLimit({
   max: 10,                   // máximo 10 intentos por IP en la ventana
   standardHeaders: true,     // incluye headers RateLimit-* estándar
   legacyHeaders: false,      // deshabilita los X-RateLimit-* antiguos
+  validate: false, // bypass validation error //
   message: {
+
     error: 'Demasiados intentos de acceso. Por favor, espera 15 minutos antes de intentarlo de nuevo.'
   },
   handler: (req, res) => {

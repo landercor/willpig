@@ -87,7 +87,7 @@ export const getProfile = async (req, res) => {
     // 1. Datos del usuario incluyendo bio y portada
     const { data: userData, error: userError } = await supabase
       .from('cuenta_usuario')
-      .select('username, email, biografia, avatar_url, portada_url, rol, created_at')
+      .select('username, email, biografia, avatar_url, portada_url, rol, fecha_registro')
       .eq('id_cuenta_usuario', id)
       .single();
 
