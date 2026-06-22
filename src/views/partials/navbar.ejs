@@ -154,7 +154,11 @@
                     }
 
                     async function markAllRead() {
-                      await fetch('/usuario/notificaciones/leer', { method:'POST' }).catch(()=>{});
+                      const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+                      await fetch('/usuario/notificaciones/leer', {
+                        method:'POST',
+                        headers: { 'CSRF-Token': csrfToken, 'Accept': 'application/json' }
+                      }).catch(()=>{});
                       if (badge) badge.style.display = 'none';
                       await loadNotifs();
                     }

@@ -32,13 +32,13 @@
           <p class="username">@<%= user.username %></p>
           <div class="actions">
             <% if (loggerUser && loggerUser.username !== user.username) { %>
-              <form action="/users/<%= user.username %>/follow" method="POST" class="inline-form">
+              <form action="/social/seguir/<%= user._id || user.id_cuenta_usuario || user.id %>" method="POST" class="inline-form">
                 <button class="btn btn-follow" type="submit">Seguir</button>
               </form>
-              <a class="btn btn-message" href="/messages/compose?to=<%= user.username %>">Mensaje</a>
+              <a class="btn btn-message" href="/usuario/profile/<%= user._id || user.id_cuenta_usuario || user.id %>">Ver perfil</a>
             <% } else if (!loggerUser) { %>
-              <a class="btn btn-follow" href="/login">Seguir</a>
-              <a class="btn btn-message" href="/login">Mensaje</a>
+              <a class="btn btn-follow" href="/auth/login">Seguir</a>
+              <a class="btn btn-message" href="/auth/login">Ver perfil</a>
             <% } %>
           </div>
         </div>

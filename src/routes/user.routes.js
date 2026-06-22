@@ -1,6 +1,16 @@
 import { Router } from "express";
-import { apiRegister, apiLogin, getProfile, getEditProfile, postEditProfile, uploadProfileImages } from "../controllers/user.controller.js";
+import {
+  apiRegister,
+  apiLogin,
+  getProfile,
+  getEditProfile,
+  postEditProfile,
+  uploadProfileImages,
+  getUserNotifications,
+  markUserNotificationsRead
+} from "../controllers/user.controller.js";
 import { isAuth } from "../middlewares/isAuth.js";
+import { validateCsrfToken } from "../middlewares/csrf.js";
 
 const router = Router();
 
@@ -17,6 +27,8 @@ router.get("/perfil", (req, res) => {
 // Editar perfil (requiere auth)
 router.get("/perfil/editar", isAuth, getEditProfile);
 router.post("/perfil/editar", isAuth, uploadProfileImages, postEditProfile);
+router.get("/notificaciones", isAuth, getUserNotifications);
+router.post("/notificaciones/leer", isAuth, validateCsrfToken, markUserNotificationsRead);
 
 router.post("/register", apiRegister);
 router.post("/login", apiLogin);

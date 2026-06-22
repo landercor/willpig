@@ -10,7 +10,10 @@
 .story-header-bg::after {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8));
 }
 
@@ -20,6 +23,14 @@
   padding: 20px;
   position: relative;
   z-index: 10;
+}
+
+.author-badge img {
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  padding: 2px;
+  margin: 10px;
 }
 
 .story-info-card {
@@ -37,7 +48,7 @@
   height: 300px;
   object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .chapters-list {
@@ -79,5 +90,12 @@ body.reading-mode {
   min-height: 100vh;
 }
 
-body.theme-dark { background-color: #1a1a1a; color: #e0e0e0; }
-body.theme-dark .reading-container { background-color: #252525; box-shadow: none; }
+body.theme-dark {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+body.theme-dark .reading-container {
+  background-color: #252525;
+  box-shadow: none;
+}

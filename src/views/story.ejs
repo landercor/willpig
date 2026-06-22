@@ -34,8 +34,12 @@
                         </div>
 
                         <div class="stats">
-                            <span>👁️ <%= cuento.vistas || 0 %> Lecturas</span>
-                            <span>🏷️ <%= cuento.categorias ? cuento.categorias.nombre : 'General' %></span>
+                            <span><img class="icon-stats" src="/img/img.ico/svg/eye-fill.svg" alt="">
+                                <%= cuento.vistas || 0 %> Lecturas
+                            </span>
+                            <span><img class="icon-stats" src="/img/img.ico/svg/bookmarks-fill.svg" alt="">
+                                <%= cuento.categorias ? cuento.categorias.nombre : 'General' %>
+                            </span>
                         </div>
 
                         <p class="description">
@@ -45,33 +49,46 @@
                         <!-- BOTONES DE ACCIÓN -->
                         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top: 16px; align-items:center;">
 
-                          <% if (cuento.capitulos && cuento.capitulos.length > 0) { %>
-                            <a href="/capitulos/read/<%= cuento.capitulos[0].id_capitulo %>" class="btn-read-start">📖 Leer ahora</a>
-                          <% } else { %>
-                            <button class="btn-read-start" disabled style="background:#555; cursor:not-allowed; opacity:0.6;">Próximamente</button>
-                          <% } %>
+                            <% if (cuento.capitulos && cuento.capitulos.length> 0) { %>
+                                <img class="icon-book" src="/img/img.ico/svg/book-half.svg" alt="">
+                                <a href="/capitulos/read/<%= cuento.capitulos[0].id_capitulo %>"
+                                    style="text-decoration: none;">
+                                    <button class="btn-primary-pastel" style="cursor:pointer;">Leer ahora</button>
+                                </a>
+                                <% } else { %>
+                                    <button class="btn-primary-pastel" disabled
+                                        style="cursor:not-allowed; opacity:0.6;">Próximamente</button>
+                                    <% } %>
 
-                          <!-- LIKE -->
-                          <button id="likeBtn"
-                            data-storyid="<%= cuento.id_cuento %>"
-                            style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:20px;border:1.5px solid <%= isLiked ? '#ef4444' : 'rgba(255,255,255,0.15)' %>;background:<%= isLiked ? 'rgba(239,68,68,0.12)' : 'transparent' %>;color:<%= isLiked ? '#ef4444' : 'inherit' %>;font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.2s;">
-                            <span id="likeIcon" style="display:flex;align-items:center;">
-                              <%- isLiked ? '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/></svg>' : '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 8 1.82 12.721-3.04 23.333 4.868 8 15z"/></svg>' %>
-                            </span>
-                            <span id="likesCount"><%= likesCount || 0 %></span>
-                          </button>
+                                        <!-- LIKE -->
+                                        <button id="likeBtn" data-storyid="<%= cuento.id_cuento %>"
+                                            style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:20px;border:1.5px solid <%= isLiked ? '#ef4444' : 'rgba(255,255,255,0.15)' %>;background:<%= isLiked ? 'rgba(239,68,68,0.12)' : 'transparent' %>;color:<%= isLiked ? '#ef4444' : 'inherit' %>;font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.2s;">
+                                            <span id="likeIcon" style="display:flex;align-items:center;">
+                                                <%- isLiked
+                                                    ? '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/></svg>'
+                                                    : '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 8 1.82 12.721-3.04 23.333 4.868 8 15z"/></svg>'
+                                                    %>
+                                            </span>
+                                            <span id="likesCount">
+                                                <%= likesCount || 0 %>
+                                            </span>
+                                        </button>
 
-                          <!-- LISTA -->
-                          <% if (loggerUser) { %>
-                          <button id="listBtn"
-                            data-storyid="<%= cuento.id_cuento %>"
-                            style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:20px;border:1.5px solid <%= isInList ? 'rgba(167,139,250,0.6)' : 'rgba(255,255,255,0.15)' %>;background:<%= isInList ? 'rgba(167,139,250,0.12)' : 'transparent' %>;color:<%= isInList ? '#a78bfa' : 'inherit' %>;font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.2s;">
-                            <span id="listIcon" style="display:flex;align-items:center;">
-                              <%- isInList ? '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5zm8.854-9.646a.5.5 0 0 0-.708-.708L7.5 7.793 6.354 6.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/></svg>' : '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zM8 4a.5.5 0 0 1 .5.5V6H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V7H6a.5.5 0 0 1 0-1h1.5V4.5A.5.5 0 0 1 8 4z"/></svg>' %>
-                            </span>
-                            <span id="listText"><%= isInList ? 'En mi lista' : 'Agregar a lista' %></span>
-                          </button>
-                          <% } %>
+                                        <!-- LISTA -->
+                                        <% if (loggerUser) { %>
+                                            <button id="listBtn" data-storyid="<%= cuento.id_cuento %>"
+                                                style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:20px;border:1.5px solid <%= isInList ? 'rgba(167,139,250,0.6)' : 'rgba(255,255,255,0.15)' %>;background:<%= isInList ? 'rgba(167,139,250,0.12)' : 'transparent' %>;color:<%= isInList ? '#a78bfa' : 'inherit' %>;font-size:0.875rem;font-weight:500;cursor:pointer;transition:all 0.2s;">
+                                                <span id="listIcon" style="display:flex;align-items:center;">
+                                                    <%- isInList
+                                                        ? '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5zm8.854-9.646a.5.5 0 0 0-.708-.708L7.5 7.793 6.354 6.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/></svg>'
+                                                        : '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zM8 4a.5.5 0 0 1 .5.5V6H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V7H6a.5.5 0 0 1 0-1h1.5V4.5A.5.5 0 0 1 8 4z"/></svg>'
+                                                        %>
+                                                </span>
+                                                <span id="listText">
+                                                    <%= isInList ? 'En mi lista' : 'Agregar a lista' %>
+                                                </span>
+                                            </button>
+                                            <% } %>
 
                         </div>
                     </div>
@@ -97,140 +114,150 @@
                 </div>
 
                 <!-- ── SECCIÓN DE COMENTARIOS ── -->
-                <div class="comments-section" style="margin-top:40px; padding-top:30px; border-top:1px solid rgba(255,255,255,0.08);">
+                <div class="comments-section"
+                    style="margin-top:40px; padding-top:30px; border-top:1px solid rgba(255,255,255,0.08);">
                     <h3 style="font-size:1.1rem; margin-bottom:20px; display:flex; align-items:center; gap:8px;">
-                        <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" style="color:#a78bfa;"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/></svg>
+                        <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" style="color:#a78bfa;">
+                            <path
+                                d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                        </svg>
                         Comentarios
-                        <span id="commentCount" style="font-size:0.85rem; color:#888; font-weight:400;"></span>
+                        <span id="commentCount" style="font-size:0.85rem; color:#6d6d6d; font-weight:400;"></span>
                     </h3>
 
                     <% if (loggerUser) { %>
-                    <!-- Formulario nuevo comentario -->
-                    <div style="display:flex; gap:12px; margin-bottom:28px; align-items:flex-start;">
-                        <img src="<%= loggerUser.avatar || '/img/default-avatar.png' %>" alt="Tu avatar"
-                             style="width:38px; height:38px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid rgba(167,139,250,0.4);">
-                        <div style="flex:1;">
-                            <textarea id="newCommentInput" placeholder="Escribe un comentario..." maxlength="1000"
-                                style="width:100%; min-height:80px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px 14px; color:inherit; font-size:0.9rem; resize:vertical; font-family:inherit; transition:border 0.2s;"
-                                onfocus="this.style.borderColor='rgba(167,139,250,0.5)'"
-                                onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-                                <span id="charCount" style="font-size:0.75rem; color:#666;">0 / 1000</span>
-                                <button id="submitComment"
-                                    style="background:linear-gradient(135deg,#a78bfa,#7c3aed); color:#fff; border:none; border-radius:20px; padding:8px 20px; font-size:0.875rem; font-weight:600; cursor:pointer; transition:opacity 0.2s; display:flex; align-items:center; gap:6px;">
-                                    <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/></svg>
-                                    Publicar
-                                </button>
+                        <!-- Formulario nuevo comentario -->
+                        <div style="display:flex; gap:12px; margin-bottom:28px; align-items:flex-start;">
+                            <img src="<%= loggerUser.avatar || '/img/default-avatar.png' %>" alt="Tu avatar"
+                                style="width:38px; height:38px; border-radius:50%; object-fit:cover; flex-shrink:0; border:2px solid rgba(167,139,250,0.4);">
+                            <div style="flex:1;">
+                                <textarea id="newCommentInput" placeholder="Escribe un comentario..." maxlength="1000"
+                                    style="width:100%; min-height:80px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px 14px; color:inherit; font-size:0.9rem; resize:vertical; font-family:inherit; transition:border 0.2s;"
+                                    onfocus="this.style.borderColor='rgba(167,139,250,0.5)'"
+                                    onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+                                <div
+                                    style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                                    <span id="charCount" style="font-size:0.75rem; color:#666;">0 / 1000</span>
+                                    <button id="submitComment"
+                                        style="background:linear-gradient(135deg,#a78bfa,#7c3aed); color:#fff; border:none; border-radius:20px; padding:8px 20px; font-size:0.875rem; font-weight:600; cursor:pointer; transition:opacity 0.2s; display:flex; align-items:center; gap:6px;">
+                                        <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+                                            <path
+                                                d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z" />
+                                        </svg>
+                                        Publicar
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <% } else { %>
-                    <div style="text-align:center; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; margin-bottom:24px;">
-                        <p style="color:#888; margin:0;">
-                            <a href="/auth/login" style="color:#a78bfa;">Inicia sesión</a> para dejar un comentario.
-                        </p>
-                    </div>
-                    <% } %>
+                        <% } else { %>
+                            <div
+                                style="text-align:center; padding:20px; background:rgba(255,255,255,0.03); border-radius:12px; margin-bottom:24px;">
+                                <p style="color:#888; margin:0;">
+                                    <a href="/auth/login" style="color:#a78bfa;">Inicia sesión</a> para dejar un
+                                    comentario.
+                                </p>
+                            </div>
+                            <% } %>
 
-                    <!-- Lista de comentarios -->
-                    <div id="commentsList"></div>
+                                <!-- Lista de comentarios -->
+                                <div id="commentsList"></div>
                 </div>
             </div>
 
             <%- include('partials/footer') %>
 
-            <!-- CSRF Token -->
-            <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <!-- CSRF Token -->
+                <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
-            <script>
-                const CSRF = () => document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                const STORY_ID = '<%= cuento.id_cuento %>';
-                const SESSION_USER_ID = '<%= loggerUser ? (loggerUser.id || loggerUser.id_cuenta_usuario) : "" %>';
+                <script>
+                    const CSRF = () => document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const STORY_ID = '<%= cuento.id_cuento %>';
+                    const SESSION_USER_ID = '<%= loggerUser ? (loggerUser.id || loggerUser.id_cuenta_usuario) : "" %>';
 
-                const heartFilled = '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/></svg>';
-                const heartOutline = '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 8 1.82 12.721-3.04 23.333 4.868 8 15z"/></svg>';
-                const listCheck = '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5zm8.854-9.646a.5.5 0 0 0-.708-.708L7.5 7.793 6.354 6.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/></svg>';
-                const listPlus = '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zM8 4a.5.5 0 0 1 .5.5V6H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V7H6a.5.5 0 0 1 0-1h1.5V4.5A.5.5 0 0 1 8 4z"/></svg>';
+                    const heartFilled = '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/></svg>';
+                    const heartOutline = '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 8 1.82 12.721-3.04 23.333 4.868 8 15z"/></svg>';
+                    const listCheck = '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path fill-rule="evenodd" d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5zm8.854-9.646a.5.5 0 0 0-.708-.708L7.5 7.793 6.354 6.646a.5.5 0 1 0-.708.708l1.5 1.5a.5.5 0 0 0 .708 0l3-3z"/></svg>';
+                    const listPlus = '<svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor"><path d="M2 2v13.5a.5.5 0 0 0 .74.439L8 13.069l5.26 2.87A.5.5 0 0 0 14 15.5V2a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zM8 4a.5.5 0 0 1 .5.5V6H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V7H6a.5.5 0 0 1 0-1h1.5V4.5A.5.5 0 0 1 8 4z"/></svg>';
 
-                // ── LIKE ──
-                const likeBtn = document.getElementById('likeBtn');
-                if (likeBtn) {
-                    let likedState = likeBtn.style.borderColor.includes('ef4444');
-                    likeBtn.addEventListener('click', async () => {
-                        const storyId = likeBtn.dataset.storyid;
-                        const isLiked = likeBtn.dataset.liked === 'true';
-                        const url = isLiked ? `/social/unlike/${storyId}` : `/social/like/${storyId}`;
-                        likeBtn.disabled = true;
-                        try {
-                            const resp = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json','CSRF-Token':CSRF(),'Accept':'application/json'} });
-                            if (resp.status === 401) { window.location.href='/auth/login'; return; }
-                            const data = await resp.json();
-                            if (data.liked) {
-                                likeBtn.dataset.liked = 'true';
-                                likeBtn.style.cssText = likeBtn.style.cssText.replace(/border:[^;]+/, 'border:1.5px solid #ef4444').replace(/background:[^;]+/, 'background:rgba(239,68,68,0.12)').replace(/color:[^;]+/, 'color:#ef4444');
-                                document.getElementById('likeIcon').innerHTML = heartFilled;
-                            } else {
-                                likeBtn.dataset.liked = 'false';
-                                likeBtn.style.cssText = likeBtn.style.cssText.replace(/border:[^;]+/, 'border:1.5px solid rgba(255,255,255,0.15)').replace(/background:[^;]+/, 'background:transparent').replace(/color:[^;]+/, 'color:inherit');
-                                document.getElementById('likeIcon').innerHTML = heartOutline;
-                            }
-                            document.getElementById('likesCount').textContent = data.total || 0;
-                        } catch (e) { console.error('Like error:', e); }
-                        finally { likeBtn.disabled = false; }
-                    });
-                    likeBtn.dataset.liked = '<%= isLiked ? "true" : "false" %>';
-                }
+                    // ── LIKE ──
+                    const likeBtn = document.getElementById('likeBtn');
+                    if (likeBtn) {
+                        let likedState = likeBtn.style.borderColor.includes('ef4444');
+                        likeBtn.addEventListener('click', async () => {
+                            const storyId = likeBtn.dataset.storyid;
+                            const isLiked = likeBtn.dataset.liked === 'true';
+                            const url = isLiked ? `/social/unlike/${storyId}` : `/social/like/${storyId}`;
+                            likeBtn.disabled = true;
+                            try {
+                                const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'CSRF-Token': CSRF(), 'Accept': 'application/json' } });
+                                if (resp.status === 401) { window.location.href = '/auth/login'; return; }
+                                const data = await resp.json();
+                                if (data.liked) {
+                                    likeBtn.dataset.liked = 'true';
+                                    likeBtn.style.cssText = likeBtn.style.cssText.replace(/border:[^;]+/, 'border:1.5px solid #ef4444').replace(/background:[^;]+/, 'background:rgba(239,68,68,0.12)').replace(/color:[^;]+/, 'color:#ef4444');
+                                    document.getElementById('likeIcon').innerHTML = heartFilled;
+                                } else {
+                                    likeBtn.dataset.liked = 'false';
+                                    likeBtn.style.cssText = likeBtn.style.cssText.replace(/border:[^;]+/, 'border:1.5px solid rgba(255,255,255,0.15)').replace(/background:[^;]+/, 'background:transparent').replace(/color:[^;]+/, 'color:inherit');
+                                    document.getElementById('likeIcon').innerHTML = heartOutline;
+                                }
+                                document.getElementById('likesCount').textContent = data.total || 0;
+                            } catch (e) { console.error('Like error:', e); }
+                            finally { likeBtn.disabled = false; }
+                        });
+                        likeBtn.dataset.liked = '<%= isLiked ? "true" : "false" %>';
+                    }
 
-                // ── LISTA DE LECTURA ──
-                const listBtn = document.getElementById('listBtn');
-                if (listBtn) {
-                    listBtn.dataset.inlist = '<%= isInList ? "true" : "false" %>';
-                    listBtn.addEventListener('click', async () => {
-                        const storyId = listBtn.dataset.storyid;
-                        const inList = listBtn.dataset.inlist === 'true';
-                        const url = inList ? `/social/lista/quitar/${storyId}` : `/social/lista/agregar/${storyId}`;
-                        listBtn.disabled = true;
-                        try {
-                            const resp = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json','CSRF-Token':CSRF(),'Accept':'application/json'} });
-                            if (resp.status === 401) { window.location.href='/auth/login'; return; }
-                            const data = await resp.json();
-                            if (data.enLista) {
-                                listBtn.dataset.inlist = 'true';
-                                listBtn.style.borderColor = 'rgba(167,139,250,0.6)';
-                                listBtn.style.background = 'rgba(167,139,250,0.12)';
-                                listBtn.style.color = '#a78bfa';
-                                document.getElementById('listIcon').innerHTML = listCheck;
-                                document.getElementById('listText').textContent = 'En mi lista';
-                            } else {
-                                listBtn.dataset.inlist = 'false';
-                                listBtn.style.borderColor = 'rgba(255,255,255,0.15)';
-                                listBtn.style.background = 'transparent';
-                                listBtn.style.color = 'inherit';
-                                document.getElementById('listIcon').innerHTML = listPlus;
-                                document.getElementById('listText').textContent = 'Agregar a lista';
-                            }
-                        } catch (e) { console.error('Lista error:', e); }
-                        finally { listBtn.disabled = false; }
-                    });
-                }
+                    // ── LISTA DE LECTURA ──
+                    const listBtn = document.getElementById('listBtn');
+                    if (listBtn) {
+                        listBtn.dataset.inlist = '<%= isInList ? "true" : "false" %>';
+                        listBtn.addEventListener('click', async () => {
+                            const storyId = listBtn.dataset.storyid;
+                            const inList = listBtn.dataset.inlist === 'true';
+                            const url = inList ? `/social/lista/quitar/${storyId}` : `/social/lista/agregar/${storyId}`;
+                            listBtn.disabled = true;
+                            try {
+                                const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'CSRF-Token': CSRF(), 'Accept': 'application/json' } });
+                                if (resp.status === 401) { window.location.href = '/auth/login'; return; }
+                                const data = await resp.json();
+                                if (data.enLista) {
+                                    listBtn.dataset.inlist = 'true';
+                                    listBtn.style.borderColor = 'rgba(167,139,250,0.6)';
+                                    listBtn.style.background = 'rgba(167,139,250,0.12)';
+                                    listBtn.style.color = '#a78bfa';
+                                    document.getElementById('listIcon').innerHTML = listCheck;
+                                    document.getElementById('listText').textContent = 'En mi lista';
+                                } else {
+                                    listBtn.dataset.inlist = 'false';
+                                    listBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+                                    listBtn.style.background = 'transparent';
+                                    listBtn.style.color = 'inherit';
+                                    document.getElementById('listIcon').innerHTML = listPlus;
+                                    document.getElementById('listText').textContent = 'Agregar a lista';
+                                }
+                            } catch (e) { console.error('Lista error:', e); }
+                            finally { listBtn.disabled = false; }
+                        });
+                    }
 
-                // ── COMENTARIOS ──
-                const commentsList = document.getElementById('commentsList');
-                const commentCount = document.getElementById('commentCount');
+                    // ── COMENTARIOS ──
+                    const commentsList = document.getElementById('commentsList');
+                    const commentCount = document.getElementById('commentCount');
 
-                function timeAgo(dateStr) {
-                    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
-                    if (diff < 60) return 'Hace un momento';
-                    if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
-                    if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
-                    return new Date(dateStr).toLocaleDateString('es-ES', { day:'numeric', month:'short' });
-                }
+                    function timeAgo(dateStr) {
+                        const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+                        if (diff < 60) return 'Hace un momento';
+                        if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+                        if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+                        return new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+                    }
 
-                function renderComment(c) {
-                    const isOwn = SESSION_USER_ID && String(c.usuario_id) === String(SESSION_USER_ID);
-                    const avatar = c.cuenta_usuario?.avatar_url || '/img/default-avatar.png';
-                    const username = c.cuenta_usuario?.username || 'Usuario';
-                    return `
+                    function renderComment(c) {
+                        const isOwn = SESSION_USER_ID && String(c.usuario_id) === String(SESSION_USER_ID);
+                        const avatar = c.cuenta_usuario?.avatar_url || '/img/default-avatar.png';
+                        const username = c.cuenta_usuario?.username || 'Usuario';
+                        return `
                         <div class="comment-item" id="cmt-${c.id}" style="display:flex; gap:12px; margin-bottom:20px; animation:fadeIn 0.3s ease;">
                             <img src="${avatar}" alt="${username}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(167,139,250,0.3);">
                             <div style="flex:1; background:rgba(255,255,255,0.04); border-radius:12px; padding:12px 14px;">
@@ -248,86 +275,86 @@
                                 <p style="margin:0;font-size:0.9rem;line-height:1.5;color:#ccc;">${c.contenido}</p>
                             </div>
                         </div>`;
-                }
+                    }
 
-                async function loadComments() {
-                    try {
-                        const resp = await fetch(`/social/comentarios/${STORY_ID}`);
-                        const data = await resp.json();
-                        const comments = data.comentarios || [];
-                        commentCount.textContent = `(${comments.length})`;
-                        if (comments.length === 0) {
-                            commentsList.innerHTML = '<p style="color:#666;text-align:center;padding:20px 0;">Sé el primero en comentar.</p>';
-                        } else {
-                            commentsList.innerHTML = comments.map(renderComment).join('');
-                        }
-                    } catch(e) { console.error('Error cargando comentarios:', e); }
-                }
-
-                async function deleteComment(id) {
-                    if (!confirm('¿Borrar este comentario?')) return;
-                    try {
-                        const resp = await fetch(`/social/comentarios/borrar/${id}`, {
-                            method: 'DELETE',
-                            headers: { 'CSRF-Token': CSRF(), 'Accept': 'application/json' }
-                        });
-                        if (resp.ok) {
-                            document.getElementById(`cmt-${id}`)?.remove();
-                            const cur = parseInt(commentCount.textContent.replace(/\D/g,'')) || 0;
-                            commentCount.textContent = `(${Math.max(0, cur - 1)})`;
-                        }
-                    } catch(e) { console.error('Error borrando comentario:', e); }
-                }
-
-                // Publicar comentario
-                const submitBtn = document.getElementById('submitComment');
-                const inputEl = document.getElementById('newCommentInput');
-                const charCountEl = document.getElementById('charCount');
-
-                if (inputEl) {
-                    inputEl.addEventListener('input', () => {
-                        charCountEl.textContent = `${inputEl.value.length} / 1000`;
-                    });
-                }
-
-                if (submitBtn) {
-                    submitBtn.addEventListener('click', async () => {
-                        const contenido = inputEl?.value?.trim();
-                        if (!contenido) return;
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = 'Publicando...';
+                    async function loadComments() {
                         try {
-                            const resp = await fetch(`/social/comentarios/${STORY_ID}`, {
-                                method: 'POST',
-                                headers: { 'Content-Type':'application/json', 'CSRF-Token':CSRF(), 'Accept':'application/json' },
-                                body: JSON.stringify({ contenido })
-                            });
-                            if (resp.status === 401) { window.location.href='/auth/login'; return; }
+                            const resp = await fetch(`/social/comentarios/${STORY_ID}`);
                             const data = await resp.json();
-                            if (data.comentario) {
-                                const currentEmpty = commentsList.querySelector('p');
-                                if (currentEmpty) commentsList.innerHTML = '';
-                                commentsList.insertAdjacentHTML('afterbegin', renderComment(data.comentario));
-                                inputEl.value = '';
-                                charCountEl.textContent = '0 / 1000';
-                                const cur = parseInt(commentCount.textContent.replace(/\D/g,'')) || 0;
-                                commentCount.textContent = `(${cur + 1})`;
+                            const comments = data.comentarios || [];
+                            commentCount.textContent = `(${comments.length})`;
+                            if (comments.length === 0) {
+                                commentsList.innerHTML = '<p style="color:#666;text-align:center;padding:20px 0;">Sé el primero en comentar.</p>';
                             } else {
-                                alert(data.error || 'Error al publicar el comentario');
+                                commentsList.innerHTML = comments.map(renderComment).join('');
                             }
-                        } catch(e) { console.error('Error publicando comentario:', e); }
-                        finally { submitBtn.disabled = false; submitBtn.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/></svg> Publicar'; }
-                    });
-                }
+                        } catch (e) { console.error('Error cargando comentarios:', e); }
+                    }
 
-                // Cargar comentarios al iniciar
-                loadComments();
+                    async function deleteComment(id) {
+                        if (!confirm('¿Borrar este comentario?')) return;
+                        try {
+                            const resp = await fetch(`/social/comentarios/borrar/${id}`, {
+                                method: 'DELETE',
+                                headers: { 'CSRF-Token': CSRF(), 'Accept': 'application/json' }
+                            });
+                            if (resp.ok) {
+                                document.getElementById(`cmt-${id}`)?.remove();
+                                const cur = parseInt(commentCount.textContent.replace(/\D/g, '')) || 0;
+                                commentCount.textContent = `(${Math.max(0, cur - 1)})`;
+                            }
+                        } catch (e) { console.error('Error borrando comentario:', e); }
+                    }
 
-                // Animación fadeIn
-                const style = document.createElement('style');
-                style.textContent = '@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }';
-                document.head.appendChild(style);
-            </script>
+                    // Publicar comentario
+                    const submitBtn = document.getElementById('submitComment');
+                    const inputEl = document.getElementById('newCommentInput');
+                    const charCountEl = document.getElementById('charCount');
+
+                    if (inputEl) {
+                        inputEl.addEventListener('input', () => {
+                            charCountEl.textContent = `${inputEl.value.length} / 1000`;
+                        });
+                    }
+
+                    if (submitBtn) {
+                        submitBtn.addEventListener('click', async () => {
+                            const contenido = inputEl?.value?.trim();
+                            if (!contenido) return;
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = 'Publicando...';
+                            try {
+                                const resp = await fetch(`/social/comentarios/${STORY_ID}`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'CSRF-Token': CSRF(), 'Accept': 'application/json' },
+                                    body: JSON.stringify({ contenido })
+                                });
+                                if (resp.status === 401) { window.location.href = '/auth/login'; return; }
+                                const data = await resp.json();
+                                if (data.comentario) {
+                                    const currentEmpty = commentsList.querySelector('p');
+                                    if (currentEmpty) commentsList.innerHTML = '';
+                                    commentsList.insertAdjacentHTML('afterbegin', renderComment(data.comentario));
+                                    inputEl.value = '';
+                                    charCountEl.textContent = '0 / 1000';
+                                    const cur = parseInt(commentCount.textContent.replace(/\D/g, '')) || 0;
+                                    commentCount.textContent = `(${cur + 1})`;
+                                } else {
+                                    alert(data.error || 'Error al publicar el comentario');
+                                }
+                            } catch (e) { console.error('Error publicando comentario:', e); }
+                            finally { submitBtn.disabled = false; submitBtn.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor"><path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/></svg> Publicar'; }
+                        });
+                    }
+
+                    // Cargar comentarios al iniciar
+                    loadComments();
+
+                    // Animación fadeIn
+                    const style = document.createElement('style');
+                    style.textContent = '@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }';
+                    document.head.appendChild(style);
+                </script>
 </body>
 
 </html>

@@ -31,12 +31,44 @@ export const crearNotificacion = async (tipo, origen_id, destino_id, entidad_id 
   }
 };
 
+export const notificarSeguidoresNuevaHistoria = async (autorId, cuentoId, titulo) => {
+  try {
+    const { data: seguidores, error } = await supabase
+      .from('seguidores')
+      .select('seguidor_id')
+      .eq('seguido_id', autorId);
+
+    if (error) throw error;
+    if (!seguidores || seguidores.length === 0) return;
+
+    const notificaciones = seguidores.map(s => ({
+      tipo: 'nueva_historia',
+      usuario_origen_id: autorId,
+      usuario_destino_id: s.seguidor_id,
+      entidad_id: cuentoId,
+      entidad_tipo: 'cuento',
+      mensaje: `Ha publicado una nueva historia: "${titulo || 'Sin título'}"`,
+      leida: false
+    }));
+
+    const { error: insertError } = await supabase
+      .from('notificaciones')
+      .insert(notificaciones);
+
+    if (insertError) throw insertError;
+  } catch (error) {
+    console.error('Error al notificar a los seguidores:', error);
+  }
+};
+
 const generarMensaje = (tipo) => {
   switch (tipo) {
     case 'nuevo_seguidor':
       return 'Un usuario ha comenzado a seguirte.';
     case 'nuevo_like':
       return 'A alguien le ha gustado tu historia.';
+    case 'nueva_historia':
+      return 'Un usuario que sigues ha publicado una nueva historia.';
     default:
       return 'Tienes una nueva notificación.';
   }

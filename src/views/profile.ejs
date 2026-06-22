@@ -4,7 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= profile.title %> | Willpig Studio</title>
+  <title>
+    <%= profile.title %> | Willpig Studio
+  </title>
   <link rel="stylesheet" href="/css/style1.2.css">
   <link rel="stylesheet" href="/css/modules/views/profile.css">
   <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
@@ -13,194 +15,222 @@
 <body>
   <%- include('partials/navbar', { loggerUser }) %>
 
-  <!-- PORTADA -->
-  <div class="profile-cover-wrapper">
-    <% if (user.coverImage) { %>
-      <img class="cover-img" src="<%= user.coverImage %>" alt="Portada de <%= user.username %>">
-    <% } %>
-    <div class="cover-overlay"></div>
-    <% if (user.isOwner) { %>
-      <a href="/usuario/perfil/editar" class="change-cover-btn">
-        📷 Cambiar banner
-      </a>
-    <% } %>
-  </div>
+    <!-- PORTADA -->
+    <div class="profile-cover-wrapper">
+      <% if (user.coverImage) { %>
+        <img class="cover-img" src="<%= user.coverImage %>" alt="Portada de <%= user.username %>">
+        <% } %>
+          <div class="cover-overlay"></div>
+          <% if (user.isOwner) { %>
+            <a href="/usuario/perfil/editar" class="change-cover-btn">
+              <img class="icon-camera" src="/img/img.ico/svg/camera.svg" alt="Cambiar"> <span>cmabiar portada</span>
+            </a>
+            <% } %>
+    </div>
 
-  <!-- HEADER CARD -->
-  <div class="profile-header-card">
-    <div class="profile-identity">
-      <div class="profile-avatar-wrap">
-        <img src="<%= user.avatar || '/img/default-avatar.svg' %>" alt="Avatar de <%= user.username %>">
+    <!-- HEADER CARD -->
+    <div class="profile-header-card">
+      <div class="profile-identity">
+        <div class="profile-avatar-wrap">
+          <img src="<%= user.avatar || '/img/default-avatar.svg' %>" alt="Avatar de <%= user.username %>">
+        </div>
+        <div class="profile-name-block">
+          <h2>
+            <%= user.name %>
+          </h2>
+          <span class="username">@<%= user.username %></span>
+          <% if (user.bio) { %>
+            <p class="profile-bio-inline">
+              <%= user.bio %>
+            </p>
+            <% } %>
+              <div class="profile-stats-bar">
+                <div class="stat-item">
+                  <span class="stat-num">
+                    <%= user.works.length %>
+                  </span>
+                  <span class="stat-label">Obras</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-num" id="followersCount">
+                    <%= user.followersCount %>
+                  </span>
+                  <span class="stat-label">Seguidores</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-num">
+                    <%= user.followingCount %>
+                  </span>
+                  <span class="stat-label">Siguiendo</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-num">
+                    <%= user.readingList ? user.readingList.length : 0 %>
+                  </span>
+                  <span class="stat-label">Lista</span>
+                </div>
+              </div>
+        </div>
       </div>
-      <div class="profile-name-block">
-        <h2><%= user.name %></h2>
-        <span class="username">@<%= user.username %></span>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <div class="profile-action-btns">
+        <% if (loggerUser && String(user._id)===String(loggerUser.id)) { %>
+          <a href="/usuario/perfil/editar" class="btn-edit-profile">
+            <img src="/img/img.ico/svg/pencil-fill.svg" alt="edit"> editar perfil
+          </a>
+          <% } else { %>
+            <button id="followBtn" data-userid="<%= user._id %>"
+              class="btn-follow <%= user.isFollowing ? 'following' : '' %>">
+              <%= user.isFollowing ? '✓ Siguiendo' : '+ Seguir' %>
+            </button>
+            <% } %>
+      </div>
+    </div>
+
+    <!-- CUERPO PRINCIPAL -->
+    <div class="profile-body">
+
+      <!-- SIDEBAR -->
+      <aside class="profile-sidebar">
         <% if (user.bio) { %>
-          <p class="profile-bio-inline"><%= user.bio %></p>
-        <% } %>
-        <div class="profile-stats-bar">
-          <div class="stat-item">
-            <span class="stat-num"><%= user.works.length %></span>
-            <span class="stat-label">Obras</span>
+          <div class="sidebar-card">
+            <h4>Sobre mí</h4>
+            <p>
+              <%= user.bio %>
+            </p>
           </div>
-          <div class="stat-item">
-            <span class="stat-num" id="followersCount"><%= user.followersCount %></span>
-            <span class="stat-label">Seguidores</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num"><%= user.followingCount %></span>
-            <span class="stat-label">Siguiendo</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num"><%= user.readingList ? user.readingList.length : 0 %></span>
-            <span class="stat-label">Lista</span>
-          </div>
-        </div>
-      </div>
+          <% } else if (user.isOwner) { %>
+            <div class="sidebar-card">
+              <h4>Sobre mí</h4>
+              <p class="profile-empty-bio">
+                Aún no has añadido una descripción.
+                <a href="/usuario/perfil/editar" class="profile-empty-bio-link">Añadir ahora</a>
+              </p>
+            </div>
+            <% } %>
+              <div class="sidebar-card">
+                <h4>Miembro desde</h4>
+                <p class="joined-date"><img src="/img/img.ico/svg/calendar-heart-fill.svg" alt="calendar">
+                  <%= user.joined %>
+                </p>
+              </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="profile-main">
+
+        <!-- LISTA DE LECTURA -->
+        <section>
+          <h3 class="section-title">
+            <img class="icon-title" src="/img/img.ico/svg/book-half.svg" alt="library"> Lista de lectura
+            <span class="count-badge">
+              <%= user.readingList ? user.readingList.length : 0 %>
+            </span>
+          </h3>
+          <% if (user.readingList && user.readingList.length> 0) { %>
+            <div class="books-grid">
+              <% user.readingList.forEach(book=> { %>
+                <div class="book-card">
+                  <a href="/historias/<%= book.id_cuento %>">
+                    <img class="book-cover" src="<%= book.portada_url || '/img/default-portada.jpg' %>"
+                      alt="<%= book.titulo %>">
+                  </a>
+                  <p class="book-title">
+                    <%= book.titulo %>
+                  </p>
+                </div>
+                <% }); %>
+            </div>
+            <% } else { %>
+              <div class="empty-state">
+                <span><img class="icon-title" src="/img/img.ico/svg/book-half.svg" alt="library"></span>
+                <%= user.isOwner ? 'Aún no tienes historias en tu lista de lectura.'
+                  : 'Este usuario no tiene historias en su lista pública.' %>
+              </div>
+              <% } %>
+        </section>
+
+        <!-- OBRAS CREADAS -->
+        <section>
+          <h3 class="section-title">
+            <img class="icon-title" src="/img/img.ico/svg/pencil-fill.svg" alt="library"> Obras creadas
+            <span class="count-badge">
+              <%= user.works.length %>
+            </span>
+          </h3>
+          <% if (user.works && user.works.length> 0) { %>
+            <div class="books-grid">
+              <% user.works.forEach(work=> { %>
+                <div class="book-card">
+                  <a href="/historias/<%= work.id_cuento %>">
+                    <% if (work.estado==='borrador' ) { %>
+                      <span class="book-badge borrador">Borrador</span>
+                      <% } else if (work.visibilidad==='privada' ) { %>
+                        <span class="book-badge privado">Privado</span>
+                        <% } %>
+                          <img class="book-cover" src="<%= work.portada_url || '/img/default-portada.jpg' %>"
+                            alt="<%= work.titulo %>">
+                  </a>
+                  <p class="book-title">
+                    <%= work.titulo || 'Historia sin título' %>
+                  </p>
+                </div>
+                <% }); %>
+            </div>
+            <% } else { %>
+              <div class="empty-state">
+                <span><img class="icon-title" src="/img/img.ico/svg/pen.svg" alt="library"></span>
+                <%= user.isOwner ? 'Aún no has publicado ninguna historia.'
+                  : 'Este usuario aún no tiene historias públicas.' %>
+              </div>
+              <% } %>
+        </section>
+
+      </main>
     </div>
 
-    <!-- BOTONES DE ACCIÓN -->
-    <div class="profile-action-btns">
-      <% if (loggerUser && String(user._id) === String(loggerUser.id)) { %>
-        <a href="/usuario/perfil/editar" class="btn-edit-profile">
-          ✏️ Editar perfil
-        </a>
-      <% } else { %>
-        <button id="followBtn"
-          data-userid="<%= user._id %>"
-          class="btn-follow <%= user.isFollowing ? 'following' : '' %>">
-          <%= user.isFollowing ? '✓ Siguiendo' : '+ Seguir' %>
-        </button>
-      <% } %>
-    </div>
-  </div>
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
 
-  <!-- CUERPO PRINCIPAL -->
-  <div class="profile-body">
+    <script>
+      const followBtn = document.getElementById('followBtn');
+      if (followBtn) {
+        followBtn.addEventListener('click', async () => {
+          const userId = followBtn.dataset.userid;
+          const isFollowing = followBtn.classList.contains('following');
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+          const url = isFollowing ? `/social/dejar/${userId}` : `/social/seguir/${userId}`;
 
-    <!-- SIDEBAR -->
-    <aside class="profile-sidebar">
-      <% if (user.bio) { %>
-        <div class="sidebar-card">
-          <h4>Sobre mí</h4>
-          <p><%= user.bio %></p>
-        </div>
-      <% } else if (user.isOwner) { %>
-        <div class="sidebar-card">
-          <h4>Sobre mí</h4>
-          <p class="profile-empty-bio">
-            Aún no has añadido una descripción.
-            <a href="/usuario/perfil/editar" class="profile-empty-bio-link">Añadir ahora</a>
-          </p>
-        </div>
-      <% } %>
-      <div class="sidebar-card">
-        <h4>Miembro desde</h4>
-        <p class="joined-date">📅 <%= user.joined %></p>
-      </div>
-    </aside>
+          followBtn.disabled = true;
+          try {
+            const resp = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken, 'Accept': 'application/json' }
+            });
 
-    <!-- MAIN -->
-    <main class="profile-main">
+            if (resp.status === 401) { window.location.href = '/auth/login'; return; }
 
-      <!-- LISTA DE LECTURA -->
-      <section>
-        <h3 class="section-title">
-          📚 Lista de lectura
-          <span class="count-badge"><%= user.readingList ? user.readingList.length : 0 %></span>
-        </h3>
-        <% if (user.readingList && user.readingList.length > 0) { %>
-          <div class="books-grid">
-            <% user.readingList.forEach(book => { %>
-              <div class="book-card">
-                <a href="/historias/<%= book.id_cuento %>">
-                  <img class="book-cover" src="<%= book.portada_url || '/img/default-portada.jpg' %>" alt="<%= book.titulo %>">
-                </a>
-                <p class="book-title"><%= book.titulo %></p>
-              </div>
-            <% }); %>
-          </div>
-        <% } else { %>
-          <div class="empty-state">
-            <span>📖</span>
-            <%= user.isOwner ? 'Aún no tienes historias en tu lista de lectura.' : 'Este usuario no tiene historias en su lista pública.' %>
-          </div>
-        <% } %>
-      </section>
-
-      <!-- OBRAS CREADAS -->
-      <section>
-        <h3 class="section-title">
-          ✍️ Obras creadas
-          <span class="count-badge"><%= user.works.length %></span>
-        </h3>
-        <% if (user.works && user.works.length > 0) { %>
-          <div class="books-grid">
-            <% user.works.forEach(work => { %>
-              <div class="book-card">
-                <a href="/historias/<%= work.id_cuento %>">
-                  <% if (work.estado === 'borrador') { %>
-                    <span class="book-badge borrador">Borrador</span>
-                  <% } else if (work.visibilidad === 'privada') { %>
-                    <span class="book-badge privado">Privado</span>
-                  <% } %>
-                  <img class="book-cover" src="<%= work.portada_url || '/img/default-portada.jpg' %>" alt="<%= work.titulo %>">
-                </a>
-                <p class="book-title"><%= work.titulo || 'Historia sin título' %></p>
-              </div>
-            <% }); %>
-          </div>
-        <% } else { %>
-          <div class="empty-state">
-            <span>🖊️</span>
-            <%= user.isOwner ? 'Aún no has publicado ninguna historia.' : 'Este usuario aún no tiene historias públicas.' %>
-          </div>
-        <% } %>
-      </section>
-
-    </main>
-  </div>
-
-  <!-- CSRF Token -->
-  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-
-  <script>
-    const followBtn = document.getElementById('followBtn');
-    if (followBtn) {
-      followBtn.addEventListener('click', async () => {
-        const userId = followBtn.dataset.userid;
-        const isFollowing = followBtn.classList.contains('following');
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const url = isFollowing ? `/social/dejar/${userId}` : `/social/seguir/${userId}`;
-
-        followBtn.disabled = true;
-        try {
-          const resp = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken, 'Accept': 'application/json' }
-          });
-
-          if (resp.status === 401) { window.location.href = '/auth/login'; return; }
-
-          const data = await resp.json();
-          if (data.siguiendo) {
-            followBtn.classList.add('following');
-            followBtn.textContent = '✓ Siguiendo';
-          } else {
-            followBtn.classList.remove('following');
-            followBtn.textContent = '+ Seguir';
+            const data = await resp.json();
+            if (data.siguiendo) {
+              followBtn.classList.add('following');
+              followBtn.textContent = '✓ Siguiendo';
+            } else {
+              followBtn.classList.remove('following');
+              followBtn.textContent = '+ Seguir';
+            }
+            const counter = document.getElementById('followersCount');
+            if (counter && data.total !== undefined) counter.textContent = data.total;
+          } catch (err) {
+            console.error('Error toggling follow:', err);
+          } finally {
+            followBtn.disabled = false;
           }
-          const counter = document.getElementById('followersCount');
-          if (counter && data.total !== undefined) counter.textContent = data.total;
-        } catch (err) {
-          console.error('Error toggling follow:', err);
-        } finally {
-          followBtn.disabled = false;
-        }
-      });
-    }
-  </script>
+        });
+      }
+    </script>
 
-  <%- include('partials/footer') %>
+    <%- include('partials/footer') %>
 </body>
+
 </html>

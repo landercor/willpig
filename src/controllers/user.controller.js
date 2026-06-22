@@ -2,23 +2,9 @@
 import { supabaseAdmin as supabase } from "../config/db.js";
 import bcrypt from "bcrypt";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
 
-// Configuración de multer para subidas locales
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = path.join(process.cwd(), 'public', 'uploads', 'profiles');
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`);
-  }
-});
 export const uploadProfileImages = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) cb(null, true);
@@ -28,6 +14,27 @@ export const uploadProfileImages = multer({
   { name: 'avatar', maxCount: 1 },
   { name: 'coverImage', maxCount: 1 }
 ]);
+
+const uploadProfileImageToStorage = async (file, userId, kind) => {
+  const fileExt = file.originalname.split('.').pop();
+  const fileName = `${kind}-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+  const filePath = `profiles/${userId}/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('portadas')
+    .upload(filePath, file.buffer, {
+      contentType: file.mimetype,
+      upsert: true
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data: publicUrlData } = supabase.storage
+    .from('portadas')
+    .getPublicUrl(filePath);
+
+  return publicUrlData.publicUrl;
+};
 
 // --- API Endpoints (JSON) ---
 
@@ -150,8 +157,8 @@ export const getProfile = async (req, res) => {
     }
 
     // Fecha de unión formateada
-    const joinedDate = userData.created_at
-      ? new Date(userData.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
+    const joinedDate = userData.fecha_registro
+      ? new Date(userData.fecha_registro).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
       : 'Recientemente';
 
     const userProfile = {
@@ -216,16 +223,13 @@ export const postEditProfile = async (req, res) => {
     const { biografia } = req.body;
     const updates = { biografia };
 
-    // Imagen de avatar subida
     if (req.files?.avatar?.[0]) {
-      updates.avatar_url = `/uploads/profiles/${req.files.avatar[0].filename}`;
-      // Actualizar también en sesión
+      updates.avatar_url = await uploadProfileImageToStorage(req.files.avatar[0], userId, 'avatar');
       req.session.user.avatar = updates.avatar_url;
     }
 
-    // Imagen de portada/banner subida
     if (req.files?.coverImage?.[0]) {
-      updates.portada_url = `/uploads/profiles/${req.files.coverImage[0].filename}`;
+      updates.portada_url = await uploadProfileImageToStorage(req.files.coverImage[0], userId, 'cover');
     }
 
     const { error } = await supabase
@@ -256,5 +260,70 @@ export const updateProfile = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al actualizar perfil" });
+  }
+};
+
+const getSessionUserId = (req) => (
+  req.session?.user?.id ||
+  req.session?.user?.id_cuenta_usuario ||
+  null
+);
+
+const fetchUserNotifications = async (userId) => {
+  const attempts = [
+    { userColumn: 'usuario_destino_id', orderColumn: 'created_at' },
+    { userColumn: 'usuario_destino_id', orderColumn: 'fecha' },
+    { userColumn: 'cuenta_usuario_id', orderColumn: 'created_at' },
+    { userColumn: 'cuenta_usuario_id', orderColumn: 'fecha' }
+  ];
+
+  for (const attempt of attempts) {
+    const { data, error } = await supabase
+      .from('notificaciones')
+      .select('*')
+      .eq(attempt.userColumn, userId)
+      .order(attempt.orderColumn, { ascending: false })
+      .limit(20);
+
+    if (!error) return data || [];
+  }
+
+  return [];
+};
+
+export const getUserNotifications = async (req, res) => {
+  const userId = getSessionUserId(req);
+  if (!userId) return res.status(401).json({ error: 'Debes iniciar sesión.' });
+
+  try {
+    const notificaciones = await fetchUserNotifications(userId);
+    return res.json({ notificaciones });
+  } catch (error) {
+    console.error('Error al obtener notificaciones:', error);
+    return res.status(500).json({ error: 'No se pudieron cargar las notificaciones.' });
+  }
+};
+
+export const markUserNotificationsRead = async (req, res) => {
+  const userId = getSessionUserId(req);
+  if (!userId) return res.status(401).json({ error: 'Debes iniciar sesión.' });
+
+  const attempts = ['usuario_destino_id', 'cuenta_usuario_id'];
+
+  try {
+    for (const userColumn of attempts) {
+      const { error } = await supabase
+        .from('notificaciones')
+        .update({ leida: true })
+        .eq(userColumn, userId)
+        .eq('leida', false);
+
+      if (!error) return res.json({ ok: true });
+    }
+
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Error al marcar notificaciones:', error);
+    return res.status(500).json({ error: 'No se pudieron actualizar las notificaciones.' });
   }
 };

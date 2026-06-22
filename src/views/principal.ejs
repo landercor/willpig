@@ -69,68 +69,68 @@
           <p class="categories-explorer-subtitle">Encuentra tu próximo libro favorito según tu género preferido</p>
         </div>
         <div class="categories-grid-premium">
-          <% 
-          const categoryGradients = {
-            'fantasia': 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-            'ciencia-ficcion': 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)',
-            'utopia': 'linear-gradient(135deg, #ffeedf 0%, #ffc6a5 100%)',
-            'aventura': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            'general': 'linear-gradient(135deg, #e2ebf0 0%, #cfd9df 100%)'
-          };
-          const categoryEmojis = {
-            'fantasia': '✨',
-            'ciencia-ficcion': '🚀',
-            'utopia': '🕊️',
-            'aventura': '🧭',
-            'general': '📖'
-          };
-          %>
-          <% if (typeof categorias !== 'undefined' && categorias && categorias.length > 0) { %>
-            <% categorias.forEach(cat => { %>
-              <% 
-                const normKey = cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                const gradient = categoryGradients[normKey] || categoryGradients['general'];
-                const emoji = categoryEmojis[normKey] || categoryEmojis['general'];
-              %>
-              <a href="/categoria/<%= normKey %>" class="category-card-premium" style="background: <%= gradient %>">
-                <div class="category-card-overlay"></div>
-                <div class="category-card-content">
-                  <span class="category-emoji"><%= emoji %></span>
-                  <h3 class="category-name"><%= cat.nombre %></h3>
-                </div>
-              </a>
-            <% }) %>
-          <% } else { %>
-            <!-- Fallback estático en caso de que no haya cargado de la DB -->
-            <a href="/categoria/ciencia-ficcion" class="category-card-premium" style="background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%)">
-              <div class="category-card-overlay"></div>
-              <div class="category-card-content">
-                <span class="category-emoji">🚀</span>
-                <h3 class="category-name">Ciencia Ficción</h3>
-              </div>
-            </a>
-            <a href="/categoria/utopia" class="category-card-premium" style="background: linear-gradient(135deg, #ffeedf 0%, #ffc6a5 100%)">
-              <div class="category-card-overlay"></div>
-              <div class="category-card-content">
-                <span class="category-emoji">🕊️</span>
-                <h3 class="category-name">Utopía</h3>
-              </div>
-            </a>
-            <a href="/categoria/aventura" class="category-card-premium" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
-              <div class="category-card-overlay"></div>
-              <div class="category-card-content">
-                <span class="category-emoji">🧭</span>
-                <h3 class="category-name">Aventura</h3>
-              </div>
-            </a>
-            <a href="/categoria/fantasia" class="category-card-premium" style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)">
-              <div class="category-card-overlay"></div>
-              <div class="category-card-content">
-                <span class="category-emoji">✨</span>
-                <h3 class="category-name">Fantasía</h3>
-              </div>
-            </a>
-          <% } %>
+          <% const categoryGradients={ 'fantasia' : 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)'
+            , 'ciencia-ficcion' : 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)' , 'utopia'
+            : 'linear-gradient(135deg, #ffeedf 0%, #ffc6a5 100%)' , 'aventura'
+            : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' , 'general'
+            : 'linear-gradient(135deg, #e2ebf0 0%, #cfd9df 100%)' }; const categoryEmojis={ 'fantasia'
+            : 'img/img.ico/svg/stars.svg' , 'ciencia-ficcion' : 'img/img.ico/svg/leaf.svg' , 'utopia'
+            : 'img/img.ico/svg/leaf.svg' , 'aventura' : 'img/img.ico/svg/globe-central-south-asia.svg' , 'general'
+            : 'img/img.ico/svg/book-half.svg' }; %>
+            <% if (typeof categorias !=='undefined' && categorias && categorias.length> 0) { %>
+              <% categorias.forEach(cat=> { %>
+                <% const normKey=cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '' ); const
+                  gradient=categoryGradients[normKey] || categoryGradients['general']; const
+                  emoji=categoryEmojis[normKey] || categoryEmojis['general']; %>
+                  <a href="/categoria/<%= normKey %>" class="category-card-premium" style="background: <%= gradient %>">
+                    <div class="category-card-overlay"></div>
+                    <div class="category-card-content">
+                      <span class="category-emoji">
+                        <img src="/<%= emoji %>" alt="<%= cat.nombre %>">
+                      </span>
+                      <h3 class="category-name">
+                        <%= cat.nombre %>
+                      </h3>
+                    </div>
+                  </a>
+                  <% }) %>
+                    <% } else { %>
+                      <!-- Fallback estático en caso de que no haya cargado de la DB -->
+                      <a href="/categoria/ciencia-ficcion" class="category-card-premium"
+                        style="background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%)">
+                        <div class="category-card-overlay"></div>
+                        <div class="category-card-content">
+                          <span class="category-emoji"><img src="/img/img.ico/svg/lightning-fill.svg"
+                              alt="Ciencia Ficción"></span>
+                          <h3 class="category-name">Ciencia Ficción</h3>
+                        </div>
+                      </a>
+                      <a href="/categoria/utopia" class="category-card-premium"
+                        style="background: linear-gradient(135deg, #ffeedf 0%, #ffc6a5 100%)">
+                        <div class="category-card-overlay"></div>
+                        <div class="category-card-content">
+                          <span class="category-emoji"><img src="/img/img.ico/svg/leaf.svg" alt="Utopía"></span>
+                          <h3 class="category-name">Utopía</h3>
+                        </div>
+                      </a>
+                      <a href="/categoria/aventura" class="category-card-premium"
+                        style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+                        <div class="category-card-overlay"></div>
+                        <div class="category-card-content">
+                          <span class="category-emoji"><img src="/img/img.ico/svg/globe-central-south-asia.svg"
+                              alt="Aventura"></span>
+                          <h3 class="category-name">Aventura</h3>
+                        </div>
+                      </a>
+                      <a href="/categoria/fantasia" class="category-card-premium"
+                        style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)">
+                        <div class="category-card-overlay"></div>
+                        <div class="category-card-content">
+                          <span class="category-emoji"><img src="/img/img.ico/svg/stars.svg" alt="Fantasía"></span>
+                          <h3 class="category-name">Fantasía</h3>
+                        </div>
+                      </a>
+                      <% } %>
         </div>
       </div>
 
@@ -184,8 +184,9 @@
                       <h3 class="category-title">
                         <%= cat %>
                       </h3>
-                      <% const catNorm = cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-'); %>
-                      <a href="/categoria/<%= catNorm %>" class="view-all">Ver todo</a>
+                      <% const catNorm=cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''
+                        ).replace(/\s+/g, '-' ); %>
+                        <a href="/categoria/<%= catNorm %>" class="view-all">Ver todo</a>
                     </div>
                     <div class="scroll-wrapper">
                       <div class="scroll-container">
@@ -193,7 +194,8 @@
                           <div class="carousel-item">
                             <div class="card-inner">
                               <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
-                                <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>"
+                                <img
+                                  src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>"
                                   class="cover" alt="<%= historia.titulo %>">
                                 <div class="card-overlay">
                                   <span class="btn-play-mini">▶</span>
@@ -236,8 +238,8 @@
                 <div class="library-item">
                   <div class="card-inner">
                     <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
-                      <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>" class="cover"
-                        alt="<%= historia.titulo %>">
+                      <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>"
+                        class="cover" alt="<%= historia.titulo %>">
                       <div class="card-overlay">
                         <span class="btn-play-mini">▶</span>
                       </div>
@@ -251,10 +253,11 @@
                           src="<%= (historia.cuenta_usuario && historia.cuenta_usuario.avatar_url) || '/img/default-avatar.svg' %>"
                           alt="autor" class="author-avatar-xs">
                         <% if (historia.cuenta_usuario && historia.cuenta_usuario.id_cuenta_usuario) { %>
-                          <a href="/usuario/profile/<%= historia.cuenta_usuario.id_cuenta_usuario %>" class="author-link">@<%= historia.cuenta_usuario.username %></a>
-                        <% } else { %>
-                          <span>@Anónimo</span>
-                        <% } %>
+                          <a href="/usuario/profile/<%= historia.cuenta_usuario.id_cuenta_usuario %>"
+                            class="author-link">@<%= historia.cuenta_usuario.username %></a>
+                          <% } else { %>
+                            <span>@Anónimo</span>
+                            <% } %>
                       </div>
                       <div class="meta">
                         <img src="/img/img.ico/vistas-icon.svg" class="icon-eye">
@@ -267,7 +270,8 @@
                   <% } else { %>
                     <div class="empty-state text-center p-2 text-muted col-full reveal-item">
                       <p>No hay historias nuevas en este momento.</p>
-                      <a href="/historias/crear"><button class="btn-primary-pastel mt-1">¡Escribe la primera!</button></a>
+                      <a href="/historias/crear"><button class="btn-primary-pastel mt-1">¡Escribe la
+                          primera!</button></a>
                     </div>
                     <% } %>
           </div>
@@ -289,8 +293,8 @@
                 <div class="library-item">
                   <div class="card-inner">
                     <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
-                      <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>" class="cover"
-                        alt="<%= historia.titulo %>">
+                      <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>"
+                        class="cover" alt="<%= historia.titulo %>">
                       <div class="card-overlay">
                         <span class="btn-play-mini">▶</span>
                       </div>
@@ -304,10 +308,11 @@
                           src="<%= (historia.cuenta_usuario && historia.cuenta_usuario.avatar_url) || '/img/default-avatar.svg' %>"
                           alt="autor" class="author-avatar-xs">
                         <% if (historia.cuenta_usuario && historia.cuenta_usuario.id_cuenta_usuario) { %>
-                          <a href="/usuario/profile/<%= historia.cuenta_usuario.id_cuenta_usuario %>" class="author-link">@<%= historia.cuenta_usuario.username %></a>
-                        <% } else { %>
-                          <span>@Anónimo</span>
-                        <% } %>
+                          <a href="/usuario/profile/<%= historia.cuenta_usuario.id_cuenta_usuario %>"
+                            class="author-link">@<%= historia.cuenta_usuario.username %></a>
+                          <% } else { %>
+                            <span>@Anónimo</span>
+                            <% } %>
                       </div>
                       <div class="meta">
                         <img src="/img/img.ico/vistas-icon.svg" class="icon-eye">

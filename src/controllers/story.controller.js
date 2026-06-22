@@ -2,6 +2,7 @@
 import { supabaseAdmin as supabase } from '../config/db.js';
 import { historiaService } from '../services/historia.service.js';
 import { socialService } from '../services/social.service.js';
+import { notificarSeguidoresNuevaHistoria } from '../services/notificacion.service.js';
 
 // GET /api/cuentos — traer todos los cuentos públicos y publicados
 export const getStories = async (req, res) => {
@@ -179,8 +180,14 @@ export const createStory = async (req, res) => {
 
     if (error) throw error;
 
-    // Redirige al formulario de edición (metadatos/portada)
     const newStory = data[0];
+
+    // Notificar seguidores si se publicó de inmediato
+    if (newStory.estado === 'publicado' && newStory.visibilidad === 'publica') {
+      await notificarSeguidoresNuevaHistoria(cuenta_usuario_id, newStory.id_cuento, newStory.titulo);
+    }
+
+    // Redirige al formulario de edición (metadatos/portada)
     res.redirect(`/historias/editar-meta/${newStory.id_cuento}?success=true`);
 
   } catch (error) {
@@ -355,7 +362,7 @@ export const editStory = async (req, res) => {
     // Verificar autoría antes de actualizar
     const { data: cuento, error: fetchError } = await supabase
       .from('cuentos')
-      .select('cuenta_usuario_id, portada_url')
+      .select('cuenta_usuario_id, portada_url, estado')
       .eq('id_cuento', id)
       .single();
 
@@ -391,6 +398,9 @@ export const editStory = async (req, res) => {
       portada_url = publicUrlData.publicUrl;
     }
 
+    const nuevoEstado = estado || 'borrador';
+    const nuevaVisibilidad = visibilidad || 'publica';
+
     const { error: updateError } = await supabase
       .from('cuentos')
       .update({
@@ -402,12 +412,17 @@ export const editStory = async (req, res) => {
         derechos: derechos || 'todos',
         clasificacion,
         categoria_id: parseInt(categoria_id) || 1,
-        visibilidad: visibilidad || 'publica',
-        estado: estado || 'borrador'
+        visibilidad: nuevaVisibilidad,
+        estado: nuevoEstado
       })
       .eq('id_cuento', id);
 
     if (updateError) throw updateError;
+
+    // Notificar seguidores si pasó de borrador a publicado
+    if (cuento.estado === 'borrador' && nuevoEstado === 'publicado' && nuevaVisibilidad === 'publica') {
+      await notificarSeguidoresNuevaHistoria(userId, id, titulo);
+    }
 
     res.redirect(`/historias/editar/${id}`);
 

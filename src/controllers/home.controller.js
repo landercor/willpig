@@ -94,7 +94,7 @@ export const verPrincipal = async (req, res) => {
         // Fallback si no hay suficientes historias con imagen
         if (carruselData.length === 0) {
             carruselData = [
-                { titulo: 'Bienvenido a Willpig', imagen: '/img/img.ico/fondo_register2.jpg', link: '#' },
+                { titulo: 'Bienvenido a Willpig', imagen: '/img/img.ico/fondo_register2.jpg', link: '/principal/biblioteca' },
                 { titulo: 'Descubre nuevas historias', imagen: '/img/img.ico/fondo_login3.jpg', link: '/principal/biblioteca' }
             ];
         }

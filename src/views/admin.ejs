@@ -166,7 +166,9 @@
         <% } else if (seccion==='usuarios' ) { %>
           <div class="back-nav">
             <a href="/admin" class="back-btn">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
               Dashboard
             </a>
           </div>
@@ -241,19 +243,19 @@
                 <option value="">Todos los roles</option>
                 <option value="lector" <%=typeof query !=='undefined' && query.rol==='lector' ? 'selected' : '' %>>
                   Lector</option>
-                <option value="escritor" <%=typeof query !=='undefined' && query.rol==='escritor' ? 'selected' : ''
-                  %>>Escritor</option>
-                <option value="moderador" <%=typeof query !=='undefined' && query.rol==='moderador' ? 'selected'
-                  : '' %>>Moderador</option>
+                <option value="escritor" <%=typeof query !=='undefined' && query.rol==='escritor' ? 'selected' : '' %>
+                  >Escritor</option>
+                <option value="moderador" <%=typeof query !=='undefined' && query.rol==='moderador' ? 'selected' : '' %>
+                  >Moderador</option>
                 <option value="admin" <%=typeof query !=='undefined' && query.rol==='admin' ? 'selected' : '' %>>
                   Admin</option>
               </select>
               <select name="estado" class="form-control" style="max-width:170px;" onchange="this.form.submit()">
                 <option value="">Todos los estados</option>
-                <option value="activa" <%=typeof query !=='undefined' && query.estado==='activa' ? 'selected' : ''
-                  %>>Activa</option>
-                <option value="suspendida" <%=typeof query !=='undefined' && query.estado==='suspendida'
-                  ? 'selected' : '' %>>Suspendida</option>
+                <option value="activa" <%=typeof query !=='undefined' && query.estado==='activa' ? 'selected' : '' %>
+                  >Activa</option>
+                <option value="suspendida" <%=typeof query !=='undefined' && query.estado==='suspendida' ? 'selected'
+                  : '' %>>Suspendida</option>
                 <option value="deshabilitada" <%=typeof query !=='undefined' && query.estado==='deshabilitada'
                   ? 'selected' : '' %>>Deshabilitada</option>
               </select>
@@ -262,7 +264,7 @@
 
           <% if (usuarios.length===0) { %>
             <div class="empty-state-admin">
-              <span class="empty-icon">👤</span>
+              <span class="empty-icon"><img src="/img/img.ico/no-users.svg" alt="No usuarios"></span>
               <h3>No se encontraron usuarios</h3>
               <p>Intenta cambiar los filtros de búsqueda o crea un nuevo usuario.</p>
             </div>
@@ -394,7 +396,10 @@
                     <% } else if (seccion==='historias' ) { %>
                       <div class="back-nav">
                         <a href="/admin" class="back-btn">
-                          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                          </svg>
                           Dashboard
                         </a>
                       </div>
@@ -526,8 +531,10 @@
                                 value="<%= typeof query !== 'undefined' && query.q ? query.q : '' %>"
                                 style="width:100%; min-width:200px; max-width:300px;">
                             </div>
-                            <div class="filters-bar" style="display:flex; gap:10px; flex-wrap: nowrap; align-items:center;">
-                              <select name="categoria_id" class="form-control" style="max-width:150px;" onchange="this.form.submit()">
+                            <div class="filters-bar"
+                              style="display:flex; gap:10px; flex-wrap: nowrap; align-items:center;">
+                              <select name="categoria_id" class="form-control" style="max-width:150px;"
+                                onchange="this.form.submit()">
                                 <option value="">Todas las categorías</option>
                                 <% (categorias || []).forEach(cat=> { %>
                                   <option value="<%= cat.id_categoria %>" <%=typeof query !=='undefined' &&
@@ -535,7 +542,8 @@
                                   </option>
                                   <% }) %>
                               </select>
-                              <select name="estado" class="form-control" style="max-width:150px;" onchange="this.form.submit()">
+                              <select name="estado" class="form-control" style="max-width:150px;"
+                                onchange="this.form.submit()">
                                 <option value="">Todos los estados</option>
                                 <option value="borrador" <%=typeof query !=='undefined' && query.estado==='borrador'
                                   ? 'selected' : '' %>>Borrador</option>
@@ -805,11 +813,18 @@
                                     <% } else if (seccion==='categorias' ) { %>
                                       <div class="back-nav">
                                         <a href="/admin/historias" class="back-btn">
-                                          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                                          <svg width="16" height="16" fill="none" stroke="currentColor"
+                                            stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                                          </svg>
                                           Historias
                                         </a>
                                         <a href="/admin" class="back-btn back-btn-secondary">
-                                          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                                          <svg width="14" height="14" fill="none" stroke="currentColor"
+                                            stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                          </svg>
                                           Dashboard
                                         </a>
                                       </div>
@@ -883,7 +898,11 @@
                                             <% } else if (seccion==='etiquetas' ) { %>
                                               <div class="back-nav">
                                                 <a href="/admin" class="back-btn">
-                                                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                                                  <svg width="16" height="16" fill="none" stroke="currentColor"
+                                                    stroke-width="2.5" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M15 19l-7-7 7-7" />
+                                                  </svg>
                                                   Dashboard
                                                 </a>
                                               </div>
@@ -958,7 +977,11 @@
                                                     <% } else if (seccion==='notificaciones' ) { %>
                                                       <div class="back-nav">
                                                         <a href="/admin" class="back-btn">
-                                                          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                                                          <svg width="16" height="16" fill="none" stroke="currentColor"
+                                                            stroke-width="2.5" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                              d="M15 19l-7-7 7-7" />
+                                                          </svg>
                                                           Dashboard
                                                         </a>
                                                       </div>
