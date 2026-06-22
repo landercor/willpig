@@ -8,7 +8,8 @@ import {
   getStoryById,
   getMyStories,
   getEditStory,
-  getEditMetadata
+  getEditMetadata,
+  getCreateStoryForm // <-- Añadir este import
 } from '../controllers/story.controller.js'
 
 import upload from '../middlewares/upload.js'
@@ -17,9 +18,7 @@ import { isAuth } from '../middlewares/isAuth.js'
 
 const router = Router()
 
-router.get('/crear', isAuth, (req, res) => {
-  res.render('newstorys', { loggerUser: req.session.user });
-});
+router.get('/crear', isAuth, getCreateStoryForm);
 
 router.get('/mis', isAuth, getMyStories);
 router.get('/editar/:id', isAuth, getEditStory);

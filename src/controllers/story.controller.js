@@ -431,3 +431,35 @@ export const editStory = async (req, res) => {
     res.status(500).send("Error al actualizar la historia");
   }
 };
+
+// ABAJO Y TOTALMENTE FUERA de cualquier otra función, pones la nueva:
+export const getCreateStoryForm = async (req, res) => {
+  try {
+    if (!req.session.user) {
+      return res.redirect('/auth/login');
+    }
+
+    const { data: categorias, error } = await supabase
+      .from('categorias')
+      .select('*');
+
+    console.log("=== DETECTOR DE CATEGORÍAS ===");
+    console.log("Error de Supabase:", error);
+    console.log("Datos de Categorías:", categorias);
+
+    if (error) throw error;
+
+    res.render('newstorys', {
+      loggerUser: req.session.user,
+      categorias: categorias || []
+    });
+
+  } catch (error) {
+    console.error('Error al cargar el formulario de creación:', error);
+    res.render('newstorys', {
+      loggerUser: req.session.user,
+      categorias: [],
+      error: error.message
+    });
+  }
+};
