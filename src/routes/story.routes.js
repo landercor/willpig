@@ -1,5 +1,6 @@
 // routes/cuentos.js
 import { Router } from 'express'
+import { supabaseAdmin as supabase } from '../config/db.js'
 import {
   createStory,
   editStory,
@@ -17,8 +18,14 @@ import { isAuth } from '../middlewares/isAuth.js'
 
 const router = Router()
 
-router.get('/crear', isAuth, (req, res) => {
-  res.render('newstorys', { loggerUser: req.session.user });
+router.get('/crear', isAuth, async (req, res) => {
+  try {
+    const { data: categorias } = await supabase.from('categorias').select('id_categoria, nombre').order('nombre');
+    res.render('newstorys', { loggerUser: req.session.user, categorias: categorias || [] });
+  } catch (error) {
+    console.error('Error fetching categorias:', error);
+    res.render('newstorys', { loggerUser: req.session.user, categorias: [] });
+  }
 });
 
 router.get('/mis', isAuth, getMyStories);

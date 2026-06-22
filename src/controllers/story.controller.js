@@ -59,7 +59,7 @@ export const getStoryById = async (req, res) => {
     // Likes data
     let isLiked = false;
     let likesCount = 0;
-    
+
     try {
       const { count } = await supabase.from('likes_historias').select('*', { count: 'exact', head: true }).eq('cuento_id', id);
       if (count) likesCount = count;
@@ -318,6 +318,9 @@ export const getEditMetadata = async (req, res) => {
       return res.status(404).render('404', { message: "Historia no encontrada" });
     }
 
+    // Fetch categories to populate the dropdown dynamically
+    const { data: categorias } = await supabase.from('categorias').select('id_categoria, nombre').order('nombre');
+
     // Verificar autoría
     const userId = req.session.userId || req.session.user.id_cuenta_usuario || req.session.user.id;
     if (String(cuento.cuenta_usuario_id) !== String(userId)) {
@@ -326,7 +329,8 @@ export const getEditMetadata = async (req, res) => {
 
     res.render('editstory', {
       cuento,
-      loggerUser: req.session.user
+      loggerUser: req.session.user,
+      categorias: categorias || []
     });
 
   } catch (error) {
