@@ -56,27 +56,27 @@
           <div class="form-group">
             <label for="audiencia">Audiencia</label>
             <select id="audiencia" name="audiencia" required>
-              <option value="">Selecciona una audiencia</option>
-              <option value="general">Todo público</option>
-              <option value="adolescentes">Juvenil</option>
-              <option value="adultos">Adulto</option>
+              <% audiencias.forEach(a => { %>
+                <option value="<%= a.nombre %>"><%= a.nombre %></option>
+              <% }) %>
             </select>
           </div>
 
           <div class="form-group">
             <label for="idioma">Idioma</label>
             <select id="idioma" name="idioma" required>
-              <option value="es">Español</option>
-              <option value="en">Inglés</option>
+              <% idiomas.forEach(i => { %>
+                <option value="<%= i.codigo %>"><%= i.nombre %></option>
+              <% }) %>
             </select>
           </div>
 
           <div class="form-group">
             <label for="derechos">Derechos de autor</label>
             <select id="derechos" name="derechos" required>
-              <option value="todos">Todos los derechos reservados</option>
-              <option value="compartido">Compartido</option>
-              <option value="libre">Publico</option>
+              <% tiposDerechos.forEach(d => { %>
+                <option value="<%= d.nombre %>"><%= d.nombre %></option>
+              <% }) %>
             </select>
           </div>
 
@@ -84,16 +84,9 @@
             <label for="categoria">Categoría</label>
             <select id="categoria" name="categoria_id" required>
               <option value="">Selecciona una categoría</option>
-              <% if (typeof categorias !== 'undefined' && categorias && categorias.length > 0) { %>
-                <% categorias.forEach(cat => { %>
-                  <option value="<%= cat.id_categoria %>"><%= cat.nombre %></option>
-                <% }) %>
-              <% } else { %>
-                <option value="1">Fantasía</option>
-                <option value="3">Aventura</option>
-                <option value="8">Ciencia Ficción</option>
-                <option value="9">Utopía</option>
-              <% } %>
+              <% categorias.forEach(cat => { %>
+                <option value="<%= cat.id_categoria %>"><%= cat.nombre %></option>
+              <% }) %>
             </select>
           </div>
 
@@ -104,12 +97,17 @@
           </div>
 
           <div class="form-group">
+            <label>Clasificación</label>
+            <% clasificaciones.forEach((c, idx) => { %>
+              <label><input type="radio" name="clasificacion" value="<%= c.nombre %>" <%= idx === 0 ? 'checked' : '' %>> <%= c.nombre %></label>
+            <% }) %>
+          </div>
+
+          <div class="form-group">
             <label>Estado de la obra</label>
-            <label> <input type="radio" name="estado" value="borrador" checked> Borrador <span hidden>Solo tú lo
-                ves</span>
-            </label>
-            <label> <input type="radio" name="estado" value="publicado"> Publicar ahora
-            </label>
+            <% estadosCuento.forEach((e, idx) => { %>
+              <label><input type="radio" name="estado" value="<%= e.nombre %>" <%= e.nombre === 'borrador' ? 'checked' : '' %>> <%= e.nombre %></label>
+            <% }) %>
           </div>
 
         </section>

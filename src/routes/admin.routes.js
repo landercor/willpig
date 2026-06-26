@@ -2,33 +2,7 @@
 import { Router } from 'express';
 import { isAdmin } from '../middlewares/isAdmin.js';
 import { validateCsrfToken } from '../middlewares/csrf.js';
-import {
-  getDashboard,
-  getUsuarios,
-  createUsuario,
-  editUsuario,
-  deleteUsuario,
-  getHistorias,
-  createHistoria,
-  editHistoria,
-  deleteHistoria,
-  getCategorias,
-  createCategoria,
-  editCategoria,
-  deleteCategoria,
-  getCapitulos,
-  createCapitulo,
-  editCapitulo,
-  deleteCapitulo,
-  getEtiquetas,
-  createEtiqueta,
-  editEtiqueta,
-  deleteEtiqueta,
-  getNotificaciones,
-  createNotificacion,
-  editNotificacion,
-  deleteNotificacion
-} from '../controllers/admin.controller.js';
+import * as adminCtrl from '../controllers/admin.controller.js';
 
 const router = Router();
 
@@ -36,42 +10,49 @@ const router = Router();
 router.use(isAdmin);
 
 // Dashboard
-router.get('/', getDashboard);
+router.get('/', adminCtrl.getDashboard);
 
 // Usuarios
-router.get('/usuarios', getUsuarios);
-router.post('/usuarios/new', validateCsrfToken, createUsuario);
-router.post('/usuarios/:id/edit', validateCsrfToken, editUsuario);
-router.post('/usuarios/:id/delete', validateCsrfToken, deleteUsuario);
+router.get('/usuarios', adminCtrl.getUsuarios);
+router.post('/usuarios/new', validateCsrfToken, adminCtrl.createUsuario);
+router.post('/usuarios/:id/edit', validateCsrfToken, adminCtrl.editUsuario);
+router.post('/usuarios/:id/delete', validateCsrfToken, adminCtrl.deleteUsuario);
 
-// Historias — /new ANTES de /:id para evitar que Express capture 'new' como ID
-router.get('/historias', getHistorias);
-router.post('/historias/new', validateCsrfToken, createHistoria);
-router.post('/historias/:id/edit', validateCsrfToken, editHistoria);
-router.post('/historias/:id/delete', validateCsrfToken, deleteHistoria);
-
-// Categorías
-router.get('/categorias', getCategorias);
-router.post('/categorias/new', validateCsrfToken, createCategoria);
-router.post('/categorias/:id/edit', validateCsrfToken, editCategoria);
-router.post('/categorias/:id/delete', validateCsrfToken, deleteCategoria);
+// Historias
+router.get('/historias', adminCtrl.getHistorias);
+router.post('/historias/new', validateCsrfToken, adminCtrl.createHistoria);
+router.post('/historias/:id/edit', validateCsrfToken, adminCtrl.editHistoria);
+router.post('/historias/:id/delete', validateCsrfToken, adminCtrl.deleteHistoria);
 
 // Capítulos
-router.get('/capitulos', getCapitulos);
-router.post('/capitulos/new', validateCsrfToken, createCapitulo);
-router.post('/capitulos/:id/edit', validateCsrfToken, editCapitulo);
-router.post('/capitulos/:id/delete', validateCsrfToken, deleteCapitulo);
+router.get('/capitulos', adminCtrl.getCapitulos);
+router.post('/capitulos/new', validateCsrfToken, adminCtrl.createCapitulo);
+router.post('/capitulos/:id/edit', validateCsrfToken, adminCtrl.editCapitulo);
+router.post('/capitulos/:id/delete', validateCsrfToken, adminCtrl.deleteCapitulo);
 
-// Etiquetas
-router.get('/etiquetas', getEtiquetas);
-router.post('/etiquetas/new', validateCsrfToken, createEtiqueta);
-router.post('/etiquetas/:id/edit', validateCsrfToken, editEtiqueta);
-router.post('/etiquetas/:id/delete', validateCsrfToken, deleteEtiqueta);
+// ==========================================
+// CATÁLOGOS DINÁMICOS
+// ==========================================
+const registrarCatalogo = (ruta, controllerInstance) => {
+  router.get(`/${ruta}`, controllerInstance.get);
+  router.post(`/${ruta}/new`, validateCsrfToken, controllerInstance.create);
+  router.post(`/${ruta}/:id/edit`, validateCsrfToken, controllerInstance.edit);
+  router.post(`/${ruta}/:id/delete`, validateCsrfToken, controllerInstance.delete);
+};
 
-// Notificaciones
-router.get('/notificaciones', getNotificaciones);
-router.post('/notificaciones/new', validateCsrfToken, createNotificacion);
-router.post('/notificaciones/:id/edit', validateCsrfToken, editNotificacion);
-router.post('/notificaciones/:id/delete', validateCsrfToken, deleteNotificacion);
+// Catálogos Originales
+registrarCatalogo('categorias', adminCtrl.catCategorias);
+registrarCatalogo('etiquetas', adminCtrl.catEtiquetas);
+registrarCatalogo('miniaturas', adminCtrl.catMiniaturas);
+registrarCatalogo('notificaciones', adminCtrl.catNotificaciones);
+
+// Nuevos Catálogos (Full 3NF)
+registrarCatalogo('idiomas', adminCtrl.catIdiomas);
+registrarCatalogo('audiencias', adminCtrl.catAudiencias);
+registrarCatalogo('tipos_derechos', adminCtrl.catTiposDerechos);
+registrarCatalogo('clasificaciones', adminCtrl.catClasificaciones);
+registrarCatalogo('estados_cuento', adminCtrl.catEstadosCuento);
+registrarCatalogo('estados_usuario', adminCtrl.catEstadosUsuario);
+registrarCatalogo('roles_usuario', adminCtrl.catRolesUsuario);
 
 export default router;

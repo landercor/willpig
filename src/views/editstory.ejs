@@ -61,28 +61,27 @@
           <div class="form-group">
             <label for="audiencia">Audiencia</label>
             <select id="audiencia" name="audiencia" required>
-              <option value="">Selecciona una audiencia</option>
-              <option value="general" <%=cuento.audiencia==='general' ? 'selected' : '' %>>Todo público</option>
-              <option value="adolescentes" <%=cuento.audiencia==='adolescentes' ? 'selected' : '' %>>Juvenil</option>
-              <option value="adultos" <%=cuento.audiencia==='adultos' ? 'selected' : '' %>>Adulto</option>
+              <% audiencias.forEach(a => { %>
+                <option value="<%= a.nombre %>" <%=cuento.audiencia===a.nombre ? 'selected' : '' %>><%= a.nombre %></option>
+              <% }) %>
             </select>
           </div>
 
           <div class="form-group">
             <label for="idioma">Idioma</label>
             <select id="idioma" name="idioma" required>
-              <option value="es" <%=cuento.idioma==='es' ? 'selected' : '' %>>Español</option>
-              <option value="en" <%=cuento.idioma==='en' ? 'selected' : '' %>>Inglés</option>
+              <% idiomas.forEach(i => { %>
+                <option value="<%= i.codigo %>" <%=cuento.idioma===i.codigo ? 'selected' : '' %>><%= i.nombre %></option>
+              <% }) %>
             </select>
           </div>
 
           <div class="form-group">
             <label for="derechos">Derechos de autor</label>
             <select id="derechos" name="derechos" required>
-              <option value="todos" <%=cuento.derechos==='todos' ? 'selected' : '' %>>Todos los derechos reservados
-              </option>
-              <option value="compartido" <%=cuento.derechos==='compartido' ? 'selected' : '' %>>Compartido</option>
-              <option value="libre" <%=cuento.derechos==='libre' ? 'selected' : '' %>>Publico</option>
+              <% tiposDerechos.forEach(d => { %>
+                <option value="<%= d.nombre %>" <%=cuento.derechos===d.nombre ? 'selected' : '' %>><%= d.nombre %></option>
+              <% }) %>
             </select>
           </div>
 
@@ -90,23 +89,17 @@
             <label for="categoria">Categoría</label>
             <select id="categoria" name="categoria_id" required>
               <option value="">Selecciona una categoría</option>
-              <% if (typeof categorias !== 'undefined' && categorias && categorias.length > 0) { %>
-                <% categorias.forEach(cat => { %>
-                  <option value="<%= cat.id_categoria %>" <%= cuento.categoria_id == cat.id_categoria ? 'selected' : '' %>><%= cat.nombre %></option>
-                <% }) %>
-              <% } else { %>
-                <option value="1" <%= cuento.categoria_id == 1 ? 'selected' : '' %>>Fantasía</option>
-                <option value="3" <%= cuento.categoria_id == 3 ? 'selected' : '' %>>Aventura</option>
-                <option value="8" <%= cuento.categoria_id == 8 ? 'selected' : '' %>>Ciencia Ficción</option>
-                <option value="9" <%= cuento.categoria_id == 9 ? 'selected' : '' %>>Utopía</option>
-              <% } %>
+              <% categorias.forEach(cat => { %>
+                <option value="<%= cat.id_categoria %>" <%= cuento.categoria_id == cat.id_categoria ? 'selected' : '' %>><%= cat.nombre %></option>
+              <% }) %>
             </select>
           </div>
 
           <div class="form-group">
             <label>Clasificación</label>
-            <label><input type="radio" name="clasificacion" value="todo" <%=cuento.clasificacion==='todo' ? 'checked' : '' %>> Todo público</label>
-            <label><input type="radio" name="clasificacion" value="maduro" <%=cuento.clasificacion==='maduro' ? 'checked' : '' %>> Maduro</label>
+            <% clasificaciones.forEach(c => { %>
+              <label><input type="radio" name="clasificacion" value="<%= c.nombre %>" <%=cuento.clasificacion===c.nombre ? 'checked' : '' %>> <%= c.nombre %></label>
+            <% }) %>
           </div>
 
           <div class="form-group">
@@ -117,8 +110,9 @@
 
           <div class="form-group">
             <label>Estado de la obra</label>
-            <label> <input type="radio" name="estado" value="borrador" <%=cuento.estado==='borrador' ? 'checked' : '' %>> Borrador <span hidden>Solo tú lo ves</span></label>
-            <label> <input type="radio" name="estado" value="publicado" <%=cuento.estado==='publicado' ? 'checked' : '' %>> Publicar ahora</label>
+            <% estadosCuento.forEach(e => { %>
+              <label><input type="radio" name="estado" value="<%= e.nombre %>" <%=cuento.estado===e.nombre ? 'checked' : '' %>> <%= e.nombre %></label>
+            <% }) %>
           </div>
 
         </section>

@@ -10,47 +10,57 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(
     new GoogleStrategy(
       {
-        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientID:     process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/auth/google/callback",
+        callbackURL:  process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/auth/google/callback",
       },
       async function (accessToken, refreshToken, profile, cb) {
         try {
           const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
-          if (!email) {
-            return cb(new Error("No email found in Google profile"));
-          }
+          if (!email) return cb(new Error("No email found in Google profile"));
 
-          // 1. Buscar al usuario en la base de datos
+          // 1. Buscar usuario por email — select EXPLÍCITO, sin clave_hash
           const { data: user, error: searchError } = await supabaseAdmin
             .from("cuenta_usuario")
-            .select("*")
+            .select(`
+              id_cuenta_usuario, username, email, avatar_url,
+              roles_usuario ( nombre ),
+              estados_usuario ( nombre )
+            `)
             .eq("email", email)
             .single();
 
           if (user) {
-            // Usuario existe, devolver el usuario para iniciar sesión
-            return cb(null, user);
+            // Normalizar rol/estado para la sesión
+            return cb(null, {
+              ...user,
+              rol:    user.roles_usuario?.nombre   ?? 'lector',
+              estado: user.estados_usuario?.nombre ?? 'activa',
+            });
           }
 
-          // 2. Si no existe, crear cuenta de usuario
-          const randomPassword = Math.random().toString(36).slice(-10);
-          const hash = await bcrypt.hash(randomPassword, 10);
-          const avatarUrl = profile.photos && profile.photos.length > 0 ? profile.photos[0].value : null;
+          // 2. Si no existe, crear cuenta nueva
+          const avatarUrl = profile.photos && profile.photos.length > 0
+            ? profile.photos[0].value
+            : null;
 
+          // Resolver IDs de catálogo
+          const [{ data: rolRow }, { data: estadoRow }] = await Promise.all([
+            supabaseAdmin.from('roles_usuario').select('id').eq('nombre', 'lector').single(),
+            supabaseAdmin.from('estados_usuario').select('id').eq('nombre', 'activa').single(),
+          ]);
+
+          // 3. Insertar perfil público (SIN credenciales)
           const { data: newUser, error: insertError } = await supabaseAdmin
             .from("cuenta_usuario")
-            .insert([
-              {
-                username: profile.displayName || email.split("@")[0],
-                email: email,
-                clave: hash,
-                rol: "lector",
-                estado: "activa",
-                avatar_url: avatarUrl,
-              },
-            ])
-            .select()
+            .insert([{
+              username:   profile.displayName || email.split("@")[0],
+              email,
+              avatar_url: avatarUrl,
+              rol_id:    rolRow?.id    ?? 1,
+              estado_id: estadoRow?.id ?? 1,
+            }])
+            .select("id_cuenta_usuario, username, email, avatar_url")
             .single();
 
           if (insertError) {
@@ -58,7 +68,18 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
             return cb(insertError);
           }
 
-          return cb(null, newUser);
+          // 4. Insertar hash de contraseña aleatoria en cuenta_credenciales
+          const randomPassword = Math.random().toString(36).slice(-10);
+          const clave_hash = await bcrypt.hash(randomPassword, 10);
+          await supabaseAdmin
+            .from("cuenta_credenciales")
+            .insert([{ cuenta_usuario_id: newUser.id_cuenta_usuario, clave_hash }]);
+
+          return cb(null, {
+            ...newUser,
+            rol:    'lector',
+            estado: 'activa',
+          });
         } catch (err) {
           console.error("Unexpected error in Google Strategy:", err);
           return cb(err);
@@ -67,6 +88,5 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     )
   );
 }
-
 
 export default passport;

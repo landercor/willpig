@@ -36,3 +36,4 @@ check.js
 
 # file temps Js
 db_setup.sql
+migration_v2_schema.sql

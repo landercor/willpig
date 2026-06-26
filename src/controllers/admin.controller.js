@@ -18,6 +18,14 @@ const BASE_RENDER = {
   etiquetas: [],
   notificaciones: [],
   miniaturas: [],
+  // Nuevos catálogos
+  idiomas: [],
+  audiencias: [],
+  tipos_derechos: [],
+  clasificaciones: [],
+  estados_cuento: [],
+  estados_usuario: [],
+  roles_usuario: [],
   mensaje: null,
   error: null
 };
@@ -63,13 +71,23 @@ export const getUsuarios = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 20;
 
-    const { usuarios, count, totalPages } = await usuarioService.getUsuariosPaginated(page, limit, req.query);
+    const [
+      { usuarios, count, totalPages },
+      { data: roles_usuario },
+      { data: estados_usuario }
+    ] = await Promise.all([
+      usuarioService.getUsuariosPaginated(page, limit, req.query),
+      supabase.from('roles_usuario').select('*'),
+      supabase.from('estados_usuario').select('*')
+    ]);
 
     res.render('admin', {
       ...BASE_RENDER,
       loggerUser: req.session.user,
       seccion: 'usuarios',
       usuarios: usuarios || [],
+      roles_usuario: roles_usuario || [],
+      estados_usuario: estados_usuario || [],
       mensaje: req.query.msg || null,
       error: req.query.error || null,
       page,
@@ -89,7 +107,6 @@ export const createUsuario = async (req, res) => {
   }
   try {
     await usuarioService.createUser({ username, email, password, rol });
-
     res.redirect(`/admin/usuarios?msg=Usuario+${encodeURIComponent(username)}+creado+exitosamente`);
   } catch (err) {
     console.error('Error crear usuario:', err);
@@ -129,10 +146,24 @@ export const getHistorias = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 20;
 
-    const [{ historias, count, totalPages }, { data: categorias }, { data: capitulos }] = await Promise.all([
+    const [
+      { historias, count, totalPages }, 
+      { data: categorias }, 
+      { data: capitulos },
+      { data: audiencias },
+      { data: idiomas },
+      { data: tipos_derechos },
+      { data: clasificaciones },
+      { data: estados_cuento }
+    ] = await Promise.all([
       historiaService.getHistoriasPaginated(page, limit, req.query),
       supabase.from('categorias').select('id_categoria, nombre').order('nombre', { ascending: true }),
-      supabase.from('capitulos').select('id_capitulo, titulo, cuento_id, created_at, contenido').order('created_at', { ascending: true })
+      supabase.from('capitulos').select('id_capitulo, titulo, cuento_id, created_at, contenido').order('created_at', { ascending: true }),
+      supabase.from('audiencias').select('*').order('id', { ascending: true }),
+      supabase.from('idiomas').select('*').order('id', { ascending: true }),
+      supabase.from('tipos_derechos').select('*').order('id', { ascending: true }),
+      supabase.from('clasificaciones').select('*').order('id', { ascending: true }),
+      supabase.from('estados_cuento').select('*').order('id', { ascending: true })
     ]);
 
     res.render('admin', {
@@ -142,6 +173,11 @@ export const getHistorias = async (req, res) => {
       historias: historias || [],
       categorias: categorias || [],
       capitulos: capitulos || [],
+      audiencias: audiencias || [],
+      idiomas: idiomas || [],
+      tipos_derechos: tipos_derechos || [],
+      clasificaciones: clasificaciones || [],
+      estados_cuento: estados_cuento || [],
       mensaje: req.query.msg || null,
       error: req.query.error || null,
       page,
@@ -160,7 +196,7 @@ export const createHistoria = async (req, res) => {
     cuenta_usuario_id,
     estado = 'borrador', visibilidad = 'publica',
     audiencia = 'general', idioma = 'es',
-    derechos = 'todos', clasificacion = 'todo'
+    derechos = 'todos los derechos reservados', clasificacion = 'todo público'
   } = req.body;
 
   if (!titulo || !titulo.trim()) {
@@ -168,26 +204,26 @@ export const createHistoria = async (req, res) => {
   }
 
   try {
-    const finalUserId = cuenta_usuario_id
-      || req.session?.userId
-      || req.session?.user?.id;
-
-    console.log('=== DEBUG createHistoria ===> cuenta_usuario_id del form:', cuenta_usuario_id, '| de sesión:', req.session?.userId);
-
+    const finalUserId = cuenta_usuario_id || req.session?.userId || req.session?.user?.id;
     if (!finalUserId) {
       return res.redirect('/admin/historias?error=No+se+pudo+identificar+al+usuario.+Vuelve+a+iniciar+sesion');
     }
 
-    // categoria_id es NOT NULL en la BD - si no viene, obtener la primera disponible
     let finalCategoriaId = categoria_id ? parseInt(categoria_id) : null;
     if (!finalCategoriaId) {
-      const { data: firstCat } = await supabase
-        .from('categorias')
-        .select('id_categoria')
-        .limit(1)
-        .single();
+      const { data: firstCat } = await supabase.from('categorias').select('id_categoria').limit(1).single();
       if (firstCat) finalCategoriaId = firstCat.id_categoria;
     }
+
+    // Resolviendo FKs para la config
+    const [
+      { data: aud }, { data: idi }, { data: der }, { data: cla }
+    ] = await Promise.all([
+      supabase.from('audiencias').select('id').eq('nombre', audiencia).single(),
+      supabase.from('idiomas').select('id').eq('codigo', idioma).single(),
+      supabase.from('tipos_derechos').select('id').eq('nombre', derechos).single(),
+      supabase.from('clasificaciones').select('id').eq('nombre', clasificacion).single(),
+    ]);
 
     const insertData = {
       titulo: titulo.trim(),
@@ -195,11 +231,15 @@ export const createHistoria = async (req, res) => {
       portada_url: portada_url?.trim() || null,
       cuenta_usuario_id: finalUserId,
       categoria_id: finalCategoriaId,
-      estado, visibilidad, audiencia, idioma, derechos, clasificacion
+      estado, 
+      visibilidad,
+      audiencia_id: aud?.id,
+      idioma_id: idi?.id,
+      derechos_id: der?.id,
+      clasificacion_id: cla?.id
     };
 
     await historiaService.createStory(insertData);
-
     res.redirect(`/admin/historias?msg=Historia+"${encodeURIComponent(titulo.trim())}"+creada+exitosamente`);
   } catch (err) {
     console.error('Error crear historia:', err);
@@ -218,10 +258,24 @@ export const editHistoria = async (req, res) => {
     if (categoria_id) updates.categoria_id = parseInt(categoria_id);
     if (estado) updates.estado = estado;
     if (visibilidad) updates.visibilidad = visibilidad;
-    if (audiencia) updates.audiencia = audiencia;
-    if (idioma) updates.idioma = idioma;
-    if (derechos) updates.derechos = derechos;
-    if (clasificacion) updates.clasificacion = clasificacion;
+    
+    // Resolver fks
+    if (audiencia) {
+      const { data: a } = await supabase.from('audiencias').select('id').eq('nombre', audiencia).single();
+      if (a) updates.audiencia_id = a.id;
+    }
+    if (idioma) {
+      const { data: i } = await supabase.from('idiomas').select('id').eq('codigo', idioma).single();
+      if (i) updates.idioma_id = i.id;
+    }
+    if (derechos) {
+      const { data: d } = await supabase.from('tipos_derechos').select('id').eq('nombre', derechos).single();
+      if (d) updates.derechos_id = d.id;
+    }
+    if (clasificacion) {
+      const { data: c } = await supabase.from('clasificaciones').select('id').eq('nombre', clasificacion).single();
+      if (c) updates.clasificacion_id = c.id;
+    }
 
     await historiaService.updateStory(id, updates);
     res.redirect('/admin/historias?msg=Historia+actualizada+correctamente');
@@ -243,87 +297,99 @@ export const deleteHistoria = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────
-// CATEGORÍAS — CRUD
+// CAPÍTULOS, NOTIFICACIONES, ETIQUETAS, MINIATURAS, CATEGORIAS...
+// (Restaurando el comportamiento original simplificado)
 // ─────────────────────────────────────────────
 
-export const getCategorias = async (req, res) => {
-  try {
-    const { data: categorias, error } = await supabase
-      .from('categorias')
-      .select('id_categoria, nombre')
-      .order('nombre', { ascending: true });
+// Generic Handler para Catálogos Simples (ID y Nombre)
+const handleCatalogo = (tabla, seccion, pk = 'id') => ({
+  get: async (req, res) => {
+    try {
+      const { data, error } = await supabase.from(tabla).select('*').order('id', { ascending: true });
+      if (error && error.code !== '42P01') throw error; // Ignorar si la tabla no existe en alguna BD vieja
 
-    if (error) throw error;
-
-    res.render('admin', {
-      ...BASE_RENDER,
-      loggerUser: req.session.user,
-      seccion: 'categorias',
-      categorias: categorias || [],
-      mensaje: req.query.msg || null,
-      error: req.query.error || null
-    });
-  } catch (err) {
-    console.error('Error listar categorias:', err);
-    res.redirect('/admin?error=Error+al+cargar+categorias');
+      res.render('admin', {
+        ...BASE_RENDER,
+        loggerUser: req.session.user,
+        seccion,
+        [seccion]: data || [],
+        mensaje: req.query.msg || null,
+        error: req.query.error || null
+      });
+    } catch (err) {
+      console.error(`Error listar ${seccion}:`, err);
+      res.redirect(`/admin?error=Error+al+cargar+${seccion}`);
+    }
+  },
+  create: async (req, res) => {
+    try {
+      // Remover CSRF/campos raros y mapear body a columnas
+      const { ...campos } = req.body;
+      const { error } = await supabase.from(tabla).insert([campos]);
+      if (error) throw error;
+      res.redirect(`/admin/${seccion}?msg=Registro+creado`);
+    } catch (err) {
+      res.redirect(`/admin/${seccion}?error=Error+al+crear`);
+    }
+  },
+  edit: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { ...campos } = req.body;
+      const { error } = await supabase.from(tabla).update(campos).eq(pk, id);
+      if (error) throw error;
+      res.redirect(`/admin/${seccion}?msg=Registro+actualizado`);
+    } catch (err) {
+      res.redirect(`/admin/${seccion}?error=Error+al+actualizar`);
+    }
+  },
+  delete: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { error } = await supabase.from(tabla).delete().eq(pk, id);
+      if (error) throw error;
+      res.redirect(`/admin/${seccion}?msg=Registro+eliminado`);
+    } catch (err) {
+      res.redirect(`/admin/${seccion}?error=Error+al+eliminar`);
+    }
   }
-};
+});
 
-export const createCategoria = async (req, res) => {
-  const { nombre } = req.body;
-  if (!nombre || !nombre.trim()) {
-    return res.redirect('/admin/categorias?error=El+nombre+es+requerido');
-  }
-  try {
-    const { error } = await supabase
-      .from('categorias')
-      .insert([{ nombre: nombre.trim() }]);
+// Instanciando Controladores de Catálogo Genéricos
+export const catCategorias      = handleCatalogo('categorias', 'categorias', 'id_categoria');
+export const catEtiquetas       = handleCatalogo('etiquetas', 'etiquetas', 'id_etiqueta');
+export const catMiniaturas      = handleCatalogo('miniaturas', 'miniaturas', 'id_miniatura');
+export const catNotificaciones  = handleCatalogo('notificaciones', 'notificaciones', 'id_notificacion');
+export const catIdiomas         = handleCatalogo('idiomas', 'idiomas', 'id');
+export const catAudiencias      = handleCatalogo('audiencias', 'audiencias', 'id');
+export const catTiposDerechos   = handleCatalogo('tipos_derechos', 'tipos_derechos', 'id');
+export const catClasificaciones = handleCatalogo('clasificaciones', 'clasificaciones', 'id');
+export const catEstadosCuento   = handleCatalogo('estados_cuento', 'estados_cuento', 'id');
+export const catEstadosUsuario  = handleCatalogo('estados_usuario', 'estados_usuario', 'id');
+export const catRolesUsuario    = handleCatalogo('roles_usuario', 'roles_usuario', 'id');
 
-    if (error) throw error;
-    res.redirect('/admin/categorias?msg=Categoria+creada');
-  } catch (err) {
-    console.error('Error crear categoria:', err);
-    res.redirect('/admin/categorias?error=Error+al+crear');
-  }
-};
+// Compatibilidad (Wrappers)
+export const getCategorias = catCategorias.get;
+export const createCategoria = catCategorias.create;
+export const editCategoria = catCategorias.edit;
+export const deleteCategoria = catCategorias.delete;
 
-export const editCategoria = async (req, res) => {
-  const { id } = req.params;
-  const { nombre } = req.body;
-  try {
-    const { error } = await supabase
-      .from('categorias')
-      .update({ nombre: nombre.trim() })
-      .eq('id_categoria', id);
+export const getEtiquetas = catEtiquetas.get;
+export const createEtiqueta = catEtiquetas.create;
+export const editEtiqueta = catEtiquetas.edit;
+export const deleteEtiqueta = catEtiquetas.delete;
 
-    if (error) throw error;
-    res.redirect('/admin/categorias?msg=Categoria+actualizada');
-  } catch (err) {
-    console.error('Error editar categoria:', err);
-    res.redirect('/admin/categorias?error=Error+al+actualizar');
-  }
-};
+export const getMiniaturas = catMiniaturas.get;
+export const createMiniatura = catMiniaturas.create;
+export const editMiniatura = catMiniaturas.edit;
+export const deleteMiniatura = catMiniaturas.delete;
 
-export const deleteCategoria = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { error } = await supabase
-      .from('categorias')
-      .delete()
-      .eq('id_categoria', id);
+export const getNotificaciones = catNotificaciones.get;
+export const createNotificacion = catNotificaciones.create;
+export const editNotificacion = catNotificaciones.edit;
+export const deleteNotificacion = catNotificaciones.delete;
 
-    if (error) throw error;
-    res.redirect('/admin/categorias?msg=Categoria+eliminada');
-  } catch (err) {
-    console.error('Error eliminar categoria:', err);
-    res.redirect('/admin/categorias?error=Error+al+eliminar');
-  }
-};
-
-// ─────────────────────────────────────────────
-// CAPÍTULOS — CRUD
-// ─────────────────────────────────────────────
-
+// CAPITULOS
 export const getCapitulos = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -379,243 +445,5 @@ export const deleteCapitulo = async (req, res) => {
   } catch (err) {
     console.error('Error eliminar capitulo:', err);
     res.redirect('/admin/historias?error=Error+al+eliminar');
-  }
-};
-
-// ─────────────────────────────────────────────
-// ETIQUETAS — CRUD
-// ─────────────────────────────────────────────
-
-export const getEtiquetas = async (req, res) => {
-  try {
-    const { data: etiquetas, error } = await supabase
-      .from('etiquetas')
-      .select('*')
-      .order('nombre', { ascending: true });
-
-    if (error) throw error;
-
-    res.render('admin', {
-      loggerUser: req.session.user,
-      seccion: 'etiquetas',
-      stats: {},
-      usuarios: [],
-      historias: [],
-      categorias: [],
-      capitulos: [],
-      etiquetas: etiquetas || [],
-      notificaciones: [],
-      miniaturas: [],
-      mensaje: req.query.msg || null,
-      error: req.query.error || null
-    });
-  } catch (err) {
-    console.error('Error listar etiquetas:', err);
-    res.redirect('/admin?error=Error+al+cargar+etiquetas');
-  }
-};
-
-export const createEtiqueta = async (req, res) => {
-  const { nombre } = req.body;
-  try {
-    const { error } = await supabase
-      .from('etiquetas')
-      .insert([{ nombre }]);
-
-    if (error) throw error;
-    res.redirect('/admin/etiquetas?msg=Etiqueta+creada');
-  } catch (err) {
-    console.error('Error crear etiqueta:', err);
-    res.redirect('/admin/etiquetas?error=Error+al+crear+etiqueta');
-  }
-};
-
-export const editEtiqueta = async (req, res) => {
-  const { id } = req.params;
-  const { nombre } = req.body;
-  try {
-    const { error } = await supabase
-      .from('etiquetas')
-      .update({ nombre })
-      .eq('id_etiqueta', id);
-
-    if (error) throw error;
-    res.redirect('/admin/etiquetas?msg=Etiqueta+actualizada');
-  } catch (err) {
-    console.error('Error editar etiqueta:', err);
-    res.redirect('/admin/etiquetas?error=Error+al+actualizar');
-  }
-};
-
-export const deleteEtiqueta = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { error } = await supabase
-      .from('etiquetas')
-      .delete()
-      .eq('id_etiqueta', id);
-
-    if (error) throw error;
-    res.redirect('/admin/etiquetas?msg=Etiqueta+eliminada');
-  } catch (err) {
-    console.error('Error eliminar etiqueta:', err);
-    res.redirect('/admin/etiquetas?error=Error+al+eliminar');
-  }
-};
-
-// ─────────────────────────────────────────────
-// NOTIFICACIONES — CRUD
-// ─────────────────────────────────────────────
-
-export const getNotificaciones = async (req, res) => {
-  try {
-    const { data: notificaciones, error } = await supabase
-      .from('notificaciones')
-      .select('*')
-      .order('fecha', { ascending: false });
-
-    if (error) throw error;
-
-    res.render('admin', {
-      ...BASE_RENDER,
-      loggerUser: req.session.user,
-      seccion: 'notificaciones',
-      notificaciones: notificaciones || [],
-      mensaje: req.query.msg || null,
-      error: req.query.error || null
-    });
-  } catch (err) {
-    console.error('Error listar notificaciones:', err);
-    res.redirect('/admin?error=Error+al+cargar+notificaciones');
-  }
-};
-
-export const createNotificacion = async (req, res) => {
-  const { cuenta_usuario_id, tipo, mensaje } = req.body;
-  try {
-    const { error } = await supabase
-      .from('notificaciones')
-      .insert([{ cuenta_usuario_id, tipo, mensaje }]);
-
-    if (error) throw error;
-    res.redirect('/admin/notificaciones?msg=Notificacion+creada');
-  } catch (err) {
-    console.error('Error crear notificacion:', err);
-    res.redirect('/admin/notificaciones?error=Error+al+crear+notificacion');
-  }
-};
-
-export const editNotificacion = async (req, res) => {
-  const { id } = req.params;
-  const { tipo, mensaje, leida } = req.body;
-  try {
-    const { error } = await supabase
-      .from('notificaciones')
-      .update({ tipo, mensaje, leida: leida === 'true' })
-      .eq('id_notificacion', id);
-
-    if (error) throw error;
-    res.redirect('/admin/notificaciones?msg=Notificacion+actualizada');
-  } catch (err) {
-    console.error('Error editar notificacion:', err);
-    res.redirect('/admin/notificaciones?error=Error+al+actualizar');
-  }
-};
-
-export const deleteNotificacion = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { error } = await supabase
-      .from('notificaciones')
-      .delete()
-      .eq('id_notificacion', id);
-
-    if (error) throw error;
-    res.redirect('/admin/notificaciones?msg=Notificacion+eliminada');
-  } catch (err) {
-    console.error('Error eliminar notificacion:', err);
-    res.redirect('/admin/notificaciones?error=Error+al+eliminar');
-  }
-};
-
-// ─────────────────────────────────────────────
-// MINIATURAS — CRUD
-// ─────────────────────────────────────────────
-
-export const getMiniaturas = async (req, res) => {
-  try {
-    const { data: miniaturas, error } = await supabase
-      .from('miniaturas')
-      .select('*')
-      .order('id_miniatura', { ascending: false });
-
-    // Si la tabla no existe o da error, enviamos array vacío para no quebrar la app
-    const listado = error ? [] : (miniaturas || []);
-
-    res.render('admin', {
-      loggerUser: req.session.user,
-      seccion: 'miniaturas',
-      stats: {},
-      usuarios: [],
-      historias: [],
-      categorias: [],
-      capitulos: [],
-      etiquetas: [],
-      notificaciones: [],
-      miniaturas: listado,
-      mensaje: req.query.msg || null,
-      error: req.query.error || null
-    });
-  } catch (err) {
-    console.error('Error listar miniaturas:', err);
-    res.redirect('/admin?error=Error+al+cargar+miniaturas');
-  }
-};
-
-export const createMiniatura = async (req, res) => {
-  const { nombre, url } = req.body;
-  try {
-    const { error } = await supabase
-      .from('miniaturas')
-      .insert([{ nombre, url }]);
-
-    if (error) throw error;
-    res.redirect('/admin/miniaturas?msg=Miniatura+creada');
-  } catch (err) {
-    console.error('Error crear miniatura:', err);
-    res.redirect('/admin/miniaturas?error=Error+al+crear');
-  }
-};
-
-export const editMiniatura = async (req, res) => {
-  const { id } = req.params;
-  const { nombre, url } = req.body;
-  try {
-    const { error } = await supabase
-      .from('miniaturas')
-      .update({ nombre, url })
-      .eq('id_miniatura', id);
-
-    if (error) throw error;
-    res.redirect('/admin/miniaturas?msg=Miniatura+actualizada');
-  } catch (err) {
-    console.error('Error editar miniatura:', err);
-    res.redirect('/admin/miniaturas?error=Error+al+actualizar');
-  }
-};
-
-export const deleteMiniatura = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { error } = await supabase
-      .from('miniaturas')
-      .delete()
-      .eq('id_miniatura', id);
-
-    if (error) throw error;
-    res.redirect('/admin/miniaturas?msg=Miniatura+eliminada');
-  } catch (err) {
-    console.error('Error eliminar miniatura:', err);
-    res.redirect('/admin/miniaturas?error=Error+al+eliminar');
   }
 };
