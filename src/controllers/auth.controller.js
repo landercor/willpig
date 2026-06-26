@@ -159,7 +159,8 @@ export const register = async (req, res) => {
 // ── Login ────────────────────────────────────────────────────────────────────
 
 export const login = async (req, res) => {
-  const next = getSafeRedirect(req.body.next || req.query.next);
+  const requestedNext = req.body.next || req.query.next;
+  let next = getSafeRedirect(requestedNext);
 
   try {
     const { correo, contrasena } = req.body;
