@@ -3,6 +3,11 @@ import { supabaseAdmin as supabase } from "../config/db.js";
 import bcrypt from "bcrypt";
 import multer from "multer";
 
+const normalizeRole = (role) => {
+  if (!role || typeof role !== 'string') return 'lector';
+  return role.trim().toLowerCase();
+};
+
 export const uploadProfileImages = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 },
@@ -99,7 +104,7 @@ export const apiLogin = async (req, res) => {
       id:       user.id_cuenta_usuario,
       username: user.username,
       email:    user.email,
-      rol:      user.roles_usuario?.nombre   ?? 'lector',
+      rol:      normalizeRole(user.roles_usuario?.nombre),
       avatar:   user.avatar_url,
     };
 

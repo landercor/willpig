@@ -37,9 +37,51 @@ app.use(
   })
 );
 
+const normalizeRole = (role) => {
+  if (!role || typeof role !== "string") return "lector";
+  return role.trim().toLowerCase();
+};
+
+// Refrescar el rol del usuario en sesión si existe, para que cambios de rol en la DB se reflejen
+app.use(async (req, res, next) => {
+  if (req.session?.user?.id) {
+    try {
+      const { data: user, error } = await supabaseAdmin
+        .from('cuenta_usuario')
+        .select(`
+          id_cuenta_usuario, username, email, avatar_url,
+          roles_usuario ( nombre ),
+          estados_usuario ( nombre )
+        `)
+        .eq('id_cuenta_usuario', req.session.user.id)
+        .single();
+
+      if (!error && user) {
+        req.session.user = {
+          id:       user.id_cuenta_usuario,
+          username: user.username,
+          email:    user.email,
+          rol:      normalizeRole(user.roles_usuario?.nombre),
+          estado:   user.estados_usuario?.nombre ?? 'activa',
+          avatar:   user.avatar_url,
+        };
+      }
+    } catch (err) {
+      console.error('Error refreshing session user:', err);
+    }
+  }
+  next();
+});
+
 // Middleware CSRF — genera token de sesión y lo expone en res.locals.csrfToken
 // Debe ir DESPUÉS de la sesión y ANTES de las rutas
 app.use(generateCsrfToken);
+
+// Exponer usuario logueado a todas las vistas
+app.use((req, res, next) => {
+  res.locals.loggerUser = req.session?.user || null;
+  next();
+});
 
 import passport from "./config/passport.js";
 app.use(passport.initialize());

@@ -190,12 +190,12 @@
                     </svg>
                   </div>
                   <div class="dropdown-content glass-effect">
-                    <% if (loggerUser.rol==='admin' ) { %>
+                    <% if (loggerUser.rol && loggerUser.rol.toLowerCase() === 'admin') { %>
                       <a href="/admin" style="color: #e53935; font-weight: bold;">⚙ Panel Admin</a>
-                      <% } %>
-                        <a href="/usuario/perfil">Mi perfil</a>
-                        <a href="/principal/biblioteca">Biblioteca</a>
-                        <a href="/auth/logout" class="logout-link">Cerrar sesión</a>
+                    <% } %>
+                    <a href="/usuario/perfil">Mi perfil</a>
+                    <a href="/principal/biblioteca">Biblioteca</a>
+                    <a href="/auth/logout" class="logout-link">Cerrar sesión</a>
                   </div>
                 </div>
                 <% } else { %>

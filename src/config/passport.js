@@ -6,6 +6,11 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const normalizeRole = (role) => {
+  if (!role || typeof role !== 'string') return 'lector';
+  return role.trim().toLowerCase();
+};
+
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(
     new GoogleStrategy(
@@ -34,7 +39,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
             // Normalizar rol/estado para la sesión
             return cb(null, {
               ...user,
-              rol:    user.roles_usuario?.nombre   ?? 'lector',
+              rol:    normalizeRole(user.roles_usuario?.nombre),
               estado: user.estados_usuario?.nombre ?? 'activa',
             });
           }

@@ -8,6 +8,11 @@ const getSafeRedirect = (nextUrl) => {
   return nextUrl;
 };
 
+const normalizeRole = (role) => {
+  if (!role || typeof role !== 'string') return 'lector';
+  return role.trim().toLowerCase();
+};
+
 const findLocalUser = async (email) => {
   const { data: user, error } = await supabaseAdmin
     .from("cuenta_usuario")
@@ -162,61 +167,68 @@ export const login = async (req, res) => {
       return res.render("login", { error: "Completa los campos.", next });
     }
 
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: correo,
-      password: contrasena,
-    });
-
     let user = null;
     let error = null;
+    let authenticatedWithLocal = false;
+    let authData = null;
+    let authError = null;
 
-    if (!authError && authData?.session && authData?.user) {
-      ({ user, error } = await findLocalUser(correo));
-    } else {
-      console.error("Supabase Auth login error:", authError);
-      // Intentar login local si Supabase falla por credenciales inválidas
-      const localUserResult = await findLocalUser(correo);
-      user = localUserResult.user;
-      error = localUserResult.error;
+    const localUserResult = await findLocalUser(correo);
+    user = localUserResult.user;
+    error = localUserResult.error;
 
-      if (!user || error) {
-        return res.render("login", { error: "Usuario o contraseña incorrectos.", next });
-      }
-
+    if (user && !error) {
       const { data: credenciales, error: credError } = await supabaseAdmin
         .from("cuenta_credenciales")
         .select("clave_hash")
         .eq("cuenta_usuario_id", user.id_cuenta_usuario)
         .single();
 
-      if (credError || !credenciales) {
-        return res.render("login", { error: "Usuario o contraseña incorrectos.", next });
+      if (!credError && credenciales) {
+        authenticatedWithLocal = await bcrypt.compare(contrasena, credenciales.clave_hash);
       }
+    }
 
-      const ok = await bcrypt.compare(contrasena, credenciales.clave_hash);
-      if (!ok) {
+    if (!authenticatedWithLocal) {
+      const supabaseResult = await supabase.auth.signInWithPassword({
+        email: correo,
+        password: contrasena,
+      });
+      authData = supabaseResult.data;
+      authError = supabaseResult.error;
+
+      if (!authError && authData?.session && authData?.user) {
+        if (!user) {
+          ({ user, error } = await findLocalUser(correo));
+        }
+
+        if (!user || error) {
+          const username = authData.user.user_metadata?.username || correo.split("@")[0];
+          const newUser = await createLocalProfile({
+            username,
+            email: correo,
+            password: contrasena,
+          });
+
+          user = {
+            id_cuenta_usuario: newUser.id_cuenta_usuario,
+            username,
+            email: correo,
+            avatar_url: null,
+            roles_usuario: { nombre: 'lector' },
+            estados_usuario: { nombre: 'activa' },
+          };
+        }
+
+        await ensureLocalCredentials(user.id_cuenta_usuario, contrasena);
+      } else if (!authenticatedWithLocal) {
+        console.error("Supabase Auth login error:", authError);
         return res.render("login", { error: "Usuario o contraseña incorrectos.", next });
       }
     }
 
     if (!user || error) {
-      const username = authData.user.user_metadata?.username || correo.split("@")[0];
-      const newUser = await createLocalProfile({
-        username,
-        email: correo,
-        password: contrasena,
-      });
-
-      user = {
-        id_cuenta_usuario: newUser.id_cuenta_usuario,
-        username,
-        email: correo,
-        avatar_url: null,
-        roles_usuario: { nombre: 'lector' },
-        estados_usuario: { nombre: 'activa' },
-      };
-    } else {
-      await ensureLocalCredentials(user.id_cuenta_usuario, contrasena);
+      return res.render("login", { error: "Usuario o contraseña incorrectos.", next });
     }
 
     await supabaseAdmin
@@ -229,7 +241,7 @@ export const login = async (req, res) => {
       id:       user.id_cuenta_usuario,
       username: user.username,
       email:    user.email,
-      rol:      user.roles_usuario?.nombre   ?? 'lector',
+      rol:      normalizeRole(user.roles_usuario?.nombre),
       estado:   user.estados_usuario?.nombre ?? 'activa',
       avatar:   user.avatar_url,
     };
