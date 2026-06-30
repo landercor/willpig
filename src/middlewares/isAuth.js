@@ -1,13 +1,7 @@
-export const isAuth = (req, res, next) => {
-  if (req.session && req.session.user) {
-    return next();
+export function isAuth(req, res, next) {
+  if (req.session?.user?.id) return next();
+  if (req.accepts(['html', 'json']) === 'json') {
+    return res.status(401).json({ error: 'Debes iniciar sesion.' });
   }
-
-  const acceptsJson = req.xhr || req.headers.accept?.includes('application/json');
-  if (acceptsJson) {
-    return res.status(401).json({ error: 'Debes iniciar sesión.' });
-  }
-
-  const nextUrl = encodeURIComponent(req.originalUrl || req.url || '/');
-  return res.redirect(`/auth/login?next=${nextUrl}`);
-};
+  return res.redirect('/auth/login?next=' + encodeURIComponent(req.originalUrl));
+}

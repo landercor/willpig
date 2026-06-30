@@ -1,19 +1,11 @@
-// src/middlewares/isAdmin.js
-// Protege las rutas del panel de administrador.
-// Solo usuarios con rol 'admin' pueden acceder.
+import { isAuth } from './isAuth.js';
 
-const normalizeRole = (role) => {
-  if (!role || typeof role !== 'string') return '';
-  return role.trim().toLowerCase();
-};
-
-export const isAdmin = (req, res, next) => {
-  if (req.session && req.session.user && normalizeRole(req.session.user.rol) === 'admin') {
-    return next();
-  }
-  // Sin sesión → login; con sesión pero sin rol admin → página principal
-  if (!req.session || !req.session.user) {
-    return res.redirect('/auth/login');
-  }
-  return res.redirect('/');
-};
+export function isAdmin(req, res, next) {
+  return isAuth(req, res, () => {
+    if (req.session.user.rol === 'admin') return next();
+    return res.status(403).render('404', {
+      message: 'No tienes permisos para entrar al panel de administracion.',
+      loggerUser: req.session.user,
+    });
+  });
+}

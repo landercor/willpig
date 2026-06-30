@@ -1,410 +1,106 @@
-// controllers/story.controller.js
-import { supabaseAdmin as supabase } from '../config/db.js';
-import { historiaService } from '../services/historia.service.js';
-import { socialService } from '../services/social.service.js';
-import { notificarSeguidoresNuevaHistoria } from '../services/notificacion.service.js';
+import { supabaseAdmin as db } from '../config/db.js';
 
-// ── Helpers internos ──────────────────────────────────────────
-const resolveEstadoId = async (nombre) => {
-  const { data } = await supabase.from('estados_cuento').select('id').eq('nombre', nombre).single();
-  return data?.id ?? 1;
-};
-
-const resolveCatalogoId = async (tabla, campo, valor) => {
-  if (!valor) return null;
-  const { data } = await supabase.from(tabla).select('id').eq(campo, valor).single();
-  return data?.id ?? null;
-};
-
-// ── GET /api/cuentos — traer todos los cuentos públicos ────────
-export const getStories = async (req, res) => {
-  const estadoPublicadoId = await resolveEstadoId('publicado');
-
-  const { data, error } = await supabase
-    .from('cuentos')
-    .select(`
-      id_cuento, titulo, descripcion, portada_url, created_at,
-      cuenta_usuario ( id_cuenta_usuario, username, avatar_url ),
-      categorias ( nombre ),
-      cuentos_config ( estado_id, es_publico ),
-      cuentos_metricas ( vistas )
-    `)
-    .eq('cuentos_config.estado_id', estadoPublicadoId)
-    .eq('cuentos_config.es_publico', true)
-    .is('deleted_at', null);
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
-};
-
-// ── GET /api/cuentos/:id — detalle de historia ─────────────────
-export const getStoryById = async (req, res) => {
-  const { id } = req.params;
-
+const storyReadSelect = '*, cuenta_usuario(id_cuenta_usuario, username, avatar_url), categorias(nombre), capitulos(id_capitulo, titulo, created_at)';
+const userId = req => req.session?.user?.id;
+async function uploadCover(file) {
+  if (!file) return null;
+  const ext = file.originalname.split('.').pop() || 'jpg';
+  const name = Date.now() + '-' + Math.random().toString(16).slice(2) + '.' + ext;
+  const { error } = await db.storage.from('portadas').upload(name, file.buffer, { contentType: file.mimetype, upsert: true });
+  if (error) throw error;
+  return db.storage.from('portadas').getPublicUrl(name).data.publicUrl;
+}
+async function catalogs() {
+  const [categorias, idiomas, audiencias, tiposDerechos, clasificaciones, estadosCuento] = await Promise.all([
+    db.from('categorias').select('id_categoria, nombre').order('nombre'),
+    db.from('idiomas').select('id, codigo, nombre').order('nombre'),
+    db.from('audiencias').select('id, nombre').order('nombre'),
+    db.from('tipos_derechos').select('id, nombre').order('nombre'),
+    db.from('clasificaciones').select('id, nombre').order('nombre'),
+    db.from('estados_cuento').select('id, nombre').order('nombre'),
+  ]);
+  return { categorias: categorias.data || [], idiomas: idiomas.data || [], audiencias: audiencias.data || [], tiposDerechos: tiposDerechos.data || [], clasificaciones: clasificaciones.data || [], estadosCuento: estadosCuento.data || [] };
+}
+function optionValue(value, allowed, fallback) {
+  const normalized = String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  return allowed.find(item => normalized.includes(item)) || fallback;
+}
+function normalizeStory(body, cover, ownerId) {
+  const estado = optionValue(body.estado, ['borrador', 'progreso', 'publicado'], 'borrador');
+  const visibilidad = optionValue(body.visibilidad, ['privada', 'publica'], 'privada');
+  return {
+    titulo: body.titulo,
+    descripcion: body.descripcion || null,
+    portada_url: cover,
+    audiencia: optionValue(body.audiencia, ['general', 'adolescentes', 'adultos'], 'general'),
+    idioma: optionValue(body.idioma, ['es', 'en'], 'es'),
+    derechos: optionValue(body.derechos, ['todos', 'compartido', 'libre'], 'todos'),
+    clasificacion: optionValue(body.clasificacion, ['todo', 'maduro'], 'todo'),
+    estado,
+    visibilidad,
+    is_public: estado === 'publicado' && visibilidad === 'publica',
+    cuenta_usuario_id: ownerId,
+    categoria_id: Number(body.categoria_id) || 1,
+  };
+}
+export async function getStories(_req, res) {
+  const { data, error } = await db.from('cuentos').select(storyReadSelect).is('deleted_at', null).eq('estado', 'publicado').eq('visibilidad', 'publica');
+  res.status(error ? 500 : 200).json(error ? { error: error.message } : data || []);
+}
+export async function getStoriesByCategory(req, res) {
+  const { data, error } = await db.from('cuentos').select(storyReadSelect).eq('categoria_id', req.params.id).eq('estado', 'publicado').eq('visibilidad', 'publica').is('deleted_at', null);
+  res.status(error ? 500 : 200).json(error ? { error: error.message } : data || []);
+}
+export async function getStoryById(req, res) {
+  const { data: cuento, error } = await db.from('cuentos').select(storyReadSelect).eq('id_cuento', req.params.id).is('deleted_at', null).maybeSingle();
+  if (error || !cuento) return res.status(404).render('404', { message: 'Historia no encontrada.', loggerUser: req.session?.user || null });
+  cuento.capitulos = (cuento.capitulos || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  const owner = String(cuento.cuenta_usuario_id) === String(userId(req));
+  const visible = cuento.estado === 'publicado' && cuento.visibilidad === 'publica';
+  if (!visible && !owner) return res.status(403).render('404', { message: 'Esta historia no esta disponible.', loggerUser: req.session?.user || null });
+  if (visible && !owner) await db.from('cuentos').update({ vistas: (cuento.vistas || 0) + 1 }).eq('id_cuento', cuento.id_cuento);
+  const [{ count: likesCount }, liked, listed] = await Promise.all([
+    db.from('likes_historias').select('*', { count: 'exact', head: true }).eq('cuento_id', cuento.id_cuento),
+    userId(req) ? db.from('likes_historias').select('id').eq('cuento_id', cuento.id_cuento).eq('usuario_id', userId(req)).maybeSingle() : Promise.resolve({ data: null }),
+    userId(req) ? db.from('lista_lectura').select('id').eq('cuento_id', cuento.id_cuento).eq('usuario_id', userId(req)).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
+  res.render('story', { cuento, likesCount: likesCount || 0, isLiked: !!liked.data, isInList: !!listed.data, user: req.session?.user || null, loggerUser: req.session?.user || null });
+}
+export async function getCreateStoryForm(req, res) { res.render('newstorys', { loggerUser: req.session.user, ...(await catalogs()) }); }
+export async function createStory(req, res) {
   try {
-    const data = await historiaService.getStoryByIdForRead(id);
-
-    if (!data) {
-      return res.status(404).render('404', { message: "Cuento no encontrado" });
-    }
-
-    const sessionId = req.session?.user?.id || req.session?.user?.id_cuenta_usuario;
-    const isAuthor  = !!sessionId && String(data.cuenta_usuario_id) === String(sessionId);
-    const isPublic  = data.estado === 'publicado' && data.es_publico;
-
-    if (!isPublic && !isAuthor) {
-      return res.status(403).render('404', {
-        message:    "Esta historia es privada o se encuentra en estado de borrador.",
-        loggerUser: req.session.user,
-      });
-    }
-
-    // Incrementar vistas con función atómica (1 sola operación en la BD)
-    if (isPublic && !isAuthor) {
-      await historiaService.incrementViews(id);
-    }
-
-    // Likes
-    let isLiked = false;
-    let likesCount = 0;
-    try {
-      const { count } = await supabase
-        .from('likes_historias')
-        .select('*', { count: 'exact', head: true })
-        .eq('cuento_id', id);
-      if (count) likesCount = count;
-
-      if (req.session?.user) {
-        const loggerId = req.session.user.id_cuenta_usuario || req.session.user.id;
-        isLiked = await socialService.estadoLike(loggerId, id);
-      }
-    } catch (e) {
-      console.error('Error fetching likes:', e.message);
-    }
-
-    // Lista de lectura
-    let isInList = false;
-    try {
-      if (req.session?.user) {
-        const loggerId = req.session.user.id_cuenta_usuario || req.session.user.id;
-        isInList = await socialService.estadoLista(loggerId, id);
-      }
-    } catch (e) { /* ignorar */ }
-
-    res.render('story', {
-      cuento: data,
-      likesCount,
-      isLiked,
-      isInList,
-      user:       req.session.user,
-      loggerUser: req.session.user,
-    });
-  } catch (error) {
-    console.error('Error in getStoryById:', error);
-    return res.status(500).json({ error: error.message });
-  }
-};
-
-// ── GET /api/cuentos/category/:id ─────────────────────────────
-export const getStoriesByCategory = async (req, res) => {
-  const { id } = req.params;
-  const estadoPublicadoId = await resolveEstadoId('publicado');
-
-  const { data, error } = await supabase
-    .from('cuentos')
-    .select(`
-      id_cuento, titulo, descripcion, portada_url,
-      cuenta_usuario ( id_cuenta_usuario, username ),
-      categorias ( nombre ),
-      cuentos_config ( estado_id, es_publico )
-    `)
-    .eq('categoria_id', id)
-    .eq('cuentos_config.estado_id', estadoPublicadoId)
-    .eq('cuentos_config.es_publico', true)
-    .is('deleted_at', null);
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
-};
-
-// ── POST /api/cuentos/new — crear historia ─────────────────────
-export const createStory = async (req, res) => {
-  try {
-    const {
-      titulo, descripcion, categoria_id, visibilidad,
-      audiencia, idioma, derechos, clasificacion, estado
-    } = req.body;
-
-    if (!req.session.user) return res.redirect('/auth/login');
-    console.log("=== SESSION DEBUG ===", JSON.stringify(req.session, null, 2));
-
-    const cuenta_usuario_id = req.session.userId || req.session.user.id_cuenta_usuario || req.session.user.id;
-
-    let portada_url = null;
-    if (req.file) {
-      const fileExt  = req.file.originalname.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('portadas')
-        .upload(fileName, req.file.buffer, { contentType: req.file.mimetype });
-      if (uploadError) throw uploadError;
-      portada_url = supabase.storage.from('portadas').getPublicUrl(fileName).data.publicUrl;
-    }
-
-    // Resolver IDs de catálogo
-    const [
-      audiencia_id, idioma_id, derechos_id, clasificacion_id
-    ] = await Promise.all([
-      resolveCatalogoId('audiencias',      'nombre', audiencia     || 'general'),
-      resolveCatalogoId('idiomas',         'codigo', idioma        || 'es'),
-      resolveCatalogoId('tipos_derechos',  'nombre', derechos      || 'todos los derechos reservados'),
-      resolveCatalogoId('clasificaciones', 'nombre', clasificacion || 'todo público'),
-    ]);
-
-    const nuevoEstado   = estado || 'borrador';
-    const nuevaEsPublico = (visibilidad === 'publica') && (nuevoEstado === 'publicado');
-
-    const newStory = await historiaService.createStory({
-      titulo,
-      descripcion,
-      portada_url,
-      cuenta_usuario_id,
-      categoria_id: parseInt(categoria_id) || 1,
-      estado:       nuevoEstado,
-      es_publico:   nuevaEsPublico,
-      audiencia_id,
-      idioma_id,
-      derechos_id,
-      clasificacion_id,
-    });
-
-    if (nuevoEstado === 'publicado' && nuevaEsPublico) {
-      await notificarSeguidoresNuevaHistoria(cuenta_usuario_id, newStory.id_cuento, newStory.titulo);
-    }
-
-    res.redirect(`/historias/editar-meta/${newStory.id_cuento}?success=true`);
-
-  } catch (error) {
-    console.error("Error creating story:", error);
-    res.status(500).render('newstorys', {
-      loggerUser: req.session.user,
-      error:      "Error al crear la historia: " + error.message,
-    });
-  }
-};
-
-// ── GET /historias/mis ─────────────────────────────────────────
-export const getMyStories = async (req, res) => {
-  try {
-    if (!req.session.user) return res.redirect('/auth/login');
-    const userId = req.session.user.id;
-    const stories = await historiaService.getMyStories(userId);
-
-    res.render('mystories', {
-      tituloPagina: 'Mis Historias | Willpig Studio',
-      stories:      stories || [],
-      loggerUser:   req.session.user,
-    });
-  } catch (error) {
-    console.error('Error al obtener mis historias:', error);
-    res.status(500).send("Error al cargar tus historias");
-  }
-};
-
-// ── GET /historias/editar/:id ──────────────────────────────────
-export const getEditStory = async (req, res) => {
-  const { id } = req.params;
-  try {
-    if (!req.session.user) return res.redirect('/auth/login');
-
-    const { data: cuento, error } = await supabase
-      .from('cuentos')
-      .select(`
-        id_cuento, titulo, descripcion, portada_url, cuenta_usuario_id,
-        capitulos ( id_capitulo, titulo, created_at, orden ),
-        cuentos_config ( estado_id, es_publico, estados_cuento ( nombre ) )
-      `)
-      .eq('id_cuento', id)
-      .single();
-
-    if (error || !cuento) return res.status(404).render('404', { message: "Historia no encontrada" });
-
-    const userId = req.session.userId || req.session.user.id_cuenta_usuario || req.session.user.id;
-    if (String(cuento.cuenta_usuario_id) !== String(userId)) {
-      return res.status(403).render('404', { message: "No tienes permiso para editar esta historia" });
-    }
-
-    if (cuento.capitulos) {
-      cuento.capitulos.sort((a, b) => a.orden - b.orden || new Date(a.created_at) - new Date(b.created_at));
-    }
-
-    // Normalizar para la vista
-    cuento.estado     = cuento.cuentos_config?.estados_cuento?.nombre ?? 'borrador';
-    cuento.visibilidad = cuento.cuentos_config?.es_publico ? 'publica' : 'privada';
-
-    res.render('manage_story', { cuento, loggerUser: req.session.user });
-  } catch (error) {
-    console.error('Error al obtener gestión de historia:', error);
-    res.status(500).send("Error del servidor");
-  }
-};
-
-// ── GET /historias/editar-meta/:id ────────────────────────────
-export const getEditMetadata = async (req, res) => {
-  const { id } = req.params;
-  try {
-    if (!req.session.user) return res.redirect('/auth/login');
-
-    const story = await historiaService.getStoryByIdForEdit(id);
-    if (!story) return res.status(404).render('404', { message: "Historia no encontrada" });
-
-    const userId = req.session.userId || req.session.user.id_cuenta_usuario || req.session.user.id;
-    if (String(story.cuenta_usuario_id) !== String(userId)) {
-      return res.status(403).render('404', { message: "No tienes permiso para editar esta historia" });
-    }
-
-    const [
-      { data: categorias },
-      { data: idiomas },
-      { data: audiencias },
-      { data: tiposDerechos },
-      { data: clasificaciones },
-      { data: estadosCuento },
-    ] = await Promise.all([
-      supabase.from('categorias').select('id_categoria, nombre').order('nombre'),
-      supabase.from('idiomas').select('id, codigo, nombre'),
-      supabase.from('audiencias').select('id, nombre'),
-      supabase.from('tipos_derechos').select('id, nombre'),
-      supabase.from('clasificaciones').select('id, nombre'),
-      supabase.from('estados_cuento').select('id, nombre'),
-    ]);
-
-    res.render('editstory', {
-      cuento:          story,
-      loggerUser:      req.session.user,
-      categorias:      categorias      || [],
-      idiomas:         idiomas         || [],
-      audiencias:      audiencias      || [],
-      tiposDerechos:   tiposDerechos   || [],
-      clasificaciones: clasificaciones || [],
-      estadosCuento:   estadosCuento   || [],
-    });
-  } catch (error) {
-    console.error('Error al obtener formulario de edición:', error);
-    res.status(500).send("Error del servidor");
-  }
-};
-
-// ── POST /historias/editar/:id ────────────────────────────────
-export const editStory = async (req, res) => {
-  const { id } = req.params;
-  const {
-    titulo, descripcion, categoria_id, visibilidad, estado,
-    audiencia_id, idioma_id, derechos_id, clasificacion_id
-  } = req.body;
-
-  try {
-    if (!req.session.user) return res.redirect('/auth/login');
-    const userId = req.session.userId || req.session.user.id_cuenta_usuario || req.session.user.id;
-
-    // Verificar autoría y obtener estado anterior
-    const { data: cuento, error: fetchError } = await supabase
-      .from('cuentos')
-      .select(`
-        cuenta_usuario_id, portada_url,
-        cuentos_config ( estado_id, es_publico, estados_cuento ( nombre ) )
-      `)
-      .eq('id_cuento', id)
-      .single();
-
-    if (fetchError || !cuento) return res.status(404).render('404', { message: "Historia no encontrada" });
-    if (String(cuento.cuenta_usuario_id) !== String(userId)) {
-      return res.status(403).render('404', { message: "No tienes permiso para editar esta historia" });
-    }
-
-    const estadoAnterior = cuento.cuentos_config?.estados_cuento?.nombre ?? 'borrador';
-
-    let portada_url = cuento.portada_url;
-    if (req.file) {
-      const fileExt  = req.file.originalname.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from('portadas').upload(fileName, req.file.buffer, { contentType: req.file.mimetype, upsert: true });
-      if (uploadError) throw uploadError;
-      portada_url = supabase.storage.from('portadas').getPublicUrl(fileName).data.publicUrl;
-    }
-
-    const nuevoEstado    = estado || 'borrador';
-    const nuevaEsPublico = visibilidad === 'publica' && nuevoEstado === 'publicado';
-
-    await historiaService.updateStory(id, {
-      titulo,
-      descripcion,
-      portada_url,
-      categoria_id: parseInt(categoria_id) || 1,
-      estado:       nuevoEstado,
-      es_publico:   nuevaEsPublico,
-      audiencia_id:     audiencia_id     ? parseInt(audiencia_id)     : undefined,
-      idioma_id:        idioma_id        ? parseInt(idioma_id)        : undefined,
-      derechos_id:      derechos_id      ? parseInt(derechos_id)      : undefined,
-      clasificacion_id: clasificacion_id ? parseInt(clasificacion_id) : undefined,
-    });
-
-    // Notificar si pasó a publicado
-    if (estadoAnterior === 'borrador' && nuevoEstado === 'publicado' && nuevaEsPublico) {
-      await notificarSeguidoresNuevaHistoria(userId, id, titulo);
-    }
-
-    res.redirect(`/historias/editar/${id}`);
-  } catch (error) {
-    console.error('Error al actualizar la historia:', error);
-    res.status(500).send("Error al actualizar la historia");
-  }
-};
-
-// ── GET /historias/nueva ──────────────────────────────────────
-export const getCreateStoryForm = async (req, res) => {
-  try {
-    if (!req.session.user) return res.redirect('/auth/login');
-
-    const [
-      { data: categorias, error },
-      { data: idiomas },
-      { data: audiencias },
-      { data: tiposDerechos },
-      { data: clasificaciones },
-      { data: estadosCuento },
-    ] = await Promise.all([
-      supabase.from('categorias').select('*'),
-      supabase.from('idiomas').select('id, codigo, nombre'),
-      supabase.from('audiencias').select('id, nombre'),
-      supabase.from('tipos_derechos').select('id, nombre'),
-      supabase.from('clasificaciones').select('id, nombre'),
-      supabase.from('estados_cuento').select('id, nombre'),
-    ]);
-
+    const portada = await uploadCover(req.file);
+    const row = normalizeStory(req.body, portada, userId(req));
+    const { data, error } = await db.from('cuentos').insert(row).select('id_cuento').single();
     if (error) throw error;
-
-    res.render('newstorys', {
-      loggerUser:      req.session.user,
-      categorias:      categorias      || [],
-      idiomas:         idiomas         || [],
-      audiencias:      audiencias      || [],
-      tiposDerechos:   tiposDerechos   || [],
-      clasificaciones: clasificaciones || [],
-      estadosCuento:   estadosCuento   || [],
-    });
+    res.redirect('/historias/editar-meta/' + data.id_cuento + '?success=true');
   } catch (error) {
-    console.error('Error al cargar el formulario de creación:', error);
-    res.render('newstorys', {
-      loggerUser:      req.session.user,
-      categorias:      [],
-      idiomas:         [],
-      audiencias:      [],
-      tiposDerechos:   [],
-      clasificaciones: [],
-      estadosCuento:   [],
-      error:           error.message,
-    });
+    res.status(500).render('newstorys', { loggerUser: req.session.user, ...(await catalogs()), error: error.message });
   }
-};
+}
+export async function getMyStories(req, res) {
+  const { data } = await db.from('cuentos').select('*').eq('cuenta_usuario_id', userId(req)).is('deleted_at', null).order('created_at', { ascending: false });
+  res.render('mystories', { tituloPagina: 'Mis Historias | Willpig Studio', stories: data || [], loggerUser: req.session.user });
+}
+export async function getEditStory(req, res) {
+  const { data: cuento } = await db.from('cuentos').select('*, capitulos(id_capitulo, titulo, created_at)').eq('id_cuento', req.params.id).maybeSingle();
+  if (!cuento) return res.status(404).render('404', { message: 'Historia no encontrada.', loggerUser: req.session.user });
+  if (String(cuento.cuenta_usuario_id) !== String(userId(req))) return res.status(403).render('404', { message: 'No tienes permiso.', loggerUser: req.session.user });
+  cuento.capitulos = (cuento.capitulos || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  res.render('manage_story', { cuento, loggerUser: req.session.user });
+}
+export async function getEditMetadata(req, res) {
+  const { data: cuento } = await db.from('cuentos').select('*').eq('id_cuento', req.params.id).maybeSingle();
+  if (!cuento) return res.status(404).render('404', { message: 'Historia no encontrada.', loggerUser: req.session.user });
+  if (String(cuento.cuenta_usuario_id) !== String(userId(req))) return res.status(403).render('404', { message: 'No tienes permiso.', loggerUser: req.session.user });
+  res.render('editstory', { cuento, loggerUser: req.session.user, ...(await catalogs()) });
+}
+export async function editStory(req, res) {
+  const { data: current } = await db.from('cuentos').select('*').eq('id_cuento', req.params.id).maybeSingle();
+  if (!current || String(current.cuenta_usuario_id) !== String(userId(req))) return res.status(403).render('404', { message: 'No tienes permiso.', loggerUser: req.session.user });
+  const portada = await uploadCover(req.file) || current.portada_url;
+  const row = normalizeStory(req.body, portada, current.cuenta_usuario_id);
+  delete row.cuenta_usuario_id;
+  await db.from('cuentos').update(row).eq('id_cuento', req.params.id);
+  res.redirect('/historias/editar/' + req.params.id);
+}
