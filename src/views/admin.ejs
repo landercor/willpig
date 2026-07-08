@@ -1,17 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
+<%- include('layouts/header', { 
+  title: `Willpig Studio | Panel de Administrador`,
+  extraStyles: `<link rel="stylesheet" href="/css/modules/views/admin.css" />`, pageId: 'admin'
+}) %>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Willpig Studio | Panel de Administrador</title>
-  <link rel="stylesheet" href="/css/modules/views/admin.css" />
-  <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
-</head>
-
-<body>
-
-  <!-- Sidebar backdrop (mobile) -->
+<!-- Sidebar backdrop (mobile) -->
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
   <!-- Hamburger toggle -->
@@ -1243,6 +1235,4 @@
     });
   </script>
 
-</body>
-
-</html>
+<%- include('layouts/footer') %>

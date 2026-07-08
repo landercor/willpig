@@ -1,21 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
+<%- include('layouts/header', { 
+  title: `<%= profile.title %> | Willpig Studio`,
+  extraStyles: `<link rel="stylesheet" href="/css/modules/views/profile.css">`, pageId: 'profile'
+}) %>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>
-    <%= profile.title %> | Willpig Studio
-  </title>
-  <link rel="stylesheet" href="/css/style1.2.css">
-  <link rel="stylesheet" href="/css/modules/views/profile.css">
-  <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
-</head>
-
-<body>
-  <%- include('partials/navbar', { loggerUser }) %>
-
-    <!-- PORTADA -->
+<!-- PORTADA -->
     <div class="profile-cover-wrapper">
       <% if (user.coverImage) { %>
         <img class="cover-img" src="<%= user.coverImage %>" alt="Portada de <%= user.username %>">
@@ -230,7 +218,4 @@
       }
     </script>
 
-    <%- include('partials/footer') %>
-</body>
-
-</html>
+    <%- include('layouts/footer') %>

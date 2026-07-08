@@ -1,20 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
+<%- include('layouts/header', { 
+  title: `<%= tituloPagina %>`
+}) %>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>
-    <%= tituloPagina %>
-  </title>
-  <link rel="stylesheet" href="/css/style1.2.css?v=2" />
-  <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
-</head>
-
-<body>
-  <%- include('partials/navbar', { loggerUser }) %>
-
-    <!-- ===== EXPLORADOR DE CATEGORÍA ===== -->
+<!-- ===== EXPLORADOR DE CATEGORÍA ===== -->
     <section class="library-page category-page">
       <div class="library-header reveal-item">
         <h1 class="text-primary">Categoría: <%= categoriaNombre %>
@@ -79,7 +67,4 @@
       </div>
     </section>
 
-    <%- include('partials/footer') %>
-</body>
-
-</html>
+    <%- include('layouts/footer') %>

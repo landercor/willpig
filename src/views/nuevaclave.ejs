@@ -1,96 +1,88 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Actualización de Clave | Willpig Studio</title>
-    <link rel="stylesheet" href="/css/style1.2.css" />
-    <link rel="icon" href="/img/img.ico/GABALI baloo.ico" />
-</head>
-
-<body>
+<%- include('layouts/header', { 
+  title: `Actualización de Clave | Willpig Studio`
+}) %>
 
 <div class="login-pocketIN">
 
-    <div class="login-visual">
-        <img src="/img/img.ico/fondo_register2.jpg" alt="Imagen Login">
-    </div>
+        <div class="login-visual">
+            <img src="/img/img.ico/fondo_register2.jpg" alt="Imagen Login">
+        </div>
 
-    <div class="login-form-section">
-        <div class="login-box">
+        <div class="login-form-section">
+            <div class="login-box">
 
-            <h1>Actualización de Contraseña</h1>
-            <p>Introduce una nueva contraseña segura</p>
-            <p>Por favor, asegúrate de que tu contraseña contenga al menos una mayúscula, minúscula y un número.</p>
+                <h1>Actualización de Contraseña</h1>
+                <p>Introduce una nueva contraseña segura</p>
+                <p>Por favor, asegúrate de que tu contraseña contenga al menos una mayúscula, minúscula y un número.</p>
 
-            <form action="/auth/nuevaclave" method="POST" class="form-login" id="resetForm">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <div class="form-group">
-                    <label for="nuevaClave">Nueva contraseña</label>
-                    <input type="password" id="nuevaClave" name="nuevaClave" required placeholder="Introduce tu nueva contraseña">
-                    <span class="error-message" id="nuevaClaveError"></span>
-                </div>
-                <div class="form-group">
-                    <label for="confirmarClave">Confirma contraseña</label>
-                    <input type="password" id="confirmarClave" name="confirmarClave" required placeholder="Repite la contraseña">
-                    <span class="error-message" id="confirmarClaveError"></span>
-                </div>
+                <form action="/auth/nuevaclave" method="POST" class="form-login" id="resetForm">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <div class="form-group">
+                        <label for="nuevaClave">Nueva contraseña</label>
+                        <input type="password" id="nuevaClave" name="nuevaClave" required
+                            placeholder="Introduce tu nueva contraseña">
+                        <span class="error-message" id="nuevaClaveError"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmarClave">Confirma contraseña</label>
+                        <input type="password" id="confirmarClave" name="confirmarClave" required
+                            placeholder="Repite la contraseña">
+                        <span class="error-message" id="confirmarClaveError"></span>
+                    </div>
 
-                <button type="submit" class="btn-login-pocket">Actualizar contraseña</button>
-            </form>
-            <p class="register-text"><a href="/auth/login">Volver a iniciar sesión</a></p>
-            <script>
-                const form = document.getElementById('resetForm');
-                document.getElementById('nuevaClave').addEventListener('input', function(){
-                    document.getElementById('nuevaClaveError').textContent = '';
-                });
-                document.getElementById('confirmarClave').addEventListener('input', function(){
-                    document.getElementById('confirmarClaveError').textContent = '';
-                });
-
-                form.addEventListener('submit', function(e) {
-                    document.getElementById('nuevaClaveError').textContent = '';
-                    document.getElementById('confirmarClaveError').textContent = '';
-
-                    const pwd = document.getElementById('nuevaClave').value;
-                    const confirm = document.getElementById('confirmarClave').value;
-                    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
-                    let error = false;
-
-                    if (pwd !== confirm) {
-                        document.getElementById('confirmarClaveError').textContent = 'Las contraseñas no coinciden.';
-                        error = true;
-                    } else if (!regex.test(pwd)) {
-                        document.getElementById('nuevaClaveError').textContent = 'La contraseña debe contener mayúscula, minúscula y número.';
-                        error = true;
-                    }
-                    if (error) {
-                        e.preventDefault();
-                    }
-                });
-            </script>
-
-            <% if (typeof error !== "undefined") { %>
+                    <button type="submit" class="btn-login-pocket">Actualizar contraseña</button>
+                </form>
+                <p class="register-text"><a href="/auth/login">Volver a iniciar sesión</a></p>
                 <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        const msg = `<%= error.replace(/"/g, '\\"') %>`;
-                        const confirmErr = document.getElementById('confirmarClaveError');
-                        const newErr = document.getElementById('nuevaClaveError');
-                        if (confirmErr) {
-                            confirmErr.textContent = msg;
-                        } else if (newErr) {
-                            newErr.textContent = msg;
-                        } else {
-                            alert(msg);
+                    const form = document.getElementById('resetForm');
+                    document.getElementById('nuevaClave').addEventListener('input', function () {
+                        document.getElementById('nuevaClaveError').textContent = '';
+                    });
+                    document.getElementById('confirmarClave').addEventListener('input', function () {
+                        document.getElementById('confirmarClaveError').textContent = '';
+                    });
+
+                    form.addEventListener('submit', function (e) {
+                        document.getElementById('nuevaClaveError').textContent = '';
+                        document.getElementById('confirmarClaveError').textContent = '';
+
+                        const pwd = document.getElementById('nuevaClave').value;
+                        const confirm = document.getElementById('confirmarClave').value;
+                        const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
+                        let error = false;
+
+                        if (pwd !== confirm) {
+                            document.getElementById('confirmarClaveError').textContent = 'Las contraseñas no coinciden.';
+                            error = true;
+                        } else if (!regex.test(pwd)) {
+                            document.getElementById('nuevaClaveError').textContent = 'La contraseña debe contener mayúscula, minúscula y número.';
+                            error = true;
+                        }
+                        if (error) {
+                            e.preventDefault();
                         }
                     });
                 </script>
-            <% } %>
 
+                <% if (typeof error !=="undefined" ) { %>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const msg = `<%= error.replace(/"/g, '\\"') %>`;
+                            const confirmErr = document.getElementById('confirmarClaveError');
+                            const newErr = document.getElementById('nuevaClaveError');
+                            if (confirmErr) {
+                                confirmErr.textContent = msg;
+                            } else if (newErr) {
+                                newErr.textContent = msg;
+                            } else {
+                                alert(msg);
+                            }
+                        });
+                    </script>
+                    <% } %>
+
+            </div>
         </div>
     </div>
-</div>
 
-    <%- include('partials/footer') %>
-</body>
-</html>
+    <%- include('layouts/footer') %>

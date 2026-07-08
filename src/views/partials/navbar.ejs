@@ -2,7 +2,7 @@
   <div class="navbar-left">
     <div class="logo" onclick="window.location.href='/principal'">
       <figure class="logo-fig">
-        <img src="/img/img.ico/GABALI baloo 2.png" alt="WillPig logo">
+        <img src="/img/img.ico/GABALI baloo.ico" alt="WillPig logo">
       </figure>
       <h2>WillPig</h2>
       <span class="logo-text"></span>
@@ -78,49 +78,59 @@
                 <div class="dropdown notifications-dropdown" id="notifDropdown" style="position:relative;">
                   <button class="notif-trigger" id="notifTrigger"
                     style="background:none;border:none;cursor:pointer;position:relative;padding:6px;border-radius:50%;transition:background 0.2s;color:inherit;"
-                    onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='none'">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+                    onmouseout="this.style.background='none'">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
                       <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                       <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                     </svg>
-                    <% if (typeof notifCount !== 'undefined' && notifCount > 0) { %>
-                      <span id="notifBadge" style="position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;"><%= notifCount %></span>
-                    <% } else { %>
-                      <span id="notifBadge" style="display:none;position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;align-items:center;justify-content:center;line-height:1;"></span>
-                    <% } %>
+                    <% if (typeof notifCount !=='undefined' && notifCount> 0) { %>
+                      <span id="notifBadge"
+                        style="position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;">
+                        <%= notifCount %>
+                      </span>
+                      <% } else { %>
+                        <span id="notifBadge"
+                          style="display:none;position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;align-items:center;justify-content:center;line-height:1;"></span>
+                        <% } %>
                   </button>
 
                   <!-- Panel de notificaciones -->
                   <div id="notifPanel"
                     style="display:none;position:absolute;right:0;top:calc(100% + 10px);width:340px;background:var(--bg-card,#1e1e2e);border:1px solid rgba(255,255,255,0.08);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:9999;overflow:hidden;">
                     <!-- Header del panel -->
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <div
+                      style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
                       <span style="font-weight:700;font-size:0.95rem;">Notificaciones</span>
-                      <button onclick="markAllRead()" style="background:none;border:none;cursor:pointer;color:#a78bfa;font-size:0.78rem;font-weight:600;">Marcar todo leído</button>
+                      <button onclick="markAllRead()"
+                        style="background:none;border:none;cursor:pointer;color:#a78bfa;font-size:0.78rem;font-weight:600;">Marcar
+                        todo leído</button>
                     </div>
                     <!-- Lista -->
                     <div id="notifList" style="max-height:320px;overflow-y:auto;"></div>
                     <!-- Footer -->
                     <div style="padding:10px 18px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
-                      <a href="/principal/biblioteca" style="color:#a78bfa;font-size:0.82rem;text-decoration:none;">Ver biblioteca →</a>
+                      <a href="/principal/biblioteca" style="color:#a78bfa;font-size:0.82rem;text-decoration:none;">Ver
+                        biblioteca →</a>
                     </div>
                   </div>
                 </div>
 
                 <script>
-                  (function() {
+                  (function () {
                     const trigger = document.getElementById('notifTrigger');
-                    const panel   = document.getElementById('notifPanel');
-                    const badge   = document.getElementById('notifBadge');
-                    const list    = document.getElementById('notifList');
+                    const panel = document.getElementById('notifPanel');
+                    const badge = document.getElementById('notifBadge');
+                    const list = document.getElementById('notifList');
                     let loaded = false;
 
                     function timeAgoNotif(d) {
                       const diff = Math.floor((Date.now() - new Date(d)) / 1000);
                       if (diff < 60) return 'Ahora';
-                      if (diff < 3600) return `Hace ${Math.floor(diff/60)} min`;
-                      if (diff < 86400) return `Hace ${Math.floor(diff/3600)} h`;
-                      return new Date(d).toLocaleDateString('es-ES', { day:'numeric', month:'short' });
+                      if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+                      if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+                      return new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
                     }
 
                     async function loadNotifs() {
@@ -143,7 +153,7 @@
                         }
                         // Ocultar badge tras abrir
                         if (badge) badge.style.display = 'none';
-                      } catch(e) {
+                      } catch (e) {
                         list.innerHTML = '<p style="text-align:center;padding:20px;color:#666;">Error al cargar</p>';
                       }
                     }
@@ -156,9 +166,9 @@
                     async function markAllRead() {
                       const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
                       await fetch('/usuario/notificaciones/leer', {
-                        method:'POST',
+                        method: 'POST',
                         headers: { 'CSRF-Token': csrfToken, 'Accept': 'application/json' }
-                      }).catch(()=>{});
+                      }).catch(() => { });
                       if (badge) badge.style.display = 'none';
                       await loadNotifs();
                     }
@@ -190,12 +200,12 @@
                     </svg>
                   </div>
                   <div class="dropdown-content glass-effect">
-                    <% if (loggerUser.rol && loggerUser.rol.toLowerCase() === 'admin') { %>
+                    <% if (loggerUser.rol && loggerUser.rol.toLowerCase()==='admin' ) { %>
                       <a href="/admin" style="color: #e53935; font-weight: bold;">⚙ Panel Admin</a>
-                    <% } %>
-                    <a href="/usuario/perfil">Mi perfil</a>
-                    <a href="/principal/biblioteca">Biblioteca</a>
-                    <a href="/auth/logout" class="logout-link">Cerrar sesión</a>
+                      <% } %>
+                        <a href="/usuario/perfil">Mi perfil</a>
+                        <a href="/principal/biblioteca">Biblioteca</a>
+                        <a href="/auth/logout" class="logout-link">Cerrar sesión</a>
                   </div>
                 </div>
                 <% } else { %>

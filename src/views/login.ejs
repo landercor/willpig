@@ -1,77 +1,60 @@
 <%- include('layouts/header', { title: 'Iniciar sesión | Willpig Studio' , pageId: 'login' }) %>
-<!--
+    <!--
     <div class="login-pocketIN">
         <div class="login-visual">
             <img src="/img/img.ico/fondo_register2.jpg" alt="Imagen Login">
         </div>
     -->
-        <div class="register-container-igm">
-            <div class="login-box">
-                <h1>Inicia sesión</h1>
-                <p>Bienvenido de nuevo a Willpig Studio</p>
+    <div class="register-container-igm">
+        <div class="login-box">
+            <h1>Inicia sesión</h1>
+            <p>Bienvenido de nuevo a Willpig Studio</p>
 
-                <form action="/auth/login" method="POST" class="form-login">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
-                    <div class="form-group">
-                        <label for="correo">Correo electrónico</label>
-                        <input type="email" id="correo" name="correo" required placeholder="ejemplo@correo.com">
+            <form action="/auth/login" method="POST" class="form-login">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
+                <div class="form-group">
+                    <label for="correo">Correo electrónico</label>
+                    <input type="email" id="correo" name="correo" required placeholder="ejemplo@correo.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="contrasena">Contraseña</label>
+                    <input type="password" id="contrasena" name="contrasena" required placeholder="Tu contraseña">
+                </div>
+                <button type="submit" class="btn-login-pocket">Iniciar sesión</button>
+            </form>
+
+            <!-- ENLACES -->
+            <a href="/auth/olvido" class="forgot">¿Olvidaste tu contraseña?</a>
+
+            <% if (typeof error !=="undefined" && error.startsWith('Te hemos enviado')) { %>
+                <p class="text-success">
+                    <%= error %>
+                </p>
+                <% } %>
+
+                    <div class="divider"> O continúa con </div>
+
+                    <div class="social-login">
+                        <a href="/auth/google" style="text-decoration: none;">
+                            <button type="button" class="social-btn google">
+                                <img src="/img/img.ico/google_login_color.png" width="20"> Continuar con Google
+                            </button>
+                        </a>
                     </div>
 
-                    <div class="form-group">
-                        <label for="contrasena">Contraseña</label>
-                        <input type="password" id="contrasena" name="contrasena" required placeholder="Tu contraseña">
-                    </div>
+                    <p class="register-text">¿No tienes cuenta? <a href="/auth/register"><strong>Regístrate
+                                aquí</strong></a></p>
 
-                    <dialog id="terms-modal" class="terms-modal" style="padding: 20px; border: none; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); max-width: 500px; width: 90%; color: #333;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
-                            <h2 style="margin: 0; font-size: 1.2rem; color: #333;">Términos y Condiciones</h2>
-                            <button id="close-terms-modal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
-                        </div>
-                        <div style="max-height: 60vh; overflow-y: auto; line-height: 1.6; font-size: 0.95rem; text-align: left;">
-                            <p style="margin-bottom: 10px;"><strong>1. Aceptación de los términos:</strong> Al registrarte en Willpig Studio, aceptas cumplir con nuestras políticas de uso y comportamiento en la plataforma.</p>
-                            <p style="margin-bottom: 10px;"><strong>2. Propiedad intelectual:</strong> Todas las historias y obras compartidas por ti siguen siendo de tu propiedad. Sin embargo, nos otorgas licencia para mostrarlas dentro de la plataforma de Willpig Studio.</p>
-                            <p style="margin-bottom: 10px;"><strong>3. Conducta del usuario:</strong> No está permitido subir contenido ofensivo, ilegal o que infrinja los derechos de autor de terceros.</p>
-                            <p style="margin-bottom: 10px;"><strong>4. Privacidad:</strong> Tu información personal será tratada conforme a nuestra Política de Privacidad. No compartiremos tus datos con terceros sin tu consentimiento explícito.</p>
-                            <p style="margin-bottom: 10px;"><strong>5. Modificaciones:</strong> Nos reservamos el derecho de modificar estos términos en cualquier momento, lo cual será notificado a través de la plataforma.</p>
-                        </div>
-                        <div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                            <button id="accept-terms-btn" style="background-color: #ff6b6b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">Aceptar y cerrar</button>
-                        </div>
-                    </dialog>
-
-                    <button type="submit" class="btn-login-pocket">Iniciar sesión</button>
-                </form>
-
-                <!-- ENLACES -->
-                <a href="/auth/olvido" class="forgot">¿Olvidaste tu contraseña?</a>
-
-                <% if (typeof error !=="undefined" && error.startsWith('Te hemos enviado')) { %>
-                    <p class="text-success">
-                        <%= error %>
-                    </p>
-                    <% } %>
-
-                        <div class="divider"> O continúa con </div>
-
-                        <div class="social-login">
-                            <a href="/auth/google" style="text-decoration: none;">
-                                <button type="button" class="social-btn google">
-                                    <img src="/img/img.ico/google_login_color.png" width="20"> Continuar con Google
-                                </button>
-                            </a>
-                        </div>
-
-                        <p class="register-text">¿No tienes cuenta? <a href="/auth/register">Regístrate aquí</a></p>
-
-                        <!-- Mostrar error si existe -->
-                        <% if (typeof error !=="undefined" && !error.startsWith('Te hemos enviado')) { %>
-                            <p class="text-danger" style="color:rgb(124, 2, 2);">
-                                <%= error %>
-                            </p>
-                            <% } %>
-            </div>
+                    <!-- Mostrar error si existe -->
+                    <% if (typeof error !=="undefined" && !error.startsWith('Te hemos enviado')) { %>
+                        <p class="text-danger" style="color:rgb(124, 2, 2);">
+                            <%= error %>
+                        </p>
+                        <% } %>
         </div>
+    </div>
     </div>
 
     <%- include('layouts/footer') %>

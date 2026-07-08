@@ -1,107 +1,101 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title><%= user.name %> — Willpig Studio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style1.2.css">
-</head>
-<body>
-  <header class="ws-topbar">
-    <div class="container">
-      <div class="brand">Willpig Studio</div>
-      <div class="top-actions">
-        <% if (loggerUser) { %>
-          <a class="btn btn-create" href="/historias/crear">＋</a>
-        <% } %>
-      </div>
-    </div>
-  </header>
-  
-  <%- include('partials/navbar', { loggerUser }) %>
+<%- include('layouts/header', { 
+  title: `<%= user.name %> — Willpig Studio`
+}) %>
 
-  <main class="profile-page container">
-    <!-- COVER -->
-    <div class="cover" style="background-image: url('<%= user.coverImage || '/img/default-cover.jpg' %>')">
-      <div class="cover-overlay"></div>
-      <div class="cover-inner">
-        <img class="avatar" src="<%= user.avatar || '/img/default-avatar.svg' %>" alt="avatar">
-        <div class="meta">
-          <h1 class="name"><%= user.name %></h1>
-          <p class="username">@<%= user.username %></p>
-          <div class="actions">
-            <% if (loggerUser && loggerUser.username !== user.username) { %>
-              <form action="/social/seguir/<%= user._id || user.id_cuenta_usuario || user.id %>" method="POST" class="inline-form">
-                <button class="btn btn-follow" type="submit">Seguir</button>
-              </form>
-              <a class="btn btn-message" href="/usuario/profile/<%= user._id || user.id_cuenta_usuario || user.id %>">Ver perfil</a>
-            <% } else if (!loggerUser) { %>
-              <a class="btn btn-follow" href="/auth/login">Seguir</a>
-              <a class="btn btn-message" href="/auth/login">Ver perfil</a>
-            <% } %>
+<main class="profile-page container">
+      <!-- COVER -->
+      <div class="cover" style="background-image: url('<%= user.coverImage || '/img/default-cover.jpg' %>')">
+        <div class="cover-overlay"></div>
+        <div class="cover-inner">
+          <img class="avatar" src="<%= user.avatar || '/img/default-avatar.svg' %>" alt="avatar">
+          <div class="meta">
+            <h1 class="name">
+              <%= user.name %>
+            </h1>
+            <p class="username">@<%= user.username %>
+            </p>
+            <div class="actions">
+              <% if (loggerUser && loggerUser.username !==user.username) { %>
+                <form action="/social/seguir/<%= user._id || user.id_cuenta_usuario || user.id %>" method="POST"
+                  class="inline-form">
+                  <button class="btn btn-follow" type="submit">Seguir</button>
+                </form>
+                <a class="btn btn-message"
+                  href="/usuario/profile/<%= user._id || user.id_cuenta_usuario || user.id %>">Ver perfil</a>
+                <% } else if (!loggerUser) { %>
+                  <a class="btn btn-follow" href="/auth/login">Seguir</a>
+                  <a class="btn btn-message" href="/auth/login">Ver perfil</a>
+                  <% } %>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- BIO / DESCRIPTION -->
-    <section class="bio">
-      <% if (user.bio) { %>
-        <p><%= user.bio %></p>
-      <% } else { %>
-        <p class="muted">Este usuario aún no ha agregado una descripción.</p>
-      <% } %>
-    </section>
+      <!-- BIO / DESCRIPTION -->
+      <section class="bio">
+        <% if (user.bio) { %>
+          <p>
+            <%= user.bio %>
+          </p>
+          <% } else { %>
+            <p class="muted">Este usuario aún no ha agregado una descripción.</p>
+            <% } %>
+      </section>
 
-    <!-- WORKS -->
-    <section class="panel">
-      <div class="panel-header">
-        <h2>Obras creadas</h2>
-      </div>
-      <div class="grid works-grid">
-        <% if (user.works && user.works.length) { %>
-          <% user.works.forEach(function(w){ %>
-            <article class="card">
-              <a href="/historias/<%= w.id_cuento || w.id %>" class="cover-link">
-                <div class="cover-thumb" style="background-image:url('<%= w.portada_url || w.cover || '/img/default-book.jpg' %>')"></div>
-              </a>
-              <div class="card-body">
-                <a class="work-title" href="/historias/<%= w.id_cuento || w.id %>"><%= w.titulo || w.title %></a>
-                <% if (w.shortDesc) { %>
-                  <p class="short"><%= w.shortDesc %></p>
-                <% } %>
+      <!-- WORKS -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Obras creadas</h2>
+        </div>
+        <div class="grid works-grid">
+          <% if (user.works && user.works.length) { %>
+            <% user.works.forEach(function(w){ %>
+              <article class="card">
+                <a href="/historias/<%= w.id_cuento || w.id %>" class="cover-link">
+                  <div class="cover-thumb"
+                    style="background-image:url('<%= w.portada_url || w.cover || '/img/default-book.jpg' %>')"></div>
+                </a>
+                <div class="card-body">
+                  <a class="work-title" href="/historias/<%= w.id_cuento || w.id %>">
+                    <%= w.titulo || w.title %>
+                  </a>
+                  <% if (w.shortDesc) { %>
+                    <p class="short">
+                      <%= w.shortDesc %>
+                    </p>
+                    <% } %>
+                </div>
+              </article>
+              <% }) %>
+                <% } else { %>
+                  <p class="muted">Aún no hay obras publicadas.</p>
+                  <% } %>
+        </div>
+      </section>
+
+      <!-- READING LISTS -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Listas de lectura</h2>
+        </div>
+        <div class="grid lists-grid">
+          <% if (user.readingLists && user.readingLists.length) { %>
+            <% user.readingLists.forEach(function(l){ %>
+              <div class="list-card">
+                <a href="/principal/biblioteca">
+                  <div class="list-thumb" style="background-image:url('<%= l.thumbnail || '/img/default-list.jpg' %>')">
+                  </div>
+                  <div class="list-title">
+                    <%= l.title %>
+                  </div>
+                </a>
               </div>
-            </article>
-          <% }) %>
-        <% } else { %>
-          <p class="muted">Aún no hay obras publicadas.</p>
-        <% } %>
-      </div>
-    </section>
+              <% }) %>
+                <% } else { %>
+                  <p class="muted">No hay listas de lectura.</p>
+                  <% } %>
+        </div>
+      </section>
+    </main>
 
-    <!-- READING LISTS -->
-    <section class="panel">
-      <div class="panel-header">
-        <h2>Listas de lectura</h2>
-      </div>
-      <div class="grid lists-grid">
-        <% if (user.readingLists && user.readingLists.length) { %>
-          <% user.readingLists.forEach(function(l){ %>
-            <div class="list-card">
-              <a href="/principal/biblioteca">
-                <div class="list-thumb" style="background-image:url('<%= l.thumbnail || '/img/default-list.jpg' %>')"></div>
-                <div class="list-title"><%= l.title %></div>
-              </a>
-            </div>
-          <% }) %>
-        <% } else { %>
-          <p class="muted">No hay listas de lectura.</p>
-        <% } %>
-      </div>
-    </section>
-  </main>
-
-  <%- include('partials/footer') %>
-</body>
-</html>
+    <%- include('layouts/footer') %>

@@ -1,21 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
+<%- include('layouts/header', { 
+  title: `<%= capitulo.titulo %> | Willpig Studio`,
+  extraStyles: `<link rel="stylesheet" href="/css/modules/views/read.css">`
+}) %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <%= capitulo.titulo %> | Willpig Studio
-    </title>
-    <link rel="stylesheet" href="/css/style1.2.css">
-  <link rel="stylesheet" href="/css/modules/views/read.css">
-    <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
-</head>
-
-<body class="reading-mode">
-    <%- include('partials/navbar', { loggerUser }) %>
-
-    <div class="reading-toolbar">
+<div class="reading-toolbar">
         <a href="/historias/<%= cuento.id_cuento %>" class="control-btn" title="Volver a la historia">
             <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
             <span>Volver</span>
@@ -105,5 +93,4 @@
             }
         }
     </script>
-</body>
-</html>
+<%- include('layouts/footer') %>

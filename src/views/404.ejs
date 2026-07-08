@@ -1,29 +1,18 @@
-<!DOCTYPE html>
-<html lang="es">
+<%- include('layouts/header', { 
+  title: `Página no encontrada | Willpig Studio`
+}) %>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Página no encontrada | Willpig Studio</title>
-  <link rel="stylesheet" href="/css/style1.2.css" />
-  <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
-</head>
+<!-- ===== ERROR 404 ===== -->
+    <section class="library-page search-page d-flex align-center justify-center">
+      <div class="empty-state empty-card text-center text-muted p-3 max-w-500">
+        <h1 class="error-404-title text-primary">404</h1>
+        <h3 class="mt-1 mb-05 text-dark">
+          <%= locals.message || 'Página no encontrada' %>
+        </h3>
+        <p>Lo sentimos, no pudimos encontrar lo que estabas buscando. Puede que el enlace esté roto o la página haya
+          sido eliminada.</p>
+        <a href="/"><button class="btn btn-primary mt-1-5">Volver al Inicio</button></a>
+      </div>
+    </section>
 
-<body>
-  <%- include('partials/navbar', { loggerUser: typeof loggerUser !== 'undefined' ? loggerUser : null }) %>
-
-  <!-- ===== ERROR 404 ===== -->
-  <section class="library-page search-page d-flex align-center justify-center">
-    <div class="empty-state empty-card text-center text-muted p-3 max-w-500">
-      <h1 class="error-404-title text-primary">404</h1>
-      <h3 class="mt-1 mb-05 text-dark"><%= locals.message || 'Página no encontrada' %></h3>
-      <p>Lo sentimos, no pudimos encontrar lo que estabas buscando. Puede que el enlace esté roto o la página haya sido eliminada.</p>
-      <a href="/"><button class="btn btn-primary mt-1-5">Volver al Inicio</button></a>
-    </div>
-  </section>
-
-  <%- include('partials/footer') %>
-  <script src="/js/script.js"></script>
-</body>
-
-</html>
+    <%- include('layouts/footer') %>

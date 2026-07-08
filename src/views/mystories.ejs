@@ -1,22 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
+<%- include('layouts/header', { 
+  title: `<%= tituloPagina %>`,
+  extraStyles: `<link rel="stylesheet" href="/css/modules/views/mystories.css">`
+}) %>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>
-    <%= tituloPagina %>
-  </title>
-  <link rel="stylesheet" href="/css/style1.2.css" />
-  <link rel="stylesheet" href="/css/modules/views/mystories.css">
-  <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
-</head>
-
-<body>
-
-  <%- include('partials/navbar', { loggerUser }) %>
-
-    <main class="library-page">
+<main class="library-page">
       <header class="library-header">
         <h2>Mis Historias</h2>
         <a href="/historias/crear" class="btn-savever">+ Nueva Historia</a>
@@ -187,22 +174,4 @@
       </div>
     </main>
 
-    <%- include('partials/footer') %>
-
-      <script>
-        const tabs = document.querySelectorAll('.tab-btn');
-        const contents = document.querySelectorAll('.tab-content');
-
-        tabs.forEach(tab => {
-          tab.addEventListener('click', () => {
-            tabs.forEach(btn => btn.classList.remove('active'));
-            contents.forEach(content => content.classList.remove('active'));
-
-            tab.classList.add('active');
-            document.getElementById(tab.dataset.target).classList.add('active');
-          });
-        });
-      </script>
-</body>
-
-</html>
+    <%- include('layouts/footer') %>

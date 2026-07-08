@@ -1,19 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
+<%- include('layouts/header', { 
+  title: `Gestionar: <%= cuento.titulo %> | Willpig Studio`,
+  extraStyles: `<link rel="stylesheet" href="/css/workEdit.css">`
+}) %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionar: <%= cuento.titulo %> | Willpig Studio</title>
-    <link rel="stylesheet" href="/css/style1.2.css">
-    <link rel="icon" href="/img/img.ico/GABALI baloo.ico">
-    <link rel="stylesheet" href="/css/workEdit.css">
-</head>
-
-<body>
-    <%- include('partials/navbar', { loggerUser }) %>
-
-        <div class="manage-container">
+<div class="manage-container">
             <div style="margin-bottom: 20px;">
                 <a href="javascript:history.back()" class="back-link" style="color: var(--primary); font-weight: bold; text-decoration: none;">← Volver</a>
             </div>
@@ -72,24 +62,4 @@
             </section>
         </div>
 
-        <%- include('partials/footer') %>
-
-            <script>
-                async function deleteChapter(id) {
-                    if (confirm('¿Estás seguro de que quieres eliminar este capítulo? Esta acción no se puede deshacer.')) {
-                        try {
-                            const res = await fetch(`/capitulos/delete/${id}`, { method: 'DELETE' });
-                            if (res.ok) {
-                                window.location.reload();
-                            } else {
-                                alert('Error al eliminar el capítulo');
-                            }
-                        } catch (err) {
-                            console.error(err);
-                        }
-                    }
-                }
-            </script>
-</body>
-
-</html>
+        <%- include('layouts/footer') %>

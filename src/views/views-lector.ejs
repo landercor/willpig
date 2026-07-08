@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Detalle de Historia</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-  
-  <link rel="stylesheet" href="/css/modules/views/lector.css">
-</head>
-<body>
+<%- include('layouts/header', { 
+  title: `Detalle de Historia`,
+  extraStyles: `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="/css/modules/views/lector.css">`
+}) %>
 
 <div class="story-page" id="app">
   <div class="modal-overlay" id="modal-overlay">
@@ -104,5 +99,4 @@ function changeCover(e) {
 
 renderParts();
 </script>
-</body>
-</html>
+<%- include('layouts/footer') %>
