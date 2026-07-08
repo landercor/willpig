@@ -87,4 +87,73 @@ app.use((req, res) => {
   res.status(404).render('404', { message: 'Pagina no encontrada.', loggerUser: req.session?.user || null });
 });
 
+// ── Global Error Handler ──
+app.use((err, req, res, _next) => {
+  const statusCode = err.status || err.statusCode || 500;
+
+  // Build a human-readable hint about where the error originated
+  const stack = err.stack || '';
+  let errorHint = '';
+
+  // Try to extract the source file and line from the stack
+  const ejsMatch = stack.match(/\("?([^"()\n]+\.ejs)"?:(\d+):\d+\)/);
+  const jsMatch  = stack.match(/at\s+\S+\s+\(([^)]+\.js):(\d+):\d+\)/);
+
+  if (ejsMatch) {
+    const fileName = ejsMatch[1].split(/[/\\]/).pop();
+    errorHint = `Error en la vista "${fileName}", línea ${ejsMatch[2]}. Tipo: ${err.name || 'Error'}.`;
+  } else if (jsMatch) {
+    const fileName = jsMatch[1].split(/[/\\]/).pop();
+    errorHint = `Error en "${fileName}", línea ${jsMatch[2]}. Tipo: ${err.name || 'Error'}.`;
+  } else {
+    errorHint = `${err.name || 'Error'}: ${err.message || 'Error desconocido'}`;
+  }
+
+  // In development, append the full error message
+  if (process.env.NODE_ENV !== 'production') {
+    errorHint += `\n\nMensaje completo: ${err.message}`;
+  }
+
+  // Map status codes to user-friendly titles
+  const titles = {
+    400: 'Solicitud incorrecta',
+    401: 'No autorizado',
+    403: 'Acceso denegado',
+    404: 'Página no encontrada',
+    500: 'Error interno del servidor',
+    502: 'Bad Gateway',
+    503: 'Servicio no disponible',
+  };
+
+  console.error(`[ERROR ${statusCode}] ${req.method} ${req.originalUrl}`);
+  console.error(err.stack || err.message);
+
+  try {
+    res.status(statusCode).render('error', {
+      statusCode,
+      errorTitle: titles[statusCode] || 'Error del servidor',
+      message: statusCode === 500
+        ? 'Ocurrió un error inesperado. Nuestro equipo ha sido notificado.'
+        : err.message || 'Algo salió mal.',
+      errorHint,
+      loggerUser: req.session?.user || null,
+    });
+  } catch (renderErr) {
+    // Fallback if the error view itself fails to render
+    console.error('[CRITICAL] Error view failed to render:', renderErr.message);
+    res.status(500).send(`
+      <div style="font-family:sans-serif;max-width:600px;margin:4rem auto;padding:2rem;text-align:center;">
+        <h1 style="font-size:3rem;color:#ee5a24;">500</h1>
+        <h2>Error crítico</h2>
+        <p>No se pudo renderizar la página de error.</p>
+        <p style="background:#f5f5f5;padding:1rem;border-radius:8px;text-align:left;font-size:0.85rem;border-left:4px solid #ee5a24;">
+          <strong>Error original:</strong> ${err.message}<br>
+          <strong>Error de renderizado:</strong> ${renderErr.message}
+        </p>
+        <a href="/" style="display:inline-block;margin-top:1rem;padding:10px 24px;background:#ee5a24;color:#fff;border-radius:8px;text-decoration:none;">Volver al Inicio</a>
+      </div>
+    `);
+  }
+});
+
 export default app;

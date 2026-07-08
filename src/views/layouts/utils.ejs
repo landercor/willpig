@@ -1,34 +1,11 @@
 <% 
-/**
- * Layout Utilities for WillPig Studio
- * Centralizes logic for showing/hiding components
- */
-
-// Pages where we don't want to show the navbar
-const noNavbarPages = ['login', 'register', 'olvido', 'nuevaclave'];
-
-// Pages where we don't want to show the footer
-const noFooterPages = ['chapter_editor', 'editor'];
-
-/**
- * Checks if a component should be rendered
- * @param {string} component - 'navbar' | 'footer'
- * @param {string} pageId - The ID of the current page
- * @param {object} locals - The local variables passed to the view
- */
+var noNavbarPages = ['login', 'register', 'olvido', 'nuevaclave', 'admin'];
+var noFooterPages = ['chapter_editor', 'editor', 'admin'];
 shouldRender = function(component, pageId, locals) {
-    // Priority 1: Explicit flag in locals (e.g., res.render('page', { hideNavbar: true }))
     if (component === 'navbar' && typeof locals.hideNavbar !== 'undefined') return !locals.hideNavbar;
     if (component === 'footer' && typeof locals.hideFooter !== 'undefined') return !locals.hideFooter;
-
-    // Priority 2: Automatic rules based on pageId
-    if (component === 'navbar') {
-        return !noNavbarPages.includes(pageId);
-    }
-    if (component === 'footer') {
-        return !noFooterPages.includes(pageId);
-    }
-
+    if (component === 'navbar') return !noNavbarPages.includes(pageId);
+    if (component === 'footer') return !noFooterPages.includes(pageId);
     return true;
 };
 %>
