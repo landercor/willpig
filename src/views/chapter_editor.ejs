@@ -1,0 +1,86 @@
+<%- include('layouts/header', { 
+  title: `Editor: ${storyTitle} | Willpig Studio`,
+  extraStyles: `<link rel="stylesheet" href="/css/workEdit.css">`
+}) %>
+
+<div class="editor-container">
+            <div class="editor-header">
+                <span class="story-label">Escribiendo para: <%= storyTitle %></span>
+                <input type="text" id="chapter-title" class="chapter-title-input" placeholder="Título del capítulo..."
+                    value="<%= chapter.titulo %>">
+            </div>
+            <div id="editor">
+                <%- chapter.contenido %>
+            </div>
+
+            <div class="editor-footer">
+                <a href="/historias/editar/<%= chapter.cuento_id %>" class="btn-cancel">Cancelar</a>
+                <button id="save-btn" class="btn-savever" style="padding: 12px 30px; border-radius: 25px;">
+                    <%= chapter.id_capitulo ? 'Guardar Cambios' : 'Publicar Capítulo' %>
+                </button>
+            </div>
+        </div>
+
+        <!-- Quill JS -->
+        <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+        <script>
+            var quill = new Quill('#editor', {
+                theme: 'snow',
+                placeholder: 'Empieza a escribir tu historia...',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        ['blockquote', 'code-block'],
+                        ['clean']
+                    ]
+                }
+            });
+
+            const saveBtn = document.getElementById('save-btn');
+            const chapterId = '<%= chapter.id_capitulo || "" %>';
+            const storyId = '<%= chapter.cuento_id %>';
+
+            saveBtn.addEventListener('click', async () => {
+                const titulo = document.getElementById('chapter-title').value;
+                const contenido = quill.root.innerHTML;
+
+                if (!titulo) return alert('Por favor, ponle un título al capítulo');
+
+                saveBtn.disabled = true;
+                saveBtn.innerText = 'Guardando...';
+
+                try {
+                    let url = '/capitulos/new';
+                    let method = 'POST';
+
+                    if (chapterId) {
+                        url = `/capitulos/update/${chapterId}`;
+                        method = 'PUT';
+                    }
+
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ titulo, contenido, cuento_id: storyId })
+                    });
+
+                    if (res.ok) {
+                        window.location.href = `/historias/editar/${storyId}`;
+                    } else {
+                        alert('Error al guardar');
+                        saveBtn.disabled = false;
+                        saveBtn.innerText = 'Reintentar';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error de conexión');
+                    saveBtn.disabled = false;
+                }
+            });
+        </script>
+
+        <!-- Global Scripts -->
+        <script src="/js/script.js"></script>
+<%- include('layouts/footer') %>

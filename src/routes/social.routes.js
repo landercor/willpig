@@ -1,0 +1,15 @@
+import { Router } from 'express';
+import { isAuth } from '../middlewares/isAuth.js';
+import { seguirUsuario, dejarDeSeguir, estadoSeguimiento, darLike, quitarLike, agregarALista, quitarDeLista, getComentarios, postComentario, deleteComentario } from '../controllers/social.controller.js';
+const router = Router();
+router.post('/seguir/:id', isAuth, seguirUsuario);
+router.post('/dejar/:id', isAuth, dejarDeSeguir);
+router.get('/estado/:id', isAuth, estadoSeguimiento);
+router.post('/like/:id', isAuth, darLike);
+router.post('/unlike/:id', isAuth, quitarLike);
+router.post('/lista/agregar/:id', isAuth, agregarALista);
+router.post('/lista/quitar/:id', isAuth, quitarDeLista);
+router.get('/comentarios/:cuentoId', getComentarios);
+router.post('/comentarios/:cuentoId', isAuth, postComentario);
+router.delete('/comentarios/borrar/:comentarioId', isAuth, deleteComentario);
+export default router;

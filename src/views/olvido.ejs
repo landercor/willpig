@@ -1,0 +1,40 @@
+<%- include('layouts/header', { title: 'Olvido de Clave | Willpig Studio' , pageId: 'olvido' }) %>
+    <!--
+    <div class="login-pocketIN">
+        <div class="login-visual">
+            <img src="/img/img.ico/fondo_register2.jpg" alt="Imagen Login">
+        </div>
+    -->
+    <div class="register-container-igm">
+        <div class="login-box">
+
+            <h1>Olvido de Contraseña</h1>
+            <p>Introduce el correo vinculado a tu cuenta</p>
+            <p style="font-size: 0.9em; margin-bottom: 20px;">Por favor, revisa tu correo para continuar con el proceso
+                de restablecer tu clave.</p>
+
+            <form action="/auth/olvido" method="POST" class="form-login">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="form-group">
+                    <label for="correo">Correo electrónico</label>
+                    <input type="email" id="correo" name="correo" required placeholder="ejemplo@correo.com">
+                </div>
+
+                <button type="submit" class="btn-login-pocket">Enviar Recuperación</button>
+            </form>
+
+            <!-- Mostrar error si existe -->
+            <% if (typeof error !=="undefined" ) { %>
+                <p class="text-danger" style="color:rgb(124, 2, 2); margin-top: 15px;">
+                    <%= error %>
+                </p>
+                <% } %>
+
+                    <p class="register-text" style="margin-top: 20px;">¿No tienes cuenta? <a
+                            href="/auth/register">Regístrate aquí</a></p>
+                    <p class="register-text"><a href="/auth/login">Volver a iniciar sesión</a></p>
+        </div>
+    </div>
+    </div> <!-- Cierre oculto de login-pocketIN si aplica -->
+
+    <%- include('layouts/footer') %>

@@ -1,0 +1,175 @@
+/* === Authentication (Login & Register) === */
+.register-container-igm {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/img/img.ico/fondo_register2.jpg') no-repeat center center/cover;
+  padding: 40px;
+}
+
+.login-form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-box, .register-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--white-pure);
+  padding: 45px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+}
+
+/* Common Form Styles */
+.register-form .form-group,
+.form-login .form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.register-form .form-group label,
+.form-login .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.register-form .form-group input,
+.form-login .form-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-light);
+}
+
+.btn-register, .btn-login-pocket {
+  width: 100%;
+  padding: 14px;
+  background: var(--salmon-gradient);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: var(--shadow-soft);
+  transition: var(--transition-fast);
+}
+
+.btn-register:hover, .btn-login-pocket:hover {
+  transform: translateY(-2px);
+}
+
+.forgot {
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.forgot:hover {
+  color: var(--primary-salmon-dark);
+}
+
+.divider {
+  margin: 25px 0;
+  position: relative;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--glass-border);
+}
+
+.social-login {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.social-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--white-pure);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  color: var(--text-dark);
+}
+
+.social-btn:hover {
+  background: var(--bg-light);
+  border-color: var(--primary-salmon);
+}
+
+/* Register specific header fixes */
+.Logps-navbar {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+}
+
+.logo-LTRA {
+  margin: 0;
+}
+
+.logo-LTRA img {
+  height: 60px; /* Slightly larger since it is centered above */
+  width: auto;
+  object-fit: contain;
+}
+
+/* === Responsiveness === */
+@media (max-width: 768px) {
+  .login-pocketIN {
+    flex-direction: column;
+  }
+
+  .login-visual {
+    display: none; /* Hide visual part on mobile to focus on the form */
+  }
+
+  .login-form-section {
+    padding: 20px;
+    min-height: calc(100vh - 75px);
+  }
+
+  .login-box, .register-card {
+    padding: 30px 20px;
+    box-shadow: none; /* Cleaner look on mobile */
+    background: transparent;
+  }
+  
+  .register-container-igm {
+    padding: 20px;
+  }
+}

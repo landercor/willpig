@@ -1,0 +1,81 @@
+<%- include('layouts/header', { 
+  title: `Editar perfil | Willpig Studio`,
+  extraStyles: `<link rel="stylesheet" href="/css/modules/views/profile-edit.css">`
+}) %>
+
+<div class="edit-page">
+      <img class="icon-edit-profile" src="/img/img.ico/svg/pencil-fill.svg" alt="edit"><span> Editar perfil</apan>
+        <p class="subtitle">Personaliza cómo te ven los demás lectores.</p>
+
+        <form action="/usuario/perfil/editar" method="POST" enctype="multipart/form-data">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <!-- IMÁGENES -->
+          <div class="edit-card">
+            <img src="/img/img.ico/svg/pencil-fill.svg" alt=""><span>Foto de perfil</apan>
+              <div class="img-preview-row">
+                <img id="avatarPreview" class="preview-circle"
+                  src="<%= userData.avatar_url || '/img/default-avatar.svg' %>" alt="Avatar actual">
+                <label class="file-upload-label">
+                  📁 Cambiar foto
+                  <input type="file" name="avatar" accept="image/*" id="avatarInput">
+                </label>
+              </div>
+          </div>
+
+          <div class="edit-card">
+            <h2>🖼️ Banner / Portada de fondo</h2>
+            <img id="bannerPreview" class="preview-banner" src="<%= userData.portada_url || '/img/default-cover.jpg' %>"
+              alt="Banner actual" onerror="this.style.display='none'">
+            <br>
+            <label class="file-upload-label">
+              📁 Cambiar banner
+              <input type="file" name="coverImage" accept="image/*" id="bannerInput">
+            </label>
+          </div>
+
+          <!-- BIO -->
+          <div class="edit-card">
+            <h2>📝 Descripción / Biografía</h2>
+            <div class="field-group">
+              <label class="field-label">Cuéntale al mundo quién eres</label>
+              <textarea class="field-textarea" name="biografia" id="bioField" maxlength="400"
+                placeholder="Ej: Escritora de fantasía oscura, amante del café y los finales inesperados..."><%= userData.biografia || '' %></textarea>
+              <span class="char-count"><span id="bioCount">
+                  <%= (userData.biografia || '' ).length %>
+                </span>/400</span>
+            </div>
+          </div>
+
+          <!-- ACCIONES -->
+          <div class="form-actions">
+            <a href="/usuario/perfil" class="btn-cancel">Cancelar</a>
+            <button type="submit" class="btn-save">💾 Guardar cambios</button>
+          </div>
+        </form>
+    </div>
+
+    <script>
+      // Preview de imágenes al seleccionar
+      document.getElementById('avatarInput').addEventListener('change', function () {
+        if (this.files[0]) {
+          document.getElementById('avatarPreview').src = URL.createObjectURL(this.files[0]);
+        }
+      });
+      document.getElementById('bannerInput').addEventListener('change', function () {
+        const preview = document.getElementById('bannerPreview');
+        if (this.files[0]) {
+          preview.src = URL.createObjectURL(this.files[0]);
+          preview.style.display = 'block';
+        }
+      });
+
+      // Contador de caracteres en bio
+      const bioField = document.getElementById('bioField');
+      const bioCount = document.getElementById('bioCount');
+      bioField.addEventListener('input', () => {
+        bioCount.textContent = bioField.value.length;
+      });
+    </script>
+
+    <%- include('layouts/footer') %>

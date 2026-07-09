@@ -1,0 +1,33 @@
+/* === General === */
+body {
+  font-family: var(--main-font);
+  margin: 0;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  transition: background-color 0.8s ease, color 0.8s ease;
+  overflow-x: hidden;
+}
+
+body.dark-mode {
+  background-color: var(--ink-black);
+  color: var(--sage-beige);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-salmon-dark);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

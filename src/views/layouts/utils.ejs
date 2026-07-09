@@ -1,0 +1,11 @@
+<% 
+var noNavbarPages = ['login', 'register', 'olvido', 'nuevaclave', 'admin'];
+var noFooterPages = ['chapter_editor', 'editor', 'admin'];
+shouldRender = function(component, pageId, locals) {
+    if (component === 'navbar' && typeof locals.hideNavbar !== 'undefined') return !locals.hideNavbar;
+    if (component === 'footer' && typeof locals.hideFooter !== 'undefined') return !locals.hideFooter;
+    if (component === 'navbar') return !noNavbarPages.includes(pageId);
+    if (component === 'footer') return !noFooterPages.includes(pageId);
+    return true;
+};
+%>

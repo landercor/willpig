@@ -1,0 +1,332 @@
+<%- include('layouts/header', { 
+  title: `Willpig Studio | Principal`
+}) %>
+
+<body>
+
+    <!-- Carrusel principal -->
+    <section class="hero-carousel animate-fade">
+      <div class="carousel">
+        <% carrusel.forEach((item, index)=> { %>
+          <div class="slide <%= index === 0 ? 'active': '' %>">
+            <div class="hero-image-wrapper">
+              <img src="<%= item.imagen %>" alt="<%= item.titulo %>">
+              <div class="hero-overlay"></div>
+            </div>
+            <div class="caption">
+              <h2 class="animate-scale">
+                <%= item.titulo %>
+              </h2>
+              <p class="hero-subtitle">Descubre historias que te transportarán a nuevos mundos.</p>
+              <div class="hero-actions">
+                <a href="<%= item.link %>">
+                  <button class="btn-primary-pastel">Leer ahora</button>
+                </a>
+                <button class="btn-outline-white">Añadir a lista</button>
+              </div>
+            </div>
+          </div>
+          <% }) %>
+      </div>
+
+      <div class="carousel-controls">
+        <button class="prev" aria-label="Anterior">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="next" aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <div class="carousel-indicators">
+        <% carrusel.forEach((_, index)=> { %>
+          <div class="indicator <%= index === 0 ? 'active': '' %>"></div>
+          <% }) %>
+      </div>
+    </section>
+
+
+    <!-- Secciones con scroll horizontal -->
+    <section class="library-page">
+
+      <!-- Explora por Categorías -->
+      <div class="categories-explorer-section reveal-item mb-4">
+        <div class="categories-explorer-title-wrapper">
+          <h2 class="categories-explorer-title">Explora por Categorías</h2>
+          <p class="categories-explorer-subtitle">Encuentra tu próximo libro favorito según tu género preferido</p>
+        </div>
+        <div class="categories-grid-premium">
+          <% const categoryGradients={ 'fantasia' : 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)'
+            , 'ciencia-ficcion' : 'linear-gradient(135deg, #2b5876 0%, #4e4376 100%)' , 'utopia'
+            : 'linear-gradient(135deg, #ffeedf 0%, #ffc6a5 100%)' , 'aventura'
+            : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' , 'general'
+            : 'linear-gradient(135deg, #e2ebf0 0%, #cfd9df 100%)' }; const categoryEmojis={ 'fantasia'
+            : 'img/img.ico/svg/stars.svg' , 'ciencia-ficcion' : 'img/img.ico/svg/leaf.svg' , 'utopia'
+            : 'img/img.ico/svg/leaf.svg' , 'aventura' : 'img/img.ico/svg/globe-central-south-asia.svg' , 'general'
+            : 'img/img.ico/svg/book-half.svg' }; %>
+            <% if (typeof categorias !=='undefined' && categorias && categorias.length> 0) { %>
+              <% categorias.forEach(cat=> { %>
+                <% const normKey=cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '' ); const
+                  gradient=categoryGradients[normKey] || categoryGradients['general']; const
+                  emoji=categoryEmojis[normKey] || categoryEmojis['general']; %>
+                  <a href="/categoria/<%= normKey %>" class="category-card-premium" style="background: <%= gradient %>">
+                    <div class="category-card-overlay"></div>
+                    <div class="category-card-content">
+                      <span class="category-emoji">
+                        <img src="/<%= emoji %>" alt="<%= cat.nombre %>">
+                      </span>
+                      <h3 class="category-name">
+                        <%= cat.nombre %>
+                      </h3>
+                    </div>
+                  </a>
+                  <% }) %>
+                    <% } else { %>
+                      <!-- Fallback estático en caso de que no haya cargado de la DB -->
+                      <a href="/categoria/ciencia-ficcion" class="category-card-premium"
+                        style="background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%)">
+                        <div class="category-card-overlay"></div>
+                        <div class="category-card-content">
+                          <span class="category-emoji">
+                            <h3>hola</h3>
+                          </span>
+                          <h3 class="category-name">Ciencia Ficció</h3>
+                        </div>
+                      </a>
+                      <a href="/categoria/utopia" class="category-card-premium"
+                        style="background: linear-gradient(135deg, #ffeedf 0%, #ffc6a5 100%)">
+                        <div class="category-card-overlay"></div>
+                        <div class="category-card-content">
+                          <span class="category-emoji"><img src="/img/img.ico/svg/leaf.svg" alt="Utopía"></span>
+                          <h3 class="category-name">Utopía</h3>
+                        </div>
+                      </a>
+                      <a href="/categoria/aventura" class="category-card-premium"
+                        style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)">
+                        <div class="category-card-overlay"></div>
+                        <div class="category-card-content">
+                          <span class="category-emoji"><img src="/img/img.ico/svg/globe-central-south-asia.svg"
+                              alt="Aventura"></span>
+                          <h3 class="category-name">Aventura</h3>
+                        </div>
+                      </a>
+                      <a href="/categoria/fantasia" class="category-card-premium"
+                        style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)">
+                        <div class="category-card-overlay"></div>
+                        <div class="category-card-content">
+                          <span class="category-emoji"><img src="/img/img.ico/svg/stars.svg" alt="Fantasía"></span>
+                          <h3 class="category-name">Fantasía</h3>
+                        </div>
+                      </a>
+                      <% } %>
+        </div>
+      </div>
+
+      <div class="library-header reveal-item">
+        <div class="library-tabs">
+          <button class="tab-btn active" data-target="home-tab">Inicio</button>
+          <button class="tab-btn" data-target="new-tab">Nuevas Historias</button>
+          <button class="tab-btn" data-target="trends-tab">Tendencias</button>
+          <% if (loggerUser && loggerUser.rol && loggerUser.rol.toLowerCase()==='admin' ) { %>
+            <a href="/admin" class="tab-btn admin-tab">Admin</a>
+            <% } %>
+        </div>
+      </div>
+
+      <div class="library-content">
+        <!-- === INICIO (Filas Netflix & Destacada) === -->
+        <div id="home-tab" class="tab-content active">
+
+          <!-- Historia destacada -->
+          <% if (typeof historiaDestacada !=='undefined' && historiaDestacada) { %>
+            <section class="featured-story mb-3 reveal-item">
+              <div class="featured-image">
+                <img
+                  src="<%= historiaDestacada.portada_url || historiaDestacada.portada || '/img/default-portada.jpg' %>"
+                  alt="<%= historiaDestacada.titulo %>">
+                <div class="featured-badge">Destacada</div>
+              </div>
+              <div class="info">
+                <h2>Recomendación del día</h2>
+                <h3 class="mb-05">
+                  <%= historiaDestacada.titulo %>
+                </h3>
+                <p>
+                  <%= historiaDestacada.sinopsis
+                    || 'Una aventura increíble y popular elegida por los lectores de Willpig Studio.' %>
+                </p>
+                <div class="featured-meta">
+                  <div class="meta-item"><img src="/img/img.ico/vistas-icon.svg" class="icon-eye"> <span>
+                      <%= (historiaDestacada.vistas || 0).toLocaleString() %> lecturas
+                    </span></div>
+                </div>
+                <a href="/historias/<%= historiaDestacada.id_cuento %>">
+                  <button class="btn-primary-pastel mt-1">Comenzar lectura</button>
+                </a>
+              </div>
+            </section>
+            <% } %>
+
+              <!-- Categorías (Netflix Style) -->
+              <% if (typeof historiasPorCategoria !=='undefined' && Object.keys(historiasPorCategoria).length> 0) { %>
+                <% Object.keys(historiasPorCategoria).forEach(cat=> { %>
+                  <div class="category-section mb-3 reveal-item">
+                    <div class="section-flex">
+                      <h3 class="category-title">
+                        <%= cat %>
+                      </h3>
+                      <% const catNorm=cat.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''
+                        ).replace(/\s+/g, '-' ); %>
+                        <a href="/categoria/<%= catNorm %>" class="view-all">Ver todo</a>
+                    </div>
+                    <div class="scroll-wrapper">
+                      <div class="scroll-container">
+                        <% historiasPorCategoria[cat].forEach(historia=> { %>
+                          <div class="carousel-item">
+                            <div class="card-inner">
+                              <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
+                                <img
+                                  src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>"
+                                  class="cover" alt="<%= historia.titulo %>">
+                                <div class="card-overlay">
+                                  <span class="btn-play-mini">▶</span>
+                                </div>
+                              </a>
+                              <div class="card-info">
+                                <p class="title text-truncate">
+                                  <%= historia.titulo %>
+                                </p>
+                                <div class="meta text-start">
+                                  <img src="/img/img.ico/vistas-icon.svg" class="icon-eye"> <span>
+                                    <%= (historia.vistas || 0).toLocaleString() %>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <% }) %>
+                      </div>
+                      <button class="scroll-btn left" aria-label="Deslizar izquierda">‹</button>
+                      <button class="scroll-btn right" aria-label="Deslizar derecha">›</button>
+                    </div>
+                  </div>
+                  <% }) %>
+                    <% } else { %>
+                      <div class="empty-state text-center p-2 text-muted reveal-item">
+                        <p>Aún no hay categorías para mostrar.</p>
+                      </div>
+                      <% } %>
+
+        </div>
+
+        <!-- === NUEVAS HISTORIAS === -->
+        <div id="new-tab" class="tab-content">
+          <div class="section-title reveal-item"> Recién publicadas </div>
+
+          <div class="grid-container reveal-item">
+            <% if (historias && historias.length> 0) { %>
+              <% historias.forEach(historia=> { %>
+                <div class="library-item">
+                  <div class="card-inner">
+                    <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
+                      <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>"
+                        class="cover" alt="<%= historia.titulo %>">
+                      <div class="card-overlay">
+                        <span class="btn-play-mini">▶</span>
+                      </div>
+                    </a>
+                    <div class="card-info">
+                      <p class="title text-truncate">
+                        <%= historia.titulo %>
+                      </p>
+                      <div class="author">
+                        <img
+                          src="<%= (historia.cuenta_usuario && historia.cuenta_usuario.avatar_url) || '/img/default-avatar.svg' %>"
+                          alt="autor" class="author-avatar-xs">
+                        <% if (historia.cuenta_usuario && historia.cuenta_usuario.id_cuenta_usuario) { %>
+                          <a href="/usuario/profile/<%= historia.cuenta_usuario.id_cuenta_usuario %>"
+                            class="author-link">@<%= historia.cuenta_usuario.username %></a>
+                          <% } else { %>
+                            <span>@Anónimo</span>
+                            <% } %>
+                      </div>
+                      <div class="meta">
+                        <img src="/img/img.ico/vistas-icon.svg" class="icon-eye">
+                        <%= (historia.vistas || 0).toLocaleString() %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% }) %>
+                  <% } else { %>
+                    <div class="empty-state text-center p-2 text-muted col-full reveal-item">
+                      <p>No hay historias nuevas en este momento.</p>
+                      <a href="/historias/crear"><button class="btn-primary-pastel mt-1">¡Escribe la
+                          primera!</button></a>
+                    </div>
+                    <% } %>
+          </div>
+
+          <% if (historias && historias.length>= 10) { %>
+            <div class="text-center my-3 reveal-item">
+              <a href="/principal/biblioteca"><button class="btn-outline-primary">Ver más historias</button></a>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- === TENDENCIAS === -->
+        <div id="trends-tab" class="tab-content">
+          <div class="section-title reveal-item"> Lo más leído del mundo </div>
+
+          <div class="grid-container reveal-item">
+            <% if (typeof tendencias !=='undefined' && tendencias.length> 0) { %>
+              <% tendencias.forEach(historia=> { %>
+                <div class="library-item">
+                  <div class="card-inner">
+                    <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
+                      <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>"
+                        class="cover" alt="<%= historia.titulo %>">
+                      <div class="card-overlay">
+                        <span class="btn-play-mini">▶</span>
+                      </div>
+                    </a>
+                    <div class="card-info">
+                      <p class="title text-truncate">
+                        <%= historia.titulo %>
+                      </p>
+                      <div class="author">
+                        <img
+                          src="<%= (historia.cuenta_usuario && historia.cuenta_usuario.avatar_url) || '/img/default-avatar.svg' %>"
+                          alt="autor" class="author-avatar-xs">
+                        <% if (historia.cuenta_usuario && historia.cuenta_usuario.id_cuenta_usuario) { %>
+                          <a href="/usuario/profile/<%= historia.cuenta_usuario.id_cuenta_usuario %>"
+                            class="author-link">@<%= historia.cuenta_usuario.username %></a>
+                          <% } else { %>
+                            <span>@Anónimo</span>
+                            <% } %>
+                      </div>
+                      <div class="meta">
+                        <img src="/img/img.ico/vistas-icon.svg" class="icon-eye">
+                        <%= (historia.vistas || 0).toLocaleString() %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% }) %>
+                  <% } else { %>
+                    <div class="empty-state text-center p-2 text-muted col-full reveal-item">
+                      <p>No hay historias en tendencia aún.</p>
+                    </div>
+                    <% } %>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <%- include('layouts/footer') %>

@@ -1,0 +1,242 @@
+<header class="navbar glass-effect">
+  <div class="navbar-left">
+    <div class="logo" onclick="window.location.href='/principal'">
+      <figure class="logo-fig">
+        <img src="/img/img.ico/GABALI baloo.ico" alt="WillPig logo">
+      </figure>
+      <h2>WillPig</h2>
+      <span class="logo-text"></span>
+    </div>
+  </div>
+
+  <% if (typeof hideBuscar==='undefined' || (!hideBuscar && typeof hideBuscar==='undefined' ) || (typeof hideBuscar
+    !=='undefined' && !hideBuscar)) { %>
+    <div class="navbar-center">
+      <form action="/buscar" method="GET" class="search-form">
+        <div class="search-container">
+          <input type="text" name="q" class="search-bar" placeholder="Buscar historias o autores..." required>
+          <button type="submit" class="search-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </div>
+    <% } %>
+
+      <div class="navbar-right">
+        <div class="nav-actions">
+          <% if (typeof loggerUser !=='undefined' && loggerUser) { %>
+            <!-- ESCRIBIR (Logged In) -->
+            <% if (typeof hideEscribir==='undefined' || !hideEscribir) { %>
+              <!--Se muestra una regla donde se especifica el elemento que se muestra-->
+              <div class="dropdown">
+                <div class="dropdown-trigger">
+                  <button class="dropbtn">Escribir</button>
+                  <svg class="dropdown-arrow-svg" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <div class="dropdown-content glass-effect">
+                  <a href="/historias/crear">Crea tu historia</a>
+                  <a href="/historias/mis">Mis historias</a>
+                </div>
+              </div>
+              <!--Se muestra una regla donde se especifica el elemento que se muestra-->
+              <% } %>
+
+                <!-- DROPDOWN DE CATEGORÍAS (Explorar) -->
+                <div class="dropdown categories-dropdown">
+                  <div class="dropdown-trigger">
+                    <button class="dropbtn">Explorar</button>
+                    <svg class="dropdown-arrow-svg" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                  <div class="dropdown-content glass-effect">
+                    <% if (typeof categorias !=='undefined' && categorias && categorias.length> 0) { %>
+                      <% categorias.forEach(cat=> { %>
+                        <% const norm=cat.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '' ); %>
+                          <a href="/categoria/<%= norm %>">
+                            <%= cat.nombre %>
+                          </a>
+                          <% }) %>
+                            <% } else { %>
+                              <a href="/categoria/ciencia-ficcion">Ciencia Ficción</a>
+                              <a href="/categoria/utopia">Utopía</a>
+                              <a href="/categoria/aventura">Aventura</a>
+                              <a href="/categoria/fantasia">Fantasía</a>
+                              <% } %>
+                  </div>
+                </div>
+
+                <!-- NOTIFICACIONES (Panel desplegable) -->
+                <div class="dropdown notifications-dropdown" id="notifDropdown" style="position:relative;">
+                  <button class="notif-trigger" id="notifTrigger"
+                    style="background:none;border:none;cursor:pointer;position:relative;padding:6px;border-radius:50%;transition:background 0.2s;color:inherit;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.08)'"
+                    onmouseout="this.style.background='none'">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <% if (typeof notifCount !=='undefined' && notifCount> 0) { %>
+                      <span id="notifBadge"
+                        style="position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;">
+                        <%= notifCount %>
+                      </span>
+                      <% } else { %>
+                        <span id="notifBadge"
+                          style="display:none;position:absolute;top:-2px;right:-2px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;font-weight:700;align-items:center;justify-content:center;line-height:1;"></span>
+                        <% } %>
+                  </button>
+
+                  <!-- Panel de notificaciones -->
+                  <div id="notifPanel"
+                    style="display:none;position:absolute;right:0;top:calc(100% + 10px);width:340px;background:var(--bg-card,#1e1e2e);border:1px solid rgba(255,255,255,0.08);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:9999;overflow:hidden;">
+                    <!-- Header del panel -->
+                    <div
+                      style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                      <span style="font-weight:700;font-size:0.95rem;">Notificaciones</span>
+                      <button onclick="markAllRead()"
+                        style="background:none;border:none;cursor:pointer;color:#a78bfa;font-size:0.78rem;font-weight:600;">Marcar
+                        todo leído</button>
+                    </div>
+                    <!-- Lista -->
+                    <div id="notifList" style="max-height:320px;overflow-y:auto;"></div>
+                    <!-- Footer -->
+                    <div style="padding:10px 18px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+                      <a href="/principal/biblioteca" style="color:#a78bfa;font-size:0.82rem;text-decoration:none;">Ver
+                        biblioteca →</a>
+                    </div>
+                  </div>
+                </div>
+
+                <script>
+                  (function () {
+                    const trigger = document.getElementById('notifTrigger');
+                    const panel = document.getElementById('notifPanel');
+                    const badge = document.getElementById('notifBadge');
+                    const list = document.getElementById('notifList');
+                    let loaded = false;
+
+                    function timeAgoNotif(d) {
+                      const diff = Math.floor((Date.now() - new Date(d)) / 1000);
+                      if (diff < 60) return 'Ahora';
+                      if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
+                      if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+                      return new Date(d).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+                    }
+
+                    async function loadNotifs() {
+                      list.innerHTML = '<p style="text-align:center;padding:20px;color:#666;">Cargando...</p>';
+                      try {
+                        const r = await fetch('/usuario/notificaciones');
+                        const data = await r.json();
+                        const notifs = data.notificaciones || [];
+                        if (notifs.length === 0) {
+                          list.innerHTML = '<p style="text-align:center;padding:24px;color:#666;font-size:0.875rem;">Sin notificaciones nuevas</p>';
+                        } else {
+                          list.innerHTML = notifs.map(n => `
+                            <div style="display:flex;gap:12px;padding:13px 18px;border-bottom:1px solid rgba(255,255,255,0.04);background:${n.leida ? 'transparent' : 'rgba(167,139,250,0.05)'};">
+                              <div style="flex-shrink:0;width:8px;height:8px;border-radius:50%;background:${n.leida ? 'transparent' : '#a78bfa'};margin-top:6px;"></div>
+                              <div style="flex:1;">
+                                <p style="margin:0;font-size:0.875rem;color:#ddd;line-height:1.4;">${n.mensaje || tipoLabel(n.tipo)}</p>
+                                <span style="font-size:0.75rem;color:#666;">${timeAgoNotif(n.created_at || n.fecha)}</span>
+                              </div>
+                            </div>`).join('');
+                        }
+                        // Ocultar badge tras abrir
+                        if (badge) badge.style.display = 'none';
+                      } catch (e) {
+                        list.innerHTML = '<p style="text-align:center;padding:20px;color:#666;">Error al cargar</p>';
+                      }
+                    }
+
+                    function tipoLabel(tipo) {
+                      const map = { nuevo_seguidor: 'Alguien te siguió', like: 'Le gustó tu historia', comentario: 'Nuevo comentario en tu historia' };
+                      return map[tipo] || 'Nueva notificación';
+                    }
+
+                    async function markAllRead() {
+                      const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+                      try {
+                        const res = await fetch('/usuario/notificaciones/leer', {
+                          method: 'POST',
+                          headers: { 
+                            'CSRF-Token': csrfToken, 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json' 
+                          },
+                          body: JSON.stringify({})
+                        });
+                        if (!res.ok) console.error('Failed to mark read', await res.text());
+                      } catch (e) { console.error(e); }
+                      if (badge) badge.style.display = 'none';
+                      await loadNotifs();
+                    }
+
+                    trigger?.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                      const isOpen = panel.style.display === 'block';
+                      panel.style.display = isOpen ? 'none' : 'block';
+                      if (!isOpen && !loaded) { loaded = true; loadNotifs(); }
+                      else if (!isOpen) { loadNotifs(); }
+                    });
+
+                    document.addEventListener('click', (e) => {
+                      if (!document.getElementById('notifDropdown')?.contains(e.target)) {
+                        if (panel) panel.style.display = 'none';
+                      }
+                    });
+                  })();
+                </script>
+
+
+                <!-- PERFIL -->
+                <div class="dropdown profile">
+                  <div class="dropdown-trigger">
+                    <img src="<%= loggerUser.avatar || '/img/default-avatar.svg' %>" class="avatar avatar-sm">
+                    <svg class="dropdown-arrow-svg" viewBox="0 0 24 24" width="16" height="16" fill="none"
+                      stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                  <div class="dropdown-content glass-effect">
+                    <% if (loggerUser.rol && loggerUser.rol.toLowerCase()==='admin' ) { %>
+                      <a href="/admin" style="color: #e53935; font-weight: bold;">⚙ Panel Admin</a>
+                      <% } %>
+                        <a href="/usuario/perfil">Mi perfil</a>
+                        <a href="/principal/biblioteca">Biblioteca</a>
+                        <a href="/auth/logout" class="logout-link">Cerrar sesión</a>
+                  </div>
+                </div>
+                <% } else { %>
+                  <!--Ocultamiento del boton escribir si es que se define en alguna funcion-->
+                  <% if (typeof hideEscribir==='undefined' || !hideEscribir) { %>
+                    <a href="/historias/crear" class="nav-link">Escribir</a>
+                    <% } %>
+
+                      <!-- El botón de "Explorar" ha sido ocultado para usuarios no logueados -->
+
+                      <a href="/auth/login" class="nav-link">Iniciar sesión</a>
+                      <a href="/auth/register" class="btn-primary-pastel">Registrarse</a>
+                      <% } %>
+        </div>
+
+        <% if (typeof hideTema==='undefined' || !hideTema) { %>
+          <!-- Botón de cambio de tema. Para cambiar por imágenes en el futuro, reemplaza los emojis por etiquetas <img> con su respectiva ruta. -->
+          <button class="theme-toggle-btn" id="theme-toggle" aria-label="Cambiar tema">
+            <span class="theme-icon-container">
+              <span class="theme-icon light-icon" title="Modo Claro">☀️</span>
+              <span class="theme-icon dark-icon" title="Modo Oscuro">🌔</span>
+            </span>
+          </button>
+          <% } %> <!--Se muestra una regla donde se especifica el elemento que se muestra-->
+      </div>
+</header>

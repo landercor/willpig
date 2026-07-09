@@ -1,0 +1,39 @@
+#Ignore node_modules
+node_modules/
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
+
+# Sensitive files — NEVER commit credentials
+.env
+.env.*
+*.local
+
+# VS Code
+.history/
+.lh/
+.vscode/
+.txt
+
+# Documents
+Documentos/
+scratch/
+.claude/
+cambios de styles.md
+Cambios redundantes en el proyecto.md
+implementation_plan-Change in the reforces css.md
+test_env.js
+
+# test files
+test_admin.js
+test_all.js
+test_user.js
+insert_all_data.js
+insert_cuentos.js
+insert_imagenes.js
+insert-story.js
+check.js
+
+# file temps Js
+db_setup.sql
+migration_v2_schema.sql

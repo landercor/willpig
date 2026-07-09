@@ -1,0 +1,60 @@
+<%- include('layouts/header', { title: 'Iniciar sesión | Willpig Studio' , pageId: 'login' }) %>
+    <!--
+    <div class="login-pocketIN">
+        <div class="login-visual">
+            <img src="/img/img.ico/fondo_register2.jpg" alt="Imagen Login">
+        </div>
+    -->
+    <div class="register-container-igm">
+        <div class="login-box">
+            <h1>Inicia sesión</h1>
+            <p>Bienvenido de nuevo a Willpig Studio</p>
+
+            <form action="/auth/login" method="POST" class="form-login">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="next" value="<%= typeof next !== 'undefined' ? next : '' %>">
+                <div class="form-group">
+                    <label for="correo">Correo electrónico</label>
+                    <input type="email" id="correo" name="correo" required placeholder="ejemplo@correo.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="contrasena">Contraseña</label>
+                    <input type="password" id="contrasena" name="contrasena" required placeholder="Tu contraseña">
+                </div>
+                <button type="submit" class="btn-login-pocket">Iniciar sesión</button>
+            </form>
+
+            <!-- ENLACES -->
+            <a href="/auth/olvido" class="forgot">¿Olvidaste tu contraseña?</a>
+
+            <% if (typeof error !=="undefined" && error.startsWith('Te hemos enviado')) { %>
+                <p class="text-success">
+                    <%= error %>
+                </p>
+                <% } %>
+
+                    <div class="divider"> O continúa con </div>
+
+                    <div class="social-login">
+                        <a href="/auth/google" style="text-decoration: none;">
+                            <button type="button" class="social-btn google">
+                                <img src="/img/img.ico/google_login_color.png" width="20"> Continuar con Google
+                            </button>
+                        </a>
+                    </div>
+
+                    <p class="register-text">¿No tienes cuenta? <a href="/auth/register"><strong>Regístrate
+                                aquí</strong></a></p>
+
+                    <!-- Mostrar error si existe -->
+                    <% if (typeof error !=="undefined" && !error.startsWith('Te hemos enviado')) { %>
+                        <p class="text-danger" style="color:rgb(124, 2, 2);">
+                            <%= error %>
+                        </p>
+                        <% } %>
+        </div>
+    </div>
+    </div>
+
+    <%- include('layouts/footer') %>

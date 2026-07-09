@@ -1,0 +1,63 @@
+.search-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary, #e2e2e2);
+      margin: 28px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-section-title .badge {
+      background: rgba(167,139,250,0.15);
+      color: var(--accent, #a78bfa);
+      padding: 1px 8px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    /* USUARIOS */
+    .users-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-card, rgba(255,255,255,0.04));
+      border: 1px solid var(--border, rgba(255,255,255,0.08));
+      border-radius: 14px;
+      text-decoration: none;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .user-card:hover {
+      border-color: var(--accent, #a78bfa);
+      transform: translateY(-2px);
+    }
+    .user-card img {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .user-card-info { overflow: hidden; }
+    .user-card-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary, #e2e2e2);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .user-card-bio {
+      font-size: 0.75rem;
+      color: var(--text-muted, #888);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }

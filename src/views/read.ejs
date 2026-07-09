@@ -1,0 +1,96 @@
+<%- include('layouts/header', { 
+  title: `${capitulo.titulo} | Willpig Studio`,
+  extraStyles: `<link rel="stylesheet" href="/css/modules/views/read.css">`
+}) %>
+
+<div class="reading-toolbar">
+        <a href="/historias/<%= cuento.id_cuento %>" class="control-btn" title="Volver a la historia">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+            <span>Volver</span>
+        </a>
+        <button class="control-btn" onclick="toggleTheme()" title="Cambiar Tema">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>
+            <span>Tema</span>
+        </button>
+        <button class="control-btn" onclick="changeFontSize()" title="Tamaño Letra">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/></svg>
+            <span>Aa</span>
+        </button>
+    </div>
+
+    <div class="reading-container">
+        <header class="reading-header">
+            <a href="/historias/<%= cuento.id_cuento %>" class="story-title-link">
+                <span class="story-title"><%= cuento.titulo %></span>
+            </a>
+            <h1 class="chapter-title"><%= capitulo.titulo %></h1>
+        </header>
+
+        <div class="chapter-content">
+            <%- capitulo.contenido %>
+        </div>
+
+        <div class="chapter-nav-bottom">
+            <% if (prevId) { %>
+                <a href="/capitulos/read/<%= prevId %>" class="nav-btn">← Anterior</a>
+            <% } else { %>
+                <span class="nav-btn disabled">← Anterior</span>
+            <% } %>
+
+            <% if (nextId) { %>
+                <a href="/capitulos/read/<%= nextId %>" class="nav-btn">Siguiente →</a>
+            <% } else { %>
+                <span class="nav-btn disabled">Siguiente →</span>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        // Gestión de Temas
+        const themes = ['', 'theme-sepia', 'theme-dark'];
+        let currentThemeIndex = 0;
+
+        // Cargar preferencias guardadas
+        const savedTheme = localStorage.getItem('readingTheme');
+        if (savedTheme) {
+            document.body.classList.add(savedTheme);
+            currentThemeIndex = themes.indexOf(savedTheme);
+        }
+
+        function toggleTheme() {
+            if (themes[currentThemeIndex]) {
+                document.body.classList.remove(themes[currentThemeIndex]);
+            }
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            if (themes[currentThemeIndex]) {
+                document.body.classList.add(themes[currentThemeIndex]);
+                localStorage.setItem('readingTheme', themes[currentThemeIndex]);
+            } else {
+                localStorage.removeItem('readingTheme');
+            }
+        }
+
+        // Gestión de Tamaño de Fuente
+        const fontSizes = ['', 'font-small', 'font-large', 'font-xlarge'];
+        let currentFontIndex = 0;
+
+        const savedFont = localStorage.getItem('readingFont');
+        if (savedFont) {
+            document.body.classList.add(savedFont);
+            currentFontIndex = fontSizes.indexOf(savedFont);
+        }
+
+        function changeFontSize() {
+            if (fontSizes[currentFontIndex]) {
+                document.body.classList.remove(fontSizes[currentFontIndex]);
+            }
+            currentFontIndex = (currentFontIndex + 1) % fontSizes.length;
+            if (fontSizes[currentFontIndex]) {
+                document.body.classList.add(fontSizes[currentFontIndex]);
+                localStorage.setItem('readingFont', fontSizes[currentFontIndex]);
+            } else {
+                localStorage.removeItem('readingFont');
+            }
+        }
+    </script>
+<%- include('layouts/footer') %>

@@ -1,0 +1,24 @@
+    </main>
+
+    <% if (shouldRender('footer', typeof pageId !== 'undefined' ? pageId : '', locals)) { %>
+        <%- include('../partials/footer') %>
+    <% } %>
+
+    <!-- Page Specific Scripts -->
+    <% if (typeof extraScripts !== 'undefined') { %>
+        <%- extraScripts %>
+    <% } %>
+
+    <script>
+        // Common reveal logic if needed
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const revealItems = document.querySelectorAll('.reveal-item');
+                revealItems.forEach(item => {
+                    item.classList.add('visible');
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>

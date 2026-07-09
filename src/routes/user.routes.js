@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { apiRegister, apiLogin, getProfile, getEditProfile, postEditProfile, uploadProfileImages, getUserNotifications, markUserNotificationsRead } from '../controllers/user.controller.js';
+import { isAuth } from '../middlewares/isAuth.js';
+import { validateCsrfToken } from '../middlewares/csrf.js';
+const router = Router();
+router.get('/perfil', isAuth, (req, res) => res.redirect('/usuario/profile/' + req.session.user.id));
+router.get('/perfil/editar', isAuth, getEditProfile);
+router.post('/perfil/editar', isAuth, uploadProfileImages, validateCsrfToken, postEditProfile);
+router.get('/notificaciones', isAuth, getUserNotifications);
+router.post('/notificaciones/leer', isAuth, validateCsrfToken, markUserNotificationsRead);
+router.post('/register', apiRegister);
+router.post('/login', apiLogin);
+router.get('/profile/:id', getProfile);
+export default router;

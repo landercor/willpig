@@ -1,0 +1,90 @@
+<%- include('layouts/header', { title: 'WillPig Studio - Historias que conectan' , pageId: 'landing' , hideBuscar: true,
+    hideTema: true, hideEscribir: true }) %>
+
+    <section class="hero-landing">
+        <div class="hero-content reveal-item">
+            <h1 class="hero-title">Ven por la historia. <br> Quédate por la conexión.</h1>
+            <p class="hero-description" style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.6;">
+                Historias mejores que un streaming y comentarios que superan tus discusiones de grupo. Únete a la
+                comunidad de WillPig Studio.
+            </p>
+            <div class="hero-btns">
+                <a href="/auth/register" class="btn btn-primary">Comenzar</a>
+                <div class="hero-login-link">
+                    ¿Ya tienes cuenta? <a href="/auth/login"
+                        style="color: var(--primary-salmon-dark); font-weight: 700;">Inicia sesión</a>
+                </div>
+            </div>
+        </div>
+        <div class="hero-illustration">
+            <img src="/img/default-landing.jpg" alt="Ilustración"
+                style="max-width: 100%; border-radius: var(--radius-lg); box-shadow: var(--shadow-soft);"
+                class="animate-scale">
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section-about reveal-item">
+        <div class="about-container">
+            <h2 class="section-title">Sobre WillPig Studio</h2>
+            <p class="section-text">
+                Su propósito principal es que los usuarios con dificultades para mantener un nivel de atención adecuado,
+                puedan mejorar en este ámbito a través de libros ilustrados digitales. Libros de múltiples categorías,
+                infantiles, adolescentes y adultos.
+            </p>
+        </div>
+    </section>
+
+
+    <!-- Trending Section -->
+    <section class="category-section reveal-item" style="padding: 60px 8%;">
+        <div class="section-flex">
+            <h2 class="category-title">Tendencias actuales</h2>
+            <a href="/buscar" class="view-all">Ver todas →</a>
+        </div>
+
+        <div class="scroll-wrapper">
+            <div class="scroll-container">
+                <!-- Items -->
+                <a href="/buscar?q=Bajo%20cielos%20clementes" class="library-item">
+                    <img src="/img/debajo_de_la_luna.jpg" onerror="this.src='/img/default-portada.jpg'" class="cover">
+                    <div class="card-info">
+                        <h4 class="title">Bajo cielos clementes</h4>
+                    </div>
+                </a>
+                <a href="/buscar?q=Alicia" class="library-item">
+                    <img src="/img/Alicia.jpg" onerror="this.src='/img/default-portada.jpg'" class="cover">
+                    <div class="card-info">
+                        <h4 class="title">Alicia</h4>
+                    </div>
+                </a>
+                <a href="/buscar?q=La%20flor%20de%20oto%C3%B1o" class="library-item">
+                    <img src="/img/la flor de otoño.jpg" onerror="this.src='/img/default-portada.jpg'" class="cover">
+                    <div class="card-info">
+                        <h4 class="title">La flor de otoño</h4>
+                    </div>
+                </a>
+                <a href="/buscar?q=Cenicienta" class="library-item">
+                    <img src="/img/placeholder.jpg" onerror="this.src='/img/default-portada.jpg'" class="cover">
+                    <div class="card-info">
+                        <h4 class="title">Cenicienta</h4>
+                    </div>
+                </a>
+                <a href="/buscar?q=Hombres%20Lobos" class="library-item">
+                    <img src="/img/placeholder1.jpg" onerror="this.src='/img/default-portada.jpg'" class="cover">
+                    <div class="card-info">
+                        <h4 class="title">Hombres Lobos</h4>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Banner CTA -->
+    <section class="cta-banner reveal-item">
+        <h2>Fanfiction que debes leer sin falta</h2>
+        <p>Miles de historias de tus personajes favoritos te están esperando.</p>
+        <a href="/buscar?q=fanfiction" class="btn btn-white" style="border-radius: 50px;">Explorar ahora</a>
+    </section>
+
+    <%- include('layouts/footer') %>

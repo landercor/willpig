@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import { createChapter, getChapters, readChapter, getChapterEditor, updateChapter, deleteChapter } from '../controllers/chapter.controller.js';
+import { isAuth } from '../middlewares/isAuth.js';
+const router = Router();
+router.post('/new', isAuth, createChapter);
+router.put('/update/:id', isAuth, updateChapter);
+router.delete('/delete/:id', isAuth, deleteChapter);
+router.get('/story/:id', getChapters);
+router.get('/read/:id', readChapter);
+router.get('/nuevo/:storyId', isAuth, getChapterEditor);
+router.get('/editar/:id', isAuth, getChapterEditor);
+export default router;

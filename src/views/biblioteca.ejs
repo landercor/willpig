@@ -1,0 +1,61 @@
+<%- include('layouts/header', { 
+  title: `Biblioteca | Willpig Studio`, pageId: 'biblioteca'
+}) %>
+
+<!-- ===== BIBLIOTECA ===== -->
+  <section class="library-page">
+    <div class="library-header">
+      <h1>Biblioteca</h1>
+      <div class="library-tabs">
+        <button class="tab-btn active" data-tab="current-reads">Lecturas actuales</button>
+        <button class="tab-btn" data-tab="reading-lists">Listas de lectura</button>
+      </div>
+    </div>
+
+    <div class="library-content">
+      <!-- === Lecturas actuales === -->
+      <div id="current-reads" class="tab-content active">
+        <div class="section-title">Todas las historias</div>
+
+        <div class="library-grid">
+
+          <% historias.forEach(historia=> { %>
+            <div class="library-item">
+
+              <a href="/historias/<%= historia.id_cuento || '#' %>">
+                <img src="<%= historia.portada_url || '/img/default-portada.jpg' %>" class="cover"
+                  alt="<%= historia.titulo %>">
+              </a>
+
+              <p class="title">
+                <%= historia.titulo %>
+              </p>
+
+              <div class="author">
+                <img src="/img/default-avatar.svg" alt="autor">
+                <% if (historia.cuenta_usuario && historia.cuenta_usuario.id_cuenta_usuario) { %>
+                  <a href="/usuario/profile/<%= historia.cuenta_usuario.id_cuenta_usuario %>" class="author-link">@<%= historia.cuenta_usuario.username %></a>
+                <% } else { %>
+                  <span>@autor</span>
+                <% } %>
+              </div>
+
+              <div class="meta">
+                <img src="/img/img.ico/vistas-icon.svg" alt="vistas" class="icon-eye">
+                <%= historia.cantidad_me_gusta || historia.vistas || 0 %>
+              </div>
+
+            </div>
+          <% }) %>
+        </div> <!-- library-grid -->
+      </div> <!-- current-reads -->
+
+
+      <!-- === Listas de lectura === -->
+      <div id="reading-lists" class="tab-content">
+        <div class="section-title">Tus listas de lectura</div>
+        <p>Aquí aparecerán tus listas personalizadas.</p>
+      </div>
+    </div> <!-- library-content -->
+  </section>
+  <%- include('layouts/footer') %>

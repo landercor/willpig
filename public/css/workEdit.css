@@ -1,0 +1,340 @@
+/* ==========================================
+   ESTILOS DEL TALLER (GESTIÓN Y EDITOR)
+   ========================================== */
+
+/* --- PANEL DE GESTIÓN (manage_story.ejs) --- */
+.manage-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.manage-header {
+    display: flex;
+    gap: 30px;
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    margin-bottom: 30px;
+    color: var(--text-dark);
+}
+
+.manage-cover {
+    width: 180px;
+    height: 260px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.manage-info {
+    flex: 1;
+}
+
+.manage-info h1 {
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+    color: var(--text-dark);
+}
+
+.manage-info p {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.action-bar {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.chapters-section {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+}
+
+.chapter-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-light);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    transition: var(--transition-fast);
+}
+
+.chapter-list-item:hover {
+    border-color: var(--primary-salmon);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+}
+
+.chapter-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-dark);
+}
+
+.chapter-info span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.chapter-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.btn-edit { 
+    background: var(--bg-light); 
+    color: var(--primary-salmon-dark); 
+    border: 1px solid var(--primary-salmon-dark); 
+}
+.btn-edit:hover {
+    background: var(--primary-salmon);
+    color: white;
+}
+
+.btn-delete { 
+    background: #fff5f5; 
+    color: #e53e3e; 
+    border: 1px solid #feb2b2; 
+}
+
+body.dark-mode .btn-delete {
+    background: #2d1a1a;
+    border-color: #63171b;
+}
+
+/* --- EDITOR DE CAPÍTULOS (chapter_editor.ejs) --- */
+.editor-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: var(--bg-card);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+}
+
+.editor-header {
+    border-bottom: 2px solid var(--border-color);
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+}
+
+.story-label {
+    color: var(--primary-salmon-dark);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.chapter-title-input {
+    width: 100%;
+    border: none;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 10px;
+    outline: none;
+    color: var(--text-dark);
+    background: transparent;
+}
+
+.chapter-title-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.3;
+}
+
+#editor {
+    height: 500px;
+    font-size: 1.1rem;
+    border: none !important;
+    font-family: 'Poppins', serif;
+}
+
+.ql-toolbar.ql-snow {
+    border: none !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 10;
+}
+
+.ql-snow .ql-stroke {
+    stroke: var(--text-dark) !important;
+}
+
+.ql-snow .ql-fill {
+    fill: var(--text-dark) !important;
+}
+
+.ql-snow .ql-picker {
+    color: var(--text-dark) !important;
+}
+
+.editor-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-cancel {
+    background: var(--bg-light);
+    color: var(--text-dark);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.btn-cancel:hover {
+    background: #eee;
+}
+
+body.dark-mode .btn-cancel:hover {
+    background: #333;
+}
+
+/* Botones y Badges específicos */
+.btn-edit-small {
+    padding: 10px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 25px;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.btn-edit-small:hover {
+    border-color: var(--primary-salmon);
+    color: var(--primary-salmon);
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    background: var(--bg-light);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+
+.badge.borrador {
+    border-color: #cbd5e0;
+}
+
+.badge.publicado {
+    background: #e6fffa;
+    color: #2c7a7b;
+    border-color: #b2f5ea;
+}
+
+body.dark-mode .badge.publicado {
+    background: #1a312e;
+    color: #4fd1c5;
+    border-color: #285e61;
+}
+
+.empty-chapters {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.empty-chapters .subtitle {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-top: 5px;
+}
+
+/* --- QUILL DARK MODE OVERRIDES --- */
+body.dark-mode .ql-toolbar.ql-snow {
+    background: #252525;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .ql-container.ql-snow {
+    background: #1e1e1e;
+    border: none !important;
+    color: #e0e0e0;
+}
+
+body.dark-mode .ql-snow .ql-stroke {
+    stroke: #b0b0b0 !important;
+}
+
+body.dark-mode .ql-snow .ql-fill {
+    fill: #b0b0b0 !important;
+}
+
+body.dark-mode .ql-snow .ql-picker {
+    color: #b0b0b0 !important;
+}
+
+body.dark-mode .ql-snow .ql-picker-options {
+    background-color: #252525;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+}
+
+body.dark-mode .ql-snow .ql-active .ql-stroke,
+body.dark-mode .ql-snow .ql-active .ql-fill,
+body.dark-mode .ql-snow .ql-picker-label.ql-active {
+    color: var(--primary-salmon) !important;
+    stroke: var(--primary-salmon) !important;
+}
+
+/* Ensure editor text area is readable */
+body.dark-mode .ql-editor {
+    color: #e0e0e0;
+}
+
+body.dark-mode .ql-editor.ql-blank::before {
+    color: rgba(255, 255, 255, 0.3);
+}
+

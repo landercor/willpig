@@ -1,0 +1,26 @@
+/* 
+   MASTER STYLESHEET - Willpig Studio
+   Este archivo centraliza todos los módulos CSS para mantener el código organizado y escalable.
+*/
+
+/* 1. Variables y Configuración Core */
+@import url("modules/variables.css");
+
+/* 2. Estilos Base y Resets */
+@import url("modules/base.css");
+
+/* 3. Componentes Reutilizables (Botones, Cards, Toasts, etc.) */
+@import url("modules/components.css");
+
+/* 4. Layout (Navbar, Footer) */
+@import url("modules/layout.css");
+
+/* 5. Vistas Específicas */
+@import url("modules/views/home.css");
+@import url("modules/views/auth.css");
+@import url("modules/views/profile.css");
+@import url("modules/views/story.css");
+@import url("modules/views/editor.css");
+
+/* 6. Utilidades (Helpers) */
+@import url("modules/utilities.css");

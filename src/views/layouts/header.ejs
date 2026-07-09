@@ -1,0 +1,35 @@
+<%- include('utils') %>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'WillPig Studio' %></title>
+    
+    <!-- Global Styles -->
+    <link rel="stylesheet" href="/css/style1.2.css?v=2">
+    <link rel="icon" href="/img/img.ico/logo.ico">
+
+    <!-- Page Specific Styles (if any) -->
+    <% if (typeof extraStyles !== 'undefined') { %>
+        <%- extraStyles %>
+    <% } %>
+
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.documentElement.classList.add('dark-mode');
+                document.body.classList.add('dark-mode');
+            }
+        })();
+    </script>
+</head>
+
+<body>
+    <% if (shouldRender('navbar', typeof pageId !== 'undefined' ? pageId : '', locals)) { %>
+        <%- include('../partials/navbar', locals) %>
+    <% } %>
+    
+    <main class="<%= typeof mainClass !== 'undefined' ? mainClass : '' %>">

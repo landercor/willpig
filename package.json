@@ -1,0 +1,31 @@
+{
+  "name": "willpig_studio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
+    "@testsprite/testsprite-mcp": "^0.0.30",
+    "bcrypt": "^6.0.0",
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^16.6.1",
+    "ejs": "^3.1.10",
+    "express": "^4.22.1",
+    "express-rate-limit": "^8.5.2",
+    "express-session": "^1.19.0",
+    "multer": "^2.1.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "pg": "^8.21.0",
+    "supabase": "^2.96.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "license": "ISC"
+}

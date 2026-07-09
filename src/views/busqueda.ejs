@@ -1,0 +1,86 @@
+<%- include('layouts/header', { 
+  title: tituloPagina,
+  extraStyles: `<link rel="stylesheet" href="/css/modules/views/search.css">`, pageId: 'busqueda'
+}) %>
+
+<section class="library-page search-page">
+      <div class="library-header">
+        <h1 class="text-primary">Resultados de búsqueda</h1>
+        <p class="text-muted mt-05">Buscando por: "<%= query %>"</p>
+      </div>
+
+      <div class="library-content">
+
+        <!-- USUARIOS ENCONTRADOS -->
+        <% if (typeof usuarios !=='undefined' && usuarios && usuarios.length> 0) { %>
+          <h2 class="search-section-title">
+            👤 Usuarios
+            <span class="badge">
+              <%= usuarios.length %>
+            </span>
+          </h2>
+          <div class="users-grid">
+            <% usuarios.forEach(u=> { %>
+              <a href="/usuario/profile/<%= u.id_cuenta_usuario %>" class="user-card">
+                <img src="<%= u.avatar_url || '/img/img.ico/user-icon.png' %>" alt="Avatar de <%= u.username %>">
+                <div class="user-card-info">
+                  <div class="user-card-name">@<%= u.username %>
+                  </div>
+                  <div class="user-card-bio">
+                    <%= u.biografia || 'Sin descripción' %>
+                  </div>
+                </div>
+              </a>
+              <% }); %>
+          </div>
+          <% } %>
+
+            <!-- HISTORIAS ENCONTRADAS -->
+            <h2 class="search-section-title">
+              📚 Historias
+              <span class="badge">
+                <%= resultados.length %>
+              </span>
+            </h2>
+            <div id="search-results" class="tab-content active">
+              <div class="library-grid">
+                <% if (resultados && resultados.length> 0) { %>
+                  <% resultados.forEach(historia=> { %>
+                    <div class="library-item">
+                      <a href="/historias/<%= historia.id_cuento || '#' %>">
+                        <img src="<%= historia.portada_url || '/img/default-portada.jpg' %>" class="cover"
+                          alt="<%= historia.titulo %>">
+                      </a>
+                      <p class="title">
+                        <%= historia.titulo %>
+                      </p>
+                      <div class="author">
+                        <img
+                          src="<%= (historia.cuenta_usuario && historia.cuenta_usuario.avatar_url) || '/img/img.ico/user-icon.png' %>"
+                          alt="autor">
+                        <a
+                          href="/usuario/profile/<%= historia.cuenta_usuario && historia.cuenta_usuario.id_cuenta_usuario %>">
+                          <span>@<%= (historia.cuenta_usuario && historia.cuenta_usuario.username) || 'Anónimo' %>
+                              </span>
+                        </a>
+                      </div>
+                      <div class="meta">
+                        <img src="/img/img.ico/vistas-icon.svg" class="icon-eye">
+                        <%= historia.vistas || 0 %>
+                      </div>
+                    </div>
+                    <% }); %>
+                      <% } else { %>
+                        <div class="empty-state empty-card text-center text-muted p-3 col-full">
+                          <h3 class="mb-05">No encontramos historias que coincidan con "<%= query %>"</h3>
+                          <p>Intenta buscar con otras palabras o explora la página principal.</p>
+                          <a href="/"><button class="btn btn-primary mt-1-5">Volver al Inicio</button></a>
+                        </div>
+                        <% } %>
+              </div>
+            </div>
+
+      </div>
+    </section>
+
+    <%- include('layouts/footer') %>

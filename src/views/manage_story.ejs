@@ -1,0 +1,65 @@
+<%- include('layouts/header', { 
+  title: `Gestionar: ${cuento.titulo} | Willpig Studio`,
+  extraStyles: `<link rel="stylesheet" href="/css/workEdit.css">`
+}) %>
+
+<div class="manage-container">
+            <div style="margin-bottom: 20px;">
+                <a href="javascript:history.back()" class="back-link" style="color: var(--primary); font-weight: bold; text-decoration: none;">← Volver</a>
+            </div>
+            <header class="manage-header">
+                <img src="<%= cuento.portada_url || '/img/default-portada.jpg' %>" alt="Portada" class="manage-cover">
+                <div class="manage-info">
+                    <span class="badge <%= cuento.estado %>">
+                        <%= cuento.estado %>
+                    </span>
+                    <h1>
+                        <%= cuento.titulo %>
+                    </h1>
+                    <p>
+                        <%= cuento.descripcion %>
+                    </p>
+
+                    <div class="action-bar">
+                        <a href="/historias/editar-meta/<%= cuento.id_cuento %>" class="btn-edit-small">Editar Información</a>
+                        <button class="btn-edit-small">Cambiar Portada</button>
+                        <% if (cuento.estado==='borrador' ) { %>
+                            <button class="btn-savever">Publicar Historia</button>
+                            <% } %>
+                    </div>
+                </div>
+            </header>
+
+            <section class="chapters-section">
+                <div class="section-header">
+                    <h3>Capítulos (<%= cuento.capitulos ? cuento.capitulos.length : 0 %>)</h3>
+                    <a href="/capitulos/nuevo/<%= cuento.id_cuento %>" class="btn-savever">+ Escribir Capítulos</a>
+                </div>
+                <div class="chapter-list">
+                    <% if (cuento.capitulos && cuento.capitulos.length> 0) { %>
+                        <% cuento.capitulos.forEach((cap, index)=> { %>
+                            <div class="chapter-list-item">
+                                <div class="chapter-info">
+                                    <h4>Capítulo <%= index + 1 %>: <%= cap.titulo %>
+                                    </h4>
+                                    <span>Publicado el <%= new Date(cap.created_at).toLocaleDateString() %></span>
+                                </div>
+                                <div class="chapter-actions">
+                                    <a href="/capitulos/editar/<%= cap.id_capitulo %>"
+                                        class="btn-small btn-edit">Editar</a>
+                                    <button onclick="deleteChapter('<%= cap.id_capitulo %>')"
+                                        class="btn-small btn-delete">Eliminar</button>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="empty-chapters">
+                            <p>Aún no has escrito ningún capítulo para esta historia.</p>
+                            <p class="subtitle">¡Empieza hoy mismo!</p>
+                        </div>
+                    <% } %>
+                </div>
+            </section>
+        </div>
+
+        <%- include('layouts/footer') %>
