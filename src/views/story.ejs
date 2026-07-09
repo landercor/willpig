@@ -121,9 +121,10 @@
                                 onfocus="this.style.borderColor='rgba(167,139,250,0.5)'"
                                 onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
                             <div
-                                style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                                style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; gap:12px; flex-wrap:wrap;">
                                 <span id="charCount" style="font-size:0.75rem; color:#666;">0 / 1000</span>
-                                <button id="submitComment"
+                                <div id="commentsFeedback" style="flex:1; font-size:0.8rem; color:#9ca3af; min-height:1rem;"></div>
+                                <button id="submitComment" data-storyid="<%= cuento.id_cuento %>"
                                     style="background:linear-gradient(135deg,#a78bfa,#7c3aed); color:#fff; border:none; border-radius:20px; padding:8px 20px; font-size:0.875rem; font-weight:600; cursor:pointer; transition:opacity 0.2s; display:flex; align-items:center; gap:6px;">
                                     <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
                                         <path
@@ -148,5 +149,97 @@
                             <div id="commentsList"></div>
             </div>
         </div>
+
+        <script>
+            (function () {
+                const submitButton = document.getElementById('submitComment');
+                const input = document.getElementById('newCommentInput');
+                const commentsList = document.getElementById('commentsList');
+                const commentCount = document.getElementById('commentCount');
+                const charCount = document.getElementById('charCount');
+                const feedback = document.getElementById('commentsFeedback');
+
+                if (!submitButton || !input || !commentsList || !commentCount || !charCount || !feedback) return;
+
+                const storyId = submitButton.dataset.storyid;
+
+                function setFeedback(message, color) {
+                    feedback.textContent = message;
+                    feedback.style.color = color;
+                }
+
+                function renderComments(comments) {
+                    commentCount.textContent = comments.length ? `(${comments.length})` : '';
+                    if (!comments.length) {
+                        commentsList.innerHTML = '<p style="color:#888; margin:0;">Sé el primero en comentar.</p>';
+                        return;
+                    }
+
+                    commentsList.innerHTML = comments.map(comment => {
+                        const avatar = comment.cuenta_usuario?.avatar_url || '/img/default-avatar.png';
+                        const username = comment.cuenta_usuario?.username || 'Usuario';
+                        const date = comment.created_at ? new Date(comment.created_at).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }) : '';
+                        return `
+                            <div style="display:flex; gap:12px; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.08);">
+                                <img src="${avatar}" alt="${username}" style="width:38px; height:38px; border-radius:50%; object-fit:cover; flex-shrink:0;">
+                                <div style="flex:1; min-width:0;">
+                                    <div style="display:flex; justify-content:space-between; gap:8px; align-items:center; flex-wrap:wrap;">
+                                        <strong style="color:#f5f5f5;">${username}</strong>
+                                        <span style="font-size:0.8rem; color:#8b8b8b;">${date}</span>
+                                    </div>
+                                    <p style="margin:8px 0 0; color:#d1d5db; line-height:1.5; white-space:pre-wrap;">${(comment.contenido || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                async function loadComments() {
+                    try {
+                        const response = await fetch(`/social/comentarios/${storyId}`);
+                        const data = await response.json();
+                        renderComments(data.comentarios || []);
+                    } catch (error) {
+                        commentsList.innerHTML = '<p style="color:#f87171; margin:0;">No se pudieron cargar los comentarios.</p>';
+                    }
+                }
+
+                input.addEventListener('input', () => {
+                    charCount.textContent = `${input.value.length} / 1000`;
+                });
+
+                submitButton.addEventListener('click', async () => {
+                    const contenido = input.value.trim();
+                    if (!contenido) {
+                        setFeedback('Escribe algo antes de publicar.', '#f59e0b');
+                        return;
+                    }
+
+                    submitButton.disabled = true;
+                    setFeedback('Publicando...', '#cbd5e1');
+
+                    try {
+                        const response = await fetch(`/social/comentarios/${storyId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ contenido })
+                        });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.error || 'No se pudo guardar el comentario.');
+
+                        input.value = '';
+                        charCount.textContent = '0 / 1000';
+                        await loadComments();
+                        setFeedback('Comentario publicado.', '#34d399');
+                    } catch (error) {
+                        setFeedback(error.message || 'No se pudo publicar el comentario.', '#f87171');
+                    } finally {
+                        submitButton.disabled = false;
+                    }
+                });
+
+                loadComments();
+            })();
+        </script>
 
         <%- include('layouts/footer') %>
