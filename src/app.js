@@ -10,6 +10,7 @@ import adminRoutes from './routes/admin.routes.js';
 import socialRoutes from './routes/social.routes.js';
 import { supabaseAdmin } from './config/db.js';
 import { generateCsrfToken } from './middlewares/csrf.js';
+import passport from './config/passport.js';
 
 const app = express();
 
@@ -33,6 +34,8 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24 * 7,
   },
 }));
+
+app.use(passport.initialize());
 
 app.use(async (req, _res, next) => {
   const userId = req.session?.user?.id;

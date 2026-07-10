@@ -10,7 +10,11 @@ body {
 
 body.dark-mode {
   background-color: var(--ink-black);
-  color: var(--sage-beige);
+  color: var(--text-dark); /* Usa --text-dark que se ajusta automaticamente en variables.css */
+}
+
+h1, h2, h3, h4, h5, h6, p, span {
+  color: inherit;
 }
 
 a {

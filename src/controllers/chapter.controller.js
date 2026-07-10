@@ -10,8 +10,15 @@ export async function createChapter(req, res) {
 }
 export async function getChapters(req, res) { const { data } = await db.from('capitulos').select('*').eq('cuento_id', req.params.id).order('created_at'); res.json(data || []); }
 export async function readChapter(req, res) {
-  const { data: capitulo } = await db.from('capitulos').select('*, cuentos(titulo, id_cuento, cuenta_usuario_id, estado, visibilidad)').eq('id_capitulo', req.params.id).maybeSingle();
+  const { data: capitulo } = await db.from('capitulos').select('*, cuentos(titulo, id_cuento, cuenta_usuario_id, estado, visibilidad, vistas)').eq('id_capitulo', req.params.id).maybeSingle();
   if (!capitulo) return res.status(404).render('404', { message: 'Capitulo no encontrado.', loggerUser: req.session?.user || null });
+  
+  const owner = String(capitulo.cuentos.cuenta_usuario_id) === String(userId(req));
+  const visible = capitulo.cuentos.estado === 'publicado' && capitulo.cuentos.visibilidad === 'publica';
+  
+  if (!visible && !owner) return res.status(403).render('404', { message: 'Esta historia no esta disponible.', loggerUser: req.session?.user || null });
+  if (visible && !owner) await db.from('cuentos').update({ vistas: (capitulo.cuentos.vistas || 0) + 1 }).eq('id_cuento', capitulo.cuentos.id_cuento);
+
   const { data: all } = await db.from('capitulos').select('id_capitulo').eq('cuento_id', capitulo.cuento_id).order('created_at');
   const idx = (all || []).findIndex(c => String(c.id_capitulo) === String(req.params.id));
   res.render('read', { capitulo, cuento: capitulo.cuentos, prevId: idx > 0 ? all[idx - 1].id_capitulo : null, nextId: idx >= 0 && idx < all.length - 1 ? all[idx + 1].id_capitulo : null, loggerUser: req.session?.user || null });

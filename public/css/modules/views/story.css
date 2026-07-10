@@ -32,15 +32,14 @@
   height: 40px;
   padding: 3px;
   margin: 10px;
-  top: -10px;
+  top: -18px;
 }
 
-.author-badge span {
+.author-badge>span {
   position: relative;
   margin: -3px;
-  top: -36px;
+  top: -18px;
   font-size: 14px;
-
 }
 
 .story-info-card {

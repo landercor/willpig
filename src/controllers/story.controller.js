@@ -58,13 +58,14 @@ export async function getStoryById(req, res) {
   const owner = String(cuento.cuenta_usuario_id) === String(userId(req));
   const visible = cuento.estado === 'publicado' && cuento.visibilidad === 'publica';
   if (!visible && !owner) return res.status(403).render('404', { message: 'Esta historia no esta disponible.', loggerUser: req.session?.user || null });
-  if (visible && !owner) await db.from('cuentos').update({ vistas: (cuento.vistas || 0) + 1 }).eq('id_cuento', cuento.id_cuento);
-  const [{ count: likesCount }, liked, listed] = await Promise.all([
+
+  const [{ count: likesCount }, liked, listed, following] = await Promise.all([
     db.from('likes_historias').select('*', { count: 'exact', head: true }).eq('cuento_id', cuento.id_cuento),
     userId(req) ? db.from('likes_historias').select('id').eq('cuento_id', cuento.id_cuento).eq('usuario_id', userId(req)).maybeSingle() : Promise.resolve({ data: null }),
     userId(req) ? db.from('lista_lectura').select('id').eq('cuento_id', cuento.id_cuento).eq('usuario_id', userId(req)).maybeSingle() : Promise.resolve({ data: null }),
+    userId(req) ? db.from('seguidores').select('seguidor_id').eq('seguidor_id', userId(req)).eq('seguido_id', cuento.cuenta_usuario_id).maybeSingle() : Promise.resolve({ data: null }),
   ]);
-  res.render('story', { cuento, likesCount: likesCount || 0, isLiked: !!liked.data, isInList: !!listed.data, user: req.session?.user || null, loggerUser: req.session?.user || null });
+  res.render('story', { cuento, likesCount: likesCount || 0, isLiked: !!liked?.data, isInList: !!listed?.data, isFollowing: !!following?.data, user: req.session?.user || null, loggerUser: req.session?.user || null });
 }
 export async function getCreateStoryForm(req, res) { res.render('newstorys', { loggerUser: req.session.user, ...(await catalogs()) }); }
 export async function createStory(req, res) {

@@ -1,7 +1,17 @@
 import { supabaseAdmin as db } from '../config/db.js';
 const userId = req => req.session?.user?.id;
 async function count(table, col, val) { const { count } = await db.from(table).select('*', { count: 'exact', head: true }).eq(col, val); return count || 0; }
-export async function seguirUsuario(req, res) { if (String(userId(req)) === String(req.params.id)) return res.status(400).json({ error: 'No puedes seguirte a ti mismo.' }); await db.from('seguidores').upsert({ seguidor_id: userId(req), seguido_id: req.params.id }); res.json({ siguiendo: true, total: await count('seguidores', 'seguido_id', req.params.id) }); }
+export async function seguirUsuario(req, res) { 
+    if (String(userId(req)) === String(req.params.id)) return res.status(400).json({ error: 'No puedes seguirte a ti mismo.' }); 
+    await db.from('seguidores').upsert({ seguidor_id: userId(req), seguido_id: req.params.id }); 
+    
+    // Notification
+    const { data: user } = await db.from('cuenta_usuario').select('username').eq('id_cuenta_usuario', userId(req)).single();
+    const contenido = user ? `@${user.username} ha comenzado a seguirte.` : 'Un usuario ha comenzado a seguirte.';
+    await db.from('notificaciones').insert({ cuenta_usuario_id: req.params.id, contenido, vista: false });
+
+    res.json({ siguiendo: true, total: await count('seguidores', 'seguido_id', req.params.id) }); 
+}
 export async function dejarDeSeguir(req, res) { await db.from('seguidores').delete().eq('seguidor_id', userId(req)).eq('seguido_id', req.params.id); res.json({ siguiendo: false, total: await count('seguidores', 'seguido_id', req.params.id) }); }
 export async function estadoSeguimiento(req, res) { const { data } = await db.from('seguidores').select('seguidor_id').eq('seguidor_id', userId(req)).eq('seguido_id', req.params.id).maybeSingle(); res.json({ siguiendo: !!data }); }
 export async function darLike(req, res) { await db.from('likes_historias').upsert({ usuario_id: userId(req), cuento_id: Number(req.params.id) }, { onConflict: 'usuario_id,cuento_id' }); res.json({ liked: true, total: await count('likes_historias', 'cuento_id', req.params.id) }); }
