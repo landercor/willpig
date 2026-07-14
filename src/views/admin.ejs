@@ -154,7 +154,7 @@
         <a href="/admin/notificaciones" class="quick-card">
           <span class="q-icon"><img src="/img/img.ico/svg/send-check-fill.svg" alt=""></span>
           <span class="q-label">Notificaciones</span>
-          <span class="q-desc">Enviar y revisar notifs</span>
+          <span class="q-desc">Enviar novedades a usuarios</span>
         </a>
       </div>
 
@@ -929,9 +929,7 @@
                                               <div class="page-header">
                                                 <div>
                                                   <h1 class="page-title">Gestión de Notificaciones</h1>
-                                                  <p class="page-subtitle">Envía y revisa notificaciones del
-                                                    sistema
-                                                  </p>
+                                                  <p class="page-subtitle">Envía novedades o eventos a usuarios específicos o a toda la comunidad. Las notificaciones privadas de otros usuarios no son visibles aquí.</p>
                                                 </div>
                                                 <button type="button" class="btn btn-primary"
                                                   onclick="openModal('modal-new-notif')">+ Nueva
@@ -947,11 +945,15 @@
                                                       onclick="closeModal('modal-new-notif')">&times;</button>
                                                   </div>
                                                   <form method="POST" action="/admin/notificaciones/new">
+                                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                                     <div class="form-grid">
                                                       <div class="form-group span-full">
-                                                        <label>Username del Destinatario *</label>
+                                                        <label>Usuario destinatario</label>
                                                         <input type="text" name="username_destinatario"
-                                                          class="form-control" placeholder="Ej: willpig" required>
+                                                          class="form-control" placeholder="Ej: willpig">
+                                                        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;">
+                                                          <input type="checkbox" name="enviar_a_todos"> Enviar a todos los usuarios activos
+                                                        </label>
                                                       </div>
                                                       <div class="form-group">
                                                         <label>Tipo *</label>
@@ -975,7 +977,7 @@
                                               </div>
 
                                               <% if (notificaciones.length===0) { %>
-                                                <p>No hay notificaciones registradas.</p>
+                                                <p>Las notificaciones individuales son privadas y no se muestran aquí. Usa el formulario para enviar novedades a un usuario o a todos.</p>
                                                 <% } else { %>
                                                   <div class="table-wrap">
                                                     <table class="admin-table">

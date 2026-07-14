@@ -74,6 +74,14 @@ export async function createStory(req, res) {
     const row = normalizeStory(req.body, portada, userId(req));
     const { data, error } = await db.from('cuentos').insert(row).select('id_cuento').single();
     if (error) throw error;
+    // Solo lectores pasan a escritor; admin y otros roles se conservan.
+    const { data: writerRole } = await db.from('roles_usuario').select('id').ilike('nombre', 'escritor').maybeSingle();
+    const { data: account } = await db.from('cuenta_usuario').select('rol').eq('id_cuenta_usuario', userId(req)).maybeSingle();
+    const currentRol = String(account?.rol || '').toLowerCase();
+    if (account && currentRol === 'lector') {
+      await db.from('cuenta_usuario').update({ rol: 'escritor', ...(writerRole?.id ? { rol_id: writerRole.id } : {}) }).eq('id_cuenta_usuario', userId(req));
+      req.session.user.rol = 'escritor';
+    }
     res.redirect('/historias/editar-meta/' + data.id_cuento + '?success=true');
   } catch (error) {
     res.status(500).render('newstorys', { loggerUser: req.session.user, ...(await catalogs()), error: error.message });

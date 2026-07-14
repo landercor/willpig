@@ -17,6 +17,8 @@
 
                 <form action="/auth/nuevaclave" method="POST" class="form-login" id="resetForm">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="recoveryAccessToken" id="recoveryAccessToken">
+                    <input type="hidden" name="recoveryRefreshToken" id="recoveryRefreshToken">
                     <div class="form-group">
                         <label for="nuevaClave">Nueva contraseña</label>
                         <input type="password" id="nuevaClave" name="nuevaClave" required
@@ -34,6 +36,9 @@
                 </form>
                 <p class="register-text"><a href="/auth/login">Volver a iniciar sesión</a></p>
                 <script>
+                    const recovery = new URLSearchParams(window.location.hash.slice(1));
+                    document.getElementById('recoveryAccessToken').value = recovery.get('access_token') || '';
+                    document.getElementById('recoveryRefreshToken').value = recovery.get('refresh_token') || '';
                     const form = document.getElementById('resetForm');
                     document.getElementById('nuevaClave').addEventListener('input', function () {
                         document.getElementById('nuevaClaveError').textContent = '';

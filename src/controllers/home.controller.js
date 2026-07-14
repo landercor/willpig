@@ -27,6 +27,20 @@ export async function verBusqueda(req, res) {
   ]);
   res.render('busqueda', { tituloPagina: 'Busqueda | Willpig Studio', resultados: resultados || [], usuarios: usuarios || [], query: q, loggerUser: req.session?.user || null });
 }
+export async function verSugerencias(req, res) {
+  const q = String(req.query.q || '').trim();
+  if (q.length < 2) return res.json({ sugerencias: [] });
+
+  const [{ data: historias }, { data: usuarios }] = await Promise.all([
+    publicQuery().select('id_cuento, titulo').ilike('titulo', `%${q}%`).order('created_at', { ascending: false }).limit(6),
+    db.from('cuenta_usuario').select('id_cuenta_usuario, username').ilike('username', `%${q}%`).limit(4),
+  ]);
+  const sugerencias = [
+    ...(historias || []).map(h => ({ tipo: 'historia', texto: h.titulo, url: `/historias/${h.id_cuento}` })),
+    ...(usuarios || []).map(u => ({ tipo: 'autor', texto: `@${u.username}`, url: `/usuario/profile/${u.id_cuenta_usuario}` })),
+  ];
+  res.json({ sugerencias });
+}
 export async function verCategoria(req, res) {
   const normalize = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const { data: cats } = await db.from('categorias').select('id_categoria, nombre');

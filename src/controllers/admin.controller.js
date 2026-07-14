@@ -55,18 +55,27 @@ export async function createCapitulo(req, res) { await db.from('capitulos').inse
 export async function editCapitulo(req, res) { await db.from('capitulos').update({ titulo: req.body.titulo, contenido: req.body.contenido || '', updated_at: new Date().toISOString() }).eq('id_capitulo', req.params.id); res.redirect('/admin/capitulos'); }
 export async function deleteCapitulo(req, res) { await db.from('capitulos').delete().eq('id_capitulo', req.params.id); res.redirect('/admin/capitulos'); }
 export const getCatalogo = name => async (req, res) => {
+  // La bandeja es privada: administración solo puede emitir comunicaciones.
+  if (name === 'notificaciones') return renderAdmin(req, res, name, { notificaciones: [] });
   const query = db.from(name).select(name === 'notificaciones' ? '*, cuenta_usuario(username)' : '*').order(tablePk[name]); const { data } = await query; const rows = name === 'notificaciones' ? (data || []).map(n => ({ ...n, mensaje: n.contenido, leida: n.vista, username: n.cuenta_usuario?.username || n.cuenta_usuario_id })) : data || []; renderAdmin(req, res, name, { [name]: rows });
 };
 export const createCatalogo = name => async (req, res) => {
   let row = {};
   if (name === 'notificaciones') {
+    if (req.body.enviar_a_todos === 'on') {
+      const { data: users } = await db.from('cuenta_usuario').select('id_cuenta_usuario').eq('estado', 'activa');
+      const contenido = req.body.contenido || req.body.mensaje || '';
+      if (contenido && users?.length) await db.from('notificaciones').insert(users.map(user => ({ tipo: req.body.tipo || 'novedad', contenido, cuenta_usuario_id: user.id_cuenta_usuario, vista: false })));
+      return res.redirect('/admin/notificaciones');
+    }
     let user_id = req.body.cuenta_usuario_id;
     if (req.body.username_destinatario) {
       const { data: user } = await db.from('cuenta_usuario').select('id_cuenta_usuario').eq('username', req.body.username_destinatario).single();
       if (user) user_id = user.id_cuenta_usuario;
       else return res.status(404).send('Usuario no encontrado');
     }
-    row = { tipo: req.body.tipo || 'actualizacion', contenido: req.body.contenido || req.body.mensaje || '', cuenta_usuario_id: user_id };
+    if (!user_id) return res.status(400).send('Indica un usuario destinatario o marca "Enviar a todos".');
+    row = { tipo: req.body.tipo || 'actualizacion', contenido: req.body.contenido || req.body.mensaje || '', cuenta_usuario_id: user_id, vista: false };
   } else if (name === 'idiomas') {
     row = { codigo: req.body.codigo, nombre: req.body.nombre };
   } else {

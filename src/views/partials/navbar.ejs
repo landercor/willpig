@@ -7,24 +7,23 @@
       <h2>WillPig</h2>
       <span class="logo-text"></span>
     </div>
-  </div>
 
-  <% if (typeof hideBuscar==='undefined' || (!hideBuscar && typeof hideBuscar==='undefined' ) || (typeof hideBuscar
-    !=='undefined' && !hideBuscar)) { %>
-    <div class="navbar-center">
+    <% if (typeof hideBuscar==='undefined' || (!hideBuscar && typeof hideBuscar==='undefined' ) || (typeof hideBuscar
+      !=='undefined' && !hideBuscar)) { %>
       <form action="/buscar" method="GET" class="search-form">
         <div class="search-container">
-          <input type="text" name="q" class="search-bar" placeholder="Buscar historias o autores..." required>
+          <input type="text" name="q" class="search-bar" placeholder="Buscar historias o autores..." autocomplete="off" aria-autocomplete="list" aria-controls="search-suggestions" aria-expanded="false" required>
           <button type="submit" class="search-btn">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
           </button>
+          <div id="search-suggestions" class="search-suggestions" role="listbox" hidden></div>
         </div>
       </form>
-    </div>
     <% } %>
+  </div>
 
       <div class="navbar-right">
         <div class="nav-actions">
@@ -104,14 +103,14 @@
                       style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);">
                       <span style="font-weight:700;font-size:0.95rem;">Notificaciones</span>
                       <button onclick="markAllRead()"
-                        style="background:none;border:none;cursor:pointer;color:#a78bfa;font-size:0.78rem;font-weight:600;">Marcar
+                        style="background:none;border:none;cursor:pointer;color:var(--primary-salmon-dark);font-size:0.78rem;font-weight:600;">Marcar
                         todo leído</button>
                     </div>
                     <!-- Lista -->
                     <div id="notifList" style="max-height:320px;overflow-y:auto;"></div>
                     <!-- Footer -->
                     <div style="padding:10px 18px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
-                      <a href="/principal/biblioteca" style="color:#a78bfa;font-size:0.82rem;text-decoration:none;">Ver
+                      <a href="/principal/biblioteca" style="color:var(--primary-salmon-dark);font-size:0.82rem;text-decoration:none;">Ver
                         biblioteca →</a>
                     </div>
                   </div>
@@ -143,8 +142,8 @@
                           list.innerHTML = '<p style="text-align:center;padding:24px;color:#666;font-size:0.875rem;">Sin notificaciones nuevas</p>';
                         } else {
                           list.innerHTML = notifs.map(n => `
-                            <div style="display:flex;gap:12px;padding:13px 18px;border-bottom:1px solid rgba(255,255,255,0.04);background:${n.leida ? 'transparent' : 'rgba(167,139,250,0.05)'};">
-                              <div style="flex-shrink:0;width:8px;height:8px;border-radius:50%;background:${n.leida ? 'transparent' : '#a78bfa'};margin-top:6px;"></div>
+                            <div style="display:flex;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border-color);background:${n.leida ? 'transparent' : 'rgba(255,204,170,0.12)'};">
+                              <div style="flex-shrink:0;width:8px;height:8px;border-radius:50%;background:${n.leida ? 'transparent' : 'var(--primary-salmon)'};margin-top:6px;"></div>
                               <div style="flex:1;">
                                 <p style="margin:0;font-size:0.875rem;color:#ddd;line-height:1.4;">${n.mensaje || tipoLabel(n.tipo)}</p>
                                 <span style="font-size:0.75rem;color:#666;">${timeAgoNotif(n.created_at || n.fecha)}</span>
@@ -232,3 +231,36 @@
           <% } %> <!--Se muestra una regla donde se especifica el elemento que se muestra-->
       </div>
 </header>
+<script>
+  (() => {
+    const input = document.querySelector('.search-bar');
+    const box = document.getElementById('search-suggestions');
+    if (!input || !box) return;
+    let timer;
+    const hide = () => { box.hidden = true; box.replaceChildren(); input.setAttribute('aria-expanded', 'false'); };
+    input.addEventListener('input', () => {
+      clearTimeout(timer);
+      const q = input.value.trim();
+      if (q.length < 2) return hide();
+      timer = setTimeout(async () => {
+        try {
+          const response = await fetch('/buscar/sugerencias?q=' + encodeURIComponent(q), { headers: { Accept: 'application/json' } });
+          const { sugerencias = [] } = await response.json();
+          box.replaceChildren();
+          sugerencias.forEach(item => {
+            const link = document.createElement('a');
+            link.href = item.url;
+            link.className = 'search-suggestion';
+            link.setAttribute('role', 'option');
+            link.textContent = (item.tipo === 'autor' ? 'Autor: ' : 'Historia: ') + item.texto;
+            box.append(link);
+          });
+          box.hidden = !sugerencias.length;
+          input.setAttribute('aria-expanded', String(sugerencias.length > 0));
+        } catch (_) { hide(); }
+      }, 220);
+    });
+    input.addEventListener('blur', () => setTimeout(hide, 150));
+    input.addEventListener('keydown', event => { if (event.key === 'Escape') hide(); });
+  })();
+</script>

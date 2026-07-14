@@ -94,29 +94,29 @@
 }
 
 
-/* 2. Lock down the item sizes */
+/* 2. Lock down the item sizes — estándar editorial 2:3 */
 .carousel-item {
-  flex: 0 0 200px; /* Lock width to 200px */
-  width: 200px;
-  height: 300px;   /* Lock height to 300px */
+  flex: 0 0 var(--story-card-width);
+  width: var(--story-card-width);
+  min-width: var(--story-card-width);
 }
 
 /* 3. Force the inner wrapper to clip everything safely */
 .carousel-item .card-inner {
-  position: relative; /* Anchor for absolute positioning */
+  position: relative;
   width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  overflow: hidden;   /* Stops text/images from bleeding out */
-  background-color: #1a1a1a; /* Dark background fallback */
-  display: block;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--bg-card);
+  display: flex;
+  flex-direction: column;
 }
 
 /* 4. Force the image link container to take up full space */
 .carousel-item .card-image-link {
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 2 / 3;
 }
 
 /* 5. Handle the image sizing */
@@ -134,28 +134,23 @@
 
 /* 6. Fix the broken text & layout overlap */
 .carousel-item .card-info {
-  position: absolute;
-  bottom: 0;
-  left: 0;
+  position: static;
   width: 100%;
-  padding: 12px;
-  box-sizing: border-box; /* Crucial: includes padding in width calculation */
-  z-index: 3; /* Places text cleanly on top of the image */
-  
-  /* Adds a smooth dark gradient backdrop behind text for readability */
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0) 100%);
+  padding: 10px 0 0;
+  box-sizing: border-box;
+  background: transparent;
 }
 
 /* Typography safeguards inside the card */
 .carousel-item .card-info .title {
-  color: #ffffff !important;
+  color: var(--text-dark) !important;
   font-size: 14px;
   font-weight: 600;
   margin: 0 0 4px 0;
 }
 
 .carousel-item .card-info .meta {
-  color: #bbbbbb;
+  color: var(--text-muted);
   font-size: 12px;
   display: flex;
   align-items: center;
@@ -309,39 +304,41 @@
 }
 
 /* 1. Ensure the parent track works like a clean row */
+.scroll-wrapper {
+  position: relative;
+}
+
 .scroll-container {
   display: flex;
-  gap: 16px;
+  gap: var(--story-card-gap);
   overflow-x: auto;
-  padding: 10px 0;
+  padding: 10px 4px;
+  scroll-behavior: smooth;
 }
 
-.scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
+.scroll-container .carousel-item,
 .scroll-container .library-item {
-  flex: 0 0 auto;
-  width: 150px;
+  flex: 0 0 var(--story-card-width);
+  width: var(--story-card-width);
+  min-width: var(--story-card-width);
 }
 
-.scroll-container .library-item .cover {
+.scroll-container .library-item .card-image-link,
+.scroll-container .carousel-item .card-image-link {
+  aspect-ratio: 2 / 3;
+}
+
+.scroll-container .library-item .cover,
+.scroll-container .carousel-item img.cover {
   width: 100%;
-  height: 100px;
+  height: 100%;
   object-fit: cover;
 }
 
 .scroll-container .card-info {
-  padding: 15px;
-}
-
-.scroll-container .card-info .title {
-  margin: 0;
-  font-size: 1.1rem;
-  color: var(--text-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding: 10px 0 0;
+  position: static;
+  background: transparent;
 }
 
 .scroll-btn {
@@ -531,15 +528,18 @@
 /* === Library Content Grid === */
 .library-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 24px;
-  margin-top: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 210px));
+  justify-content: center;
+  gap: 28px 24px;
+  margin: 30px auto 0;
+  padding-inline: 16px;
 }
 
 .library-item {
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
 }
 
 .library-item a {

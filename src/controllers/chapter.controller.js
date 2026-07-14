@@ -10,7 +10,7 @@ export async function createChapter(req, res) {
 }
 export async function getChapters(req, res) { const { data } = await db.from('capitulos').select('*').eq('cuento_id', req.params.id).order('created_at'); res.json(data || []); }
 export async function readChapter(req, res) {
-  const { data: capitulo } = await db.from('capitulos').select('*, cuentos(titulo, id_cuento, cuenta_usuario_id, estado, visibilidad, vistas)').eq('id_capitulo', req.params.id).maybeSingle();
+  const { data: capitulo } = await db.from('capitulos').select('*, cuentos(titulo, id_cuento, cuenta_usuario_id, categoria_id, estado, visibilidad, vistas, cuenta_usuario(id_cuenta_usuario, username, avatar_url))').eq('id_capitulo', req.params.id).maybeSingle();
   if (!capitulo) return res.status(404).render('404', { message: 'Capitulo no encontrado.', loggerUser: req.session?.user || null });
   
   const owner = String(capitulo.cuentos.cuenta_usuario_id) === String(userId(req));
@@ -21,7 +21,25 @@ export async function readChapter(req, res) {
 
   const { data: all } = await db.from('capitulos').select('id_capitulo').eq('cuento_id', capitulo.cuento_id).order('created_at');
   const idx = (all || []).findIndex(c => String(c.id_capitulo) === String(req.params.id));
-  res.render('read', { capitulo, cuento: capitulo.cuentos, prevId: idx > 0 ? all[idx - 1].id_capitulo : null, nextId: idx >= 0 && idx < all.length - 1 ? all[idx + 1].id_capitulo : null, loggerUser: req.session?.user || null });
+  const [{ data: sugerencias }, { count: likesCount }, { count: comentariosCount }] = await Promise.all([
+    db.from('cuentos')
+      .select('id_cuento, titulo, portada_url, vistas, cuenta_usuario(username)')
+      .eq('categoria_id', capitulo.cuentos.categoria_id).eq('estado', 'publicado').eq('visibilidad', 'publica')
+      .neq('id_cuento', capitulo.cuento_id).is('deleted_at', null).order('vistas', { ascending: false }).limit(4),
+    db.from('likes_historias').select('*', { count: 'exact', head: true }).eq('cuento_id', capitulo.cuentos.id_cuento),
+    db.from('comentarios').select('*', { count: 'exact', head: true }).eq('cuento_id', capitulo.cuentos.id_cuento),
+  ]);
+  res.render('read', {
+    capitulo,
+    cuento: capitulo.cuentos,
+    prevId: idx > 0 ? all[idx - 1].id_capitulo : null,
+    nextId: idx >= 0 && idx < all.length - 1 ? all[idx + 1].id_capitulo : null,
+    totalCapitulos: (all || []).length,
+    likesCount: likesCount || 0,
+    comentariosCount: comentariosCount || 0,
+    sugerencias: sugerencias || [],
+    loggerUser: req.session?.user || null
+  });
 }
 export async function getChapterEditor(req, res) {
   let chapter = { titulo: '', contenido: '', cuento_id: req.params.storyId };

@@ -9,18 +9,20 @@
 
 :root {
   /* Core Colors */
-  --primary-salmon: #FAAD96;
-  --primary-salmon-dark: #E68B71;
+  --primary-salmon: #FFCCAA;
+  --primary-salmon-dark: #2B1100;
   --primary-salmon-muted: #E6BBAE;
   --sage-beige: #C5BFAE;
-  --ink-black: #1C1C1C;
-  --bg-light: #F9F6F4; 
+  --ink-black: #2B1100;
+  --bg-light: #FFF8F3;
   --text-dark: #1C1C1C;
   --text-light: #FFFFFF;
   --text-muted: #6B6B7B;
 
   /* Gradients */
-  --salmon-gradient: linear-gradient(135deg, #FAAD96, #EB8B71);
+  --brand-gold: #FFC629;
+  --brand-pink: #FFBDCC;
+  --salmon-gradient: linear-gradient(135deg, #FFCCAA, #FFBDCC);
   --glass-bg: rgba(255, 255, 255, 0.8);
   --glass-border: rgba(0, 0, 0, 0.08);
 
@@ -32,6 +34,16 @@
   --radius-lg: 16px;
   --radius-md: 12px;
   --radius-sm: 8px;
+  --radius-xs: 4px;
+
+  /* Story card standard (2:3 aspect ratio) */
+  --story-card-width: 180px;
+  --story-card-gap: 20px;
+
+  /* Brand buttons — opacidad ajustada */
+  --btn-primary-bg: rgba(255, 204, 170, 0.88);
+  --btn-primary-hover: rgba(43, 17, 0, 0.92);
+  --btn-outline-border: rgba(43, 17, 0, 0.28);
   --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.08);
   --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);

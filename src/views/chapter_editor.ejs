@@ -41,6 +41,7 @@
             const saveBtn = document.getElementById('save-btn');
             const chapterId = '<%= chapter.id_capitulo || "" %>';
             const storyId = '<%= chapter.cuento_id %>';
+            const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
 
             saveBtn.addEventListener('click', async () => {
                 const titulo = document.getElementById('chapter-title').value;
@@ -62,7 +63,7 @@
 
                     const res = await fetch(url, {
                         method: method,
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken, 'Accept': 'application/json' },
                         body: JSON.stringify({ titulo, contenido, cuento_id: storyId })
                     });
 

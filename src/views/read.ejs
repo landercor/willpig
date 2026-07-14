@@ -1,96 +1,184 @@
 <%- include('layouts/header', { 
-  title: ` | Willpig Studio`,
-  extraStyles: `<link rel="stylesheet" href="/css/modules/views/read.css">`
+  title: `${capitulo.titulo} | Willpig Studio`,
+  extraStyles: `<link rel="stylesheet" href="/css/modules/views/read.css">`,
+  mainClass: 'reading-mode'
 }) %>
 
-<div class="reading-toolbar">
-        <a href="/historias/<%= cuento.id_cuento %>" class="control-btn" title="Volver a la historia">
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
-            <span>Volver</span>
+<% const authorAvatar = cuento.cuenta_usuario?.avatar_url || '/img/default-avatar.svg'; %>
+<% const authorName = cuento.cuenta_usuario?.username || 'Autor'; %>
+
+<div class="reading-toolbar" id="readingToolbar">
+    <a href="/historias/<%= cuento.id_cuento %>" class="control-btn" title="Volver a la historia">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+        <span>Volver</span>
+    </a>
+    <button class="control-btn" onclick="toggleTheme()" title="Cambiar Tema" type="button">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>
+        <span>Tema</span>
+    </button>
+    <button class="control-btn" onclick="changeFontSize()" title="Tamaño Letra" type="button">
+        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/></svg>
+        <span>Aa</span>
+    </button>
+</div>
+
+<div class="reading-container">
+    <header class="reading-header">
+        <a href="/historias/<%= cuento.id_cuento %>" class="story-title-link">
+            <span class="story-title"><%= cuento.titulo %></span>
         </a>
-        <button class="control-btn" onclick="toggleTheme()" title="Cambiar Tema">
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>
-            <span>Tema</span>
-        </button>
-        <button class="control-btn" onclick="changeFontSize()" title="Tamaño Letra">
-            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5z"/></svg>
-            <span>Aa</span>
-        </button>
-    </div>
+        <h1 class="chapter-title"><%= capitulo.titulo %></h1>
+        <div class="reading-stats">
+            <span><img src="/img/img.ico/svg/eye-fill.svg" alt=""> <%= cuento.vistas || 0 %> lecturas</span>
+            <span><img src="/img/img.ico/svg/bookmark-heart-fill.svg" alt=""> <%= likesCount || 0 %> favoritos</span>
+            <span><img src="/img/img.ico/svg/book-half.svg" alt=""> <%= totalCapitulos %> partes</span>
+            <% if (comentariosCount > 0) { %>
+                <span><%= comentariosCount %> comentarios</span>
+            <% } %>
+        </div>
+    </header>
 
-    <div class="reading-container">
-        <header class="reading-header">
-            <a href="/historias/<%= cuento.id_cuento %>" class="story-title-link">
-                <span class="story-title"><%= cuento.titulo %></span>
-            </a>
-            <h1 class="chapter-title"><%= capitulo.titulo %></h1>
-        </header>
-
-        <div class="chapter-content">
+    <div class="reading-layout">
+        <aside class="reading-author">
+            <img src="<%= authorAvatar %>" alt="Avatar de @<%= authorName %>" onerror="this.src='/img/default-avatar.svg'">
+            <span>Por <a href="/usuario/profile/<%= cuento.cuenta_usuario?.id_cuenta_usuario || '' %>">@<%= authorName %></a></span>
+        </aside>
+        <article class="chapter-content">
             <%- capitulo.contenido %>
-        </div>
-
-        <div class="chapter-nav-bottom">
-            <% if (prevId) { %>
-                <a href="/capitulos/read/<%= prevId %>" class="nav-btn">← Anterior</a>
-            <% } else { %>
-                <span class="nav-btn disabled">← Anterior</span>
-            <% } %>
-
-            <% if (nextId) { %>
-                <a href="/capitulos/read/<%= nextId %>" class="nav-btn">Siguiente →</a>
-            <% } else { %>
-                <span class="nav-btn disabled">Siguiente →</span>
-            <% } %>
-        </div>
+        </article>
     </div>
 
-    <script>
-        // Gestión de Temas
-        const themes = ['', 'theme-sepia', 'theme-dark'];
-        let currentThemeIndex = 0;
+    <div class="chapter-nav-bottom">
+        <% if (prevId) { %>
+            <a href="/capitulos/read/<%= prevId %>" class="nav-btn">← Anterior</a>
+        <% } else { %>
+            <span class="nav-btn disabled">← Anterior</span>
+        <% } %>
+        <% if (nextId) { %>
+            <a href="/capitulos/read/<%= nextId %>" class="nav-btn">Siguiente →</a>
+        <% } else { %>
+            <span class="nav-btn disabled">Siguiente →</span>
+        <% } %>
+    </div>
 
-        // Cargar preferencias guardadas
-        const savedTheme = localStorage.getItem('readingTheme');
-        if (savedTheme) {
-            document.body.classList.add(savedTheme);
-            currentThemeIndex = themes.indexOf(savedTheme);
+    <!-- Comentarios al final del capítulo -->
+    <section class="reading-comments">
+        <h2>Comentarios <span id="readCommentCount"></span></h2>
+        <% if (loggerUser) { %>
+            <div class="comment-form-read">
+                <img src="<%= loggerUser.avatar || '/img/default-avatar.svg' %>" alt="" onerror="this.src='/img/default-avatar.svg'">
+                <div>
+                    <textarea id="readCommentInput" placeholder="Comparte tu opinión sobre este capítulo..." maxlength="1000"></textarea>
+                    <button id="readSubmitComment" class="btn-primary-pastel" type="button">Publicar</button>
+                </div>
+            </div>
+        <% } else { %>
+            <p class="comment-hint"><a href="/auth/login">Inicia sesión</a> para comentar.</p>
+        <% } %>
+        <div id="readCommentsList"></div>
+    </section>
+
+    <% if (sugerencias.length) { %>
+        <section class="reading-suggestions" aria-label="Historias sugeridas">
+            <h2>También te puede interesar</h2>
+            <div class="suggestions-grid">
+                <% sugerencias.forEach(sugerencia => { %>
+                    <a href="/historias/<%= sugerencia.id_cuento %>" class="suggestion-card">
+                        <img src="<%= sugerencia.portada_url || '/img/default-portada.jpg' %>" alt="Portada de <%= sugerencia.titulo %>">
+                        <span><%= sugerencia.titulo %></span>
+                        <small>@<%= sugerencia.cuenta_usuario?.username || 'Autor' %></small>
+                    </a>
+                <% }) %>
+            </div>
+        </section>
+    <% } %>
+</div>
+
+<script>
+    const storyId = '<%= cuento.id_cuento %>';
+    const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+
+    const themes = ['', 'theme-sepia', 'theme-dark'];
+    let currentThemeIndex = 0;
+    const savedTheme = localStorage.getItem('readingTheme');
+    if (savedTheme) {
+        document.body.classList.add(savedTheme);
+        currentThemeIndex = themes.indexOf(savedTheme);
+    }
+
+    function toggleTheme() {
+        if (themes[currentThemeIndex]) document.body.classList.remove(themes[currentThemeIndex]);
+        currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+        if (themes[currentThemeIndex]) {
+            document.body.classList.add(themes[currentThemeIndex]);
+            localStorage.setItem('readingTheme', themes[currentThemeIndex]);
+        } else {
+            localStorage.removeItem('readingTheme');
         }
+    }
 
-        function toggleTheme() {
-            if (themes[currentThemeIndex]) {
-                document.body.classList.remove(themes[currentThemeIndex]);
-            }
-            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
-            if (themes[currentThemeIndex]) {
-                document.body.classList.add(themes[currentThemeIndex]);
-                localStorage.setItem('readingTheme', themes[currentThemeIndex]);
-            } else {
-                localStorage.removeItem('readingTheme');
-            }
+    const fontSizes = ['', 'font-small', 'font-large', 'font-xlarge'];
+    let currentFontIndex = 0;
+    const savedFont = localStorage.getItem('readingFont');
+    if (savedFont) {
+        document.body.classList.add(savedFont);
+        currentFontIndex = fontSizes.indexOf(savedFont);
+    }
+
+    function changeFontSize() {
+        if (fontSizes[currentFontIndex]) document.body.classList.remove(fontSizes[currentFontIndex]);
+        currentFontIndex = (currentFontIndex + 1) % fontSizes.length;
+        if (fontSizes[currentFontIndex]) {
+            document.body.classList.add(fontSizes[currentFontIndex]);
+            localStorage.setItem('readingFont', fontSizes[currentFontIndex]);
+        } else {
+            localStorage.removeItem('readingFont');
         }
+    }
 
-        // Gestión de Tamaño de Fuente
-        const fontSizes = ['', 'font-small', 'font-large', 'font-xlarge'];
-        let currentFontIndex = 0;
-
-        const savedFont = localStorage.getItem('readingFont');
-        if (savedFont) {
-            document.body.classList.add(savedFont);
-            currentFontIndex = fontSizes.indexOf(savedFont);
-        }
-
-        function changeFontSize() {
-            if (fontSizes[currentFontIndex]) {
-                document.body.classList.remove(fontSizes[currentFontIndex]);
+    async function loadReadComments() {
+        const list = document.getElementById('readCommentsList');
+        const countEl = document.getElementById('readCommentCount');
+        if (!list) return;
+        try {
+            const res = await fetch(`/social/comentarios/${storyId}`);
+            const data = await res.json();
+            if (countEl) countEl.textContent = data.comentarios?.length ? `(${data.comentarios.length})` : '';
+            if (!data.comentarios?.length) {
+                list.innerHTML = '<p class="comment-hint">Sé el primero en comentar esta historia.</p>';
+                return;
             }
-            currentFontIndex = (currentFontIndex + 1) % fontSizes.length;
-            if (fontSizes[currentFontIndex]) {
-                document.body.classList.add(fontSizes[currentFontIndex]);
-                localStorage.setItem('readingFont', fontSizes[currentFontIndex]);
-            } else {
-                localStorage.removeItem('readingFont');
-            }
+            list.innerHTML = data.comentarios.map(c => `
+                <div class="comment-item-read">
+                    <img src="${(c.cuenta_usuario && c.cuenta_usuario.avatar_url) || '/img/default-avatar.svg'}" alt="" onerror="this.src='/img/default-avatar.svg'">
+                    <div>
+                        <strong>@${c.cuenta_usuario?.username || 'Usuario'}</strong>
+                        <span>${new Date(c.created_at).toLocaleDateString('es-ES')}</span>
+                        <p>${c.contenido}</p>
+                    </div>
+                </div>`).join('');
+        } catch (_) {
+            list.innerHTML = '<p class="comment-hint">No se pudieron cargar los comentarios.</p>';
         }
-    </script>
+    }
+
+    const readSubmit = document.getElementById('readSubmitComment');
+    const readInput = document.getElementById('readCommentInput');
+    if (readSubmit && readInput) {
+        readSubmit.addEventListener('click', async () => {
+            const contenido = readInput.value.trim();
+            if (!contenido) return;
+            readSubmit.disabled = true;
+            const res = await fetch(`/social/comentarios/${storyId}`, {
+                method: 'POST',
+                headers: { 'CSRF-Token': csrfToken, 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ contenido })
+            });
+            if (res.ok) { readInput.value = ''; loadReadComments(); }
+            else if (res.status === 401) window.location.href = '/auth/login';
+            readSubmit.disabled = false;
+        });
+    }
+    loadReadComments();
+</script>
 <%- include('layouts/footer') %>

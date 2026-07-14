@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt';
+import { createClient } from '@supabase/supabase-js';
 import { supabase, supabaseAdmin } from '../config/db.js';
 
 const safeNext = (value) => value && value.startsWith('/') && !value.startsWith('//') ? value : '/principal';
+const normalizeEmail = value => String(value || '').trim().toLowerCase();
 
 async function roleId(nombre) {
   const { data } = await supabaseAdmin.from('roles_usuario').select('id').eq('nombre', nombre).maybeSingle();
@@ -34,7 +36,7 @@ async function findUserByEmail(email) {
 
 export async function register(req, res) {
   const { username, correo, email, contrasena, password, next } = req.body;
-  const userEmail = correo || email;
+  const userEmail = normalizeEmail(correo || email);
   const userPassword = contrasena || password;
   try {
     if (!username || !userEmail || !userPassword) {
@@ -68,7 +70,7 @@ export async function register(req, res) {
 
 export async function login(req, res) {
   const { correo, email, contrasena, password, next } = req.body;
-  const userEmail = correo || email;
+  const userEmail = normalizeEmail(correo || email);
   const userPassword = contrasena || password;
   const redirectTo = safeNext(next);
   try {
@@ -90,7 +92,7 @@ export async function login(req, res) {
 }
 
 export async function forgotPassword(req, res) {
-  const correo = req.body.correo || req.body.email;
+  const correo = normalizeEmail(req.body.correo || req.body.email);
   if (!correo) return res.render('olvido', { error: 'Por favor, introduce un correo electrónico válido (ejemplo: usuario@correo.com).' });
   const { error } = await supabase.auth.resetPasswordForEmail(correo, { redirectTo: req.protocol + '://' + req.get('host') + '/auth/callback' });
   if (error) console.error('Error en olvido:', error.message || error);
@@ -98,10 +100,17 @@ export async function forgotPassword(req, res) {
 }
 export function authCallback(_req, res) { res.redirect('/auth/nuevaclave'); }
 export async function resetPassword(req, res) {
-  const { nuevaClave, confirmarClave, correo } = req.body;
+  const { nuevaClave, confirmarClave, recoveryAccessToken, recoveryRefreshToken } = req.body;
   if (!nuevaClave || nuevaClave !== confirmarClave) return res.render('nuevaclave', { error: 'Las contraseñas no coinciden. Asegúrate de escribirlas exactamente igual en ambos campos.' });
-  if (!correo) return res.render('nuevaclave', { error: 'Por favor, ingresa el correo asociado a tu cuenta para continuar.' });
-  const user = await findUserByEmail(correo);
+  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(nuevaClave)) return res.render('nuevaclave', { error: 'La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.' });
+  if (!recoveryAccessToken || !recoveryRefreshToken) return res.render('nuevaclave', { error: 'El enlace de recuperación no es válido o expiró. Solicita uno nuevo.' });
+  const recoveryClient = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+  const { error: sessionError } = await recoveryClient.auth.setSession({ access_token: recoveryAccessToken, refresh_token: recoveryRefreshToken });
+  const { data: authData, error: authError } = await recoveryClient.auth.getUser();
+  if (sessionError || authError || !authData.user?.email) return res.render('nuevaclave', { error: 'El enlace de recuperación no es válido o expiró. Solicita uno nuevo.' });
+  const { error: updateAuthError } = await recoveryClient.auth.updateUser({ password: nuevaClave });
+  if (updateAuthError) return res.render('nuevaclave', { error: 'No fue posible actualizar la contraseña. Solicita un enlace nuevo.' });
+  const user = await findUserByEmail(normalizeEmail(authData.user.email));
   if (!user) return res.render('nuevaclave', { error: 'No encontramos ninguna cuenta asociada a ese correo electrónico. Verifica que esté bien escrito.' });
   const clave_hash = await bcrypt.hash(nuevaClave, 10);
   await supabaseAdmin.from('cuenta_credenciales').upsert({ cuenta_usuario_id: user.id_cuenta_usuario, clave_hash, token_reset: null, token_reset_expiry: null });
