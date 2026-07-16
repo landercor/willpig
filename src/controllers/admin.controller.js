@@ -33,7 +33,9 @@ async function base(seccion) {
 async function renderAdmin(req, res, seccion, extra = {}) {
   res.render('admin', {
     ...(await base(seccion)),
-    ...extra, loggerUser: req.session.user
+    ...extra, 
+    loggerUser: req.session.user,
+    csrfToken: res.locals.csrfToken
   });
 }
 export async function getDashboard(req, res) {
@@ -42,9 +44,35 @@ export async function getDashboard(req, res) {
     stats: { totalUsuarios: u.count || 0, totalHistorias: h.count || 0, totalCategorias: c.count || 0, totalEtiquetas: e.count || 0, totalNotificaciones: n.count || 0 }
   });
 }
-export async function getUsuarios(req, res) { const { data } = await db.from('cuenta_usuario').select('*, roles_usuario(nombre), estados_usuario(nombre)').order('fecha_registro', { ascending: false }); const usuarios = (data || []).map(u => ({ ...u, rol: u.roles_usuario?.nombre || u.rol || 'lector', estado: u.estados_usuario?.nombre || u.estado || 'activa' })); renderAdmin(req, res, 'usuarios', { usuarios, query: req.query }); }
+export async function getUsuarios(req, res) { const { data } = await db.from('cuenta_usuario').select('*').order('fecha_registro', { ascending: false }); renderAdmin(req, res, 'usuarios', { usuarios: data || [], query: req.query }); }
 export async function createUsuario(req, res) { const hash = await bcrypt.hash(req.body.password || '123456', 10); const { data } = await db.from('cuenta_usuario').insert({ username: req.body.username, email: req.body.email, clave: '', rol: req.body.rol || 'lector', estado: 'activa' }).select('id_cuenta_usuario').single(); if (data) await db.from('cuenta_credenciales').insert({ cuenta_usuario_id: data.id_cuenta_usuario, clave_hash: hash }); res.redirect('/admin/usuarios'); }
-export async function editUsuario(req, res) { await db.from('cuenta_usuario').update({ username: req.body.username, email: req.body.email, rol: req.body.rol, estado: req.body.estado, updated_at: new Date().toISOString() }).eq('id_cuenta_usuario', req.params.id); res.redirect('/admin/usuarios'); }
+export async function editUsuario(req, res) { 
+  console.log('📝 editUsuario called with:');
+  console.log('  id:', req.params.id);
+  console.log('  body:', req.body);
+  
+  const { data, error } = await db.from('cuenta_usuario')
+    .update({ 
+      username: req.body.username, 
+      email: req.body.email, 
+      rol: req.body.rol, 
+      estado: req.body.estado, 
+      updated_at: new Date().toISOString() 
+    })
+    .eq('id_cuenta_usuario', req.params.id)
+    .select();
+  
+  if (error) {
+    console.error('❌ Error updating user:', error);
+    return res.status(500).render('404', { 
+      message: `Error actualizando usuario: ${error.message}`,
+      loggerUser: req.session?.user || null
+    });
+  }
+  
+  console.log('✓ User updated successfully:', data);
+  res.redirect('/admin/usuarios'); 
+}
 export async function deleteUsuario(req, res) { await db.from('cuenta_usuario').delete().eq('id_cuenta_usuario', req.params.id); res.redirect('/admin/usuarios'); }
 export async function getHistorias(req, res) { const { data } = await db.from('cuentos').select('*, cuenta_usuario(username), categorias(nombre)').order('created_at', { ascending: false }); renderAdmin(req, res, 'historias', { historias: data || [] }); }
 export async function createHistoria(req, res) { await db.from('cuentos').insert({ titulo: req.body.titulo || 'Sin titulo', descripcion: req.body.descripcion || null, cuenta_usuario_id: req.body.cuenta_usuario_id, categoria_id: Number(req.body.categoria_id) || 1, estado: req.body.estado || 'borrador', visibilidad: req.body.visibilidad || 'privada' }); res.redirect('/admin/historias'); }

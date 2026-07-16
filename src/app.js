@@ -52,8 +52,8 @@ app.use(async (req, _res, next) => {
       username: data.username,
       email: data.email,
       avatar: data.avatar_url,
-      rol: (data.roles_usuario?.nombre || data.rol || 'lector').toLowerCase(),
-      estado: data.estados_usuario?.nombre || data.estado || 'activa',
+      rol: (data.rol || data.roles_usuario?.nombre || 'lector').toLowerCase(),
+      estado: data.estado || data.estados_usuario?.nombre || 'activa',
     };
   }
   next();

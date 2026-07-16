@@ -359,7 +359,7 @@
                             <button type="button" class="btn btn-outline"
                               onclick="closeModal('modal-edit-usuario-<%= u.id_cuenta_usuario %>')">Cancelar</button>
                             <button type="button" class="btn btn-ok"
-                              onclick="openConfirmModal(this.closest('form'), '¿Confirmar cambios en @<%= u.username %>? Esto actualizará su rol y estado.')">Guardar
+                              onclick="openConfirmModal(this, '¿Confirmar cambios en @<%= u.username %>? Esto actualizará su rol y estado.')">Guardar
                               cambios</button>
                           </div>
                         </form>
@@ -1038,7 +1038,7 @@
       <div style="display:flex; justify-content:center; gap: 15px;">
         <button type="button" class="btn btn-outline" onclick="closeModal('ws-confirm-modal')"
           style="min-width: 100px;">Cancelar</button>
-        <button type="button" class="btn btn-del" id="ws-confirm-btn" style="min-width: 100px;">Confirmar</button>
+        <button type="button" class="btn btn-del" id="ws-confirm-btn" onclick="submitPendingForm()" style="min-width: 100px;">Confirmar</button>
       </div>
     </div>
   </div>
@@ -1063,14 +1063,60 @@
 
   // ── Confirm Modal ────────────────────────────────────────────
   let formToSubmit = null;
-  function openConfirmModal(formElement, message) {
-    formToSubmit = formElement;
-    document.getElementById('ws-confirm-msg').textContent = message;
+  
+  function submitPendingForm() {
+    console.log('✓ submitPendingForm() called');
+    console.log('  formToSubmit:', formToSubmit);
+    if (formToSubmit) {
+      console.log('✓ Submitting form with action:', formToSubmit.action);
+      closeModal('ws-confirm-modal');
+      setTimeout(() => {
+        formToSubmit.submit();
+      }, 50);
+    } else {
+      console.error('✗ ERROR: No form to submit!');
+    }
+  }
+  
+  function openConfirmModal(buttonElement, message) {
+    console.log('🔵 openConfirmModal() called with buttonElement:', buttonElement);
+    
+    if (!buttonElement) {
+      console.error('✗ ERROR: buttonElement is null!');
+      return;
+    }
+    
+    // Find the modal-overlay (which contains the form)
+    let modalOverlay = buttonElement.closest('.modal-overlay');
+    console.log('📦 Modal overlay found:', modalOverlay);
+    
+    if (!modalOverlay) {
+      console.error('✗ ERROR: Could not find modal-overlay!');
+      return;
+    }
+    
+    // Find the form inside the modal-overlay
+    const form = modalOverlay.querySelector('form');
+    console.log('📋 Form found inside modal:', form);
+    
+    if (!form) {
+      console.error('✗ ERROR: Could not find form inside modal!');
+      console.error('  Modal innerHTML:', modalOverlay.innerHTML.substring(0, 200));
+      return;
+    }
+    
+    formToSubmit = form;
+    const msgEl = document.getElementById('ws-confirm-msg');
+    if (msgEl) msgEl.textContent = message;
+    console.log('✓ formToSubmit set, opening modal');
     openModal('ws-confirm-modal');
   }
-  document.getElementById('ws-confirm-btn')?.addEventListener('click', () => {
-    if (formToSubmit) formToSubmit.submit();
-  });
+  
+  // Also attach event listener for extra safety
+  const confirmBtn = document.getElementById('ws-confirm-btn');
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', submitPendingForm);
+  }
 
   // ── Sidebar Mobile ───────────────────────────────────────────
   const sidebarToggle = document.getElementById('sidebarToggle');
@@ -1242,6 +1288,12 @@
                 paginateTables();
                 bindSearch('search-users', '.admin-table', [1, 2]);
                 bindSearch('search-historias', '.admin-table', [1, 2]);
+                
+                // Re-inicializar confirm button listener after SPA HTML replacement
+                const newConfirmBtn = document.getElementById('ws-confirm-btn');
+                if (newConfirmBtn) {
+                  newConfirmBtn.addEventListener('click', submitPendingForm);
+                }
               }, 200);
 
               window.history.pushState({}, '', url);
