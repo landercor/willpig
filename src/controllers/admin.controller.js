@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { supabaseAdmin as db } from '../config/db.js';
 export const catalogNames = ['categorias', 'etiquetas', 'notificaciones', 'idiomas', 'audiencias', 'tipos_derechos', 'clasificaciones', 'estados_cuento', 'estados_usuario', 'roles_usuario'];
 const tablePk = { categorias: 'id_categoria', etiquetas: 'id_etiqueta', notificaciones: 'id_notificacion', idiomas: 'id', audiencias: 'id', tipos_derechos: 'id', clasificaciones: 'id', estados_cuento: 'id', estados_usuario: 'id', roles_usuario: 'id' };

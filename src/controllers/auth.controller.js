@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { createClient } from '@supabase/supabase-js';
 import { supabase, supabaseAdmin } from '../config/db.js';
 

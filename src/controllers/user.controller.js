@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import upload from '../middlewares/upload.js';
 import { supabaseAdmin as db } from '../config/db.js';
 export const uploadProfileImages = upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'coverImage', maxCount: 1 }]);

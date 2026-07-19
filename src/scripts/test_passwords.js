@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../config/db.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 async function test() {
   const usersWithPlaintext = [
