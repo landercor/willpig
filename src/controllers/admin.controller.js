@@ -15,6 +15,7 @@ async function base(seccion) {
     usuarios: [],
     historias: [],
     capitulos: [],
+    comentarios: [],
     categorias: categorias.data || [],
     etiquetas: etiquetas.data || [],
     miniaturas: [],
@@ -82,6 +83,8 @@ export async function getCapitulos(req, res) { const { data } = await db.from('c
 export async function createCapitulo(req, res) { await db.from('capitulos').insert({ titulo: req.body.titulo, contenido: req.body.contenido || '', cuento_id: Number(req.body.cuento_id) }); res.redirect('/admin/capitulos'); }
 export async function editCapitulo(req, res) { await db.from('capitulos').update({ titulo: req.body.titulo, contenido: req.body.contenido || '', updated_at: new Date().toISOString() }).eq('id_capitulo', req.params.id); res.redirect('/admin/capitulos'); }
 export async function deleteCapitulo(req, res) { await db.from('capitulos').delete().eq('id_capitulo', req.params.id); res.redirect('/admin/capitulos'); }
+export async function getComentarios(req, res) { const { data } = await db.from('comentarios').select('*, cuenta_usuario(username), cuentos(titulo)').order('created_at', { ascending: false }); renderAdmin(req, res, 'comentarios', { comentarios: data || [] }); }
+export async function deleteComentario(req, res) { await db.from('comentarios').delete().eq('id', req.params.id); res.redirect('/admin/comentarios'); }
 export const getCatalogo = name => async (req, res) => {
   // La bandeja es privada: administración solo puede emitir comunicaciones.
   if (name === 'notificaciones') return renderAdmin(req, res, name, { notificaciones: [] });

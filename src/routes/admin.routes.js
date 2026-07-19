@@ -17,6 +17,8 @@ router.get('/capitulos', admin.getCapitulos);
 router.post('/capitulos/new', validateCsrfToken, admin.createCapitulo);
 router.post('/capitulos/:id/edit', validateCsrfToken, admin.editCapitulo);
 router.post('/capitulos/:id/delete', validateCsrfToken, admin.deleteCapitulo);
+router.get('/comentarios', admin.getComentarios);
+router.post('/comentarios/:id/delete', validateCsrfToken, admin.deleteComentario);
 for (const name of admin.catalogNames) {
   router.get('/' + name, admin.getCatalogo(name));
   router.post('/' + name + '/new', validateCsrfToken, admin.createCatalogo(name));
