@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import session from 'express-session';
+import connectPg from 'connect-pg-simple';
 import authRoutes from './routes/auth.routes.js';
 import homeRoutes from './routes/home.routes.js';
 import chapterRoutes from './routes/chapter.routes.js';
@@ -11,6 +12,8 @@ import socialRoutes from './routes/social.routes.js';
 import { supabaseAdmin } from './config/db.js';
 import { generateCsrfToken } from './middlewares/csrf.js';
 import passport from './config/passport.js';
+
+const PgStore = connectPg(session);
 
 const app = express();
 
@@ -23,6 +26,11 @@ app.use(express.json());
 app.use(express.static(path.join(process.cwd(), 'public')));
 
 app.use(session({
+  store: new PgStore({
+    conString: process.env.DATABASE_URL,
+    tableName: 'session',
+    createTableIfMissing: true,
+  }),
   secret: process.env.SESSION_SECRET || 'willpig_studio_secret_key',
   resave: false,
   saveUninitialized: false,
