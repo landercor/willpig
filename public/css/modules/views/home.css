@@ -109,6 +109,7 @@
   overflow: hidden;
   background-color: var(--bg-card);
   display: flex;
+  padding: 7px;
   flex-direction: column;
 }
 
@@ -533,11 +534,12 @@
 /* === Library Content Grid === */
 .library-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 210px));
+  grid-template-columns: repeat(auto-fill, var(--story-card-width));
   justify-content: center;
-  gap: 28px 24px;
-  margin: 30px auto 0;
-  padding-inline: 16px;
+  gap: var(--story-card-gap);
+  padding: 24px 16px;
+  margin-inline: auto;
+  max-width: 1200px;
 }
 
 .library-item {

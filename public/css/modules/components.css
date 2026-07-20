@@ -198,7 +198,7 @@
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--story-card-width), 1fr));
+  grid-template-columns: repeat(auto-fill, var(--story-card-width));
   justify-content: center;
   gap: var(--story-card-gap);
   padding: 24px 16px;

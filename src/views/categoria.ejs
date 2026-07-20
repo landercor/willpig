@@ -1,70 +1,70 @@
-<%- include('layouts/header', { 
-  title: ``
-}) %>
+<%- include('layouts/header', { title: `` }) %>
 
-<!-- ===== EXPLORADOR DE CATEGORÍA ===== -->
-    <section class="library-page category-page">
-      <div class="library-header reveal-item">
-        <h1 class="text-primary">Categoría: <%= categoriaNombre %>
-        </h1>
-        <p class="text-muted mt-05">Explora todas las historias publicadas de este género</p>
-      </div>
+  <!-- ===== EXPLORADOR DE CATEGORÍA ===== -->
+  <section class="library-page category-page">
+    <div class="library-header reveal-item">
+      <h1 class="text-primary">Categoría: <%= categoriaNombre %>
+      </h1>
+      <p class="text-muted mt-05">Explora todas las historias publicadas de este género</p>
+    </div>
 
-      <div class="library-content">
-        <div id="category-results" class="tab-content active mt-2">
+    <div class="library-content">
+      <div id="category-results" class="tab-content active mt-2">
 
-          <div class="library-grid reveal-item">
-            <% if (historias && historias.length> 0) { %>
-              <% historias.forEach(historia=> { %>
-                <div class="library-item">
-                  <div class="card-inner">
-                    <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
-                      <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>" class="cover"
-                        alt="<%= historia.titulo %>">
-                      <div class="card-overlay">
-                        <span class="btn-play-mini"><img src="/img/img.ico/svg/arrow-right-short.svg"
-                            alt="arrow-right-short"></span>
-                      </div>
-                    </a>
-                    <div class="card-info">
-                      <p class="title text-truncate">
-                        <%= historia.titulo %>
-                      </p>
-                      <div class="author">
-                        <img
-                          src="<%= (historia.cuenta_usuario && historia.cuenta_usuario.avatar_url) || '/img/default-avatar.svg' %>"
-                          alt="autor" class="author-avatar-xs">
-                        <% if (historia.cuenta_usuario && historia.cuenta_usuario.id_cuenta_usuario) { %>
-                          <a href="/usuario/profile/<%= historia.cuenta_usuario.id_cuenta_usuario %>" class="author-link">@
-                            <%= historia.cuenta_usuario.username %>
-                          </a>
-                          <% } else { %>
-                            <span>@Anónimo</span>
-                            <% } %>
-                      </div>
-                      <div class="meta text-start">
-                        <img src="/img/img.ico/vistas-icon.svg" class="icon-eye">
-                        <%= (historia.vistas || 0).toLocaleString() %>
-                      </div>
+        <div class="library-grid reveal-item">
+          <% if (historias && historias.length> 0) { %>
+            <% historias.forEach(historia=> { %>
+              <div class="library-item">
+                <div class="card-inner">
+                  <a href="/historias/<%= historia.id_cuento || '#' %>" class="card-image-link">
+                    <img src="<%= historia.portada_url || historia.portada_url || '/img/default-portada.jpg' %>"
+                      class="cover" alt="<%= historia.titulo %>">
+                    <div class="card-overlay">
+                      <span class="btn-play-mini"><img src="/img/img.ico/svg/arrow-right-short.svg"
+                          alt="arrow-right-short"></span>
+                    </div>
+                  </a>
+                  <div class="card-info">
+                    <p class="title text-truncate">
+                      <%= historia.titulo %>
+                    </p>
+                    <div class="author">
+                      <img
+                        src="<%= (historia.cuenta_usuario && historia.cuenta_usuario.avatar_url) || '/img/default-avatar.svg' %>"
+                        alt="autor" class="author-avatar-xs">
+                      <% if (historia.cuenta_usuario && historia.cuenta_usuario.id_cuenta_usuario) { %>
+                        <a href="/usuario/profile/<%= historia.cuenta_usuario.id_cuenta_usuario %>"
+                          class="author-link">@
+                          <%= historia.cuenta_usuario.username %>
+                        </a>
+                        <% } else { %>
+                          <span>@Anónimo</span>
+                          <% } %>
+                    </div>
+                    <div class="meta text-start">
+                      <img src="/img/img.ico/vistas-icon.svg" class="icon-eye">
+                      <%= (historia.vistas || 0).toLocaleString() %>
                     </div>
                   </div>
                 </div>
-                <% }) %>
-                  <% } else { %>
-                    <div class="empty-state empty-card text-center text-muted p-3 col-full reveal-item"
-                      style="grid-column: 1 / -1;">
-                      <h3 class="mb-05">Aún no hay historias publicadas en la categoría "<%= categoriaNombre %>"</h3>
-                      <p>¿Tienes una gran idea? Sé el primero en escribir una historia para esta categoría.</p>
-                      <div class="mt-2" style="display: flex; gap: 15px; justify-content: center; align-items: center;">
-                        <a href="/historias/crear"><button class="btn-primary-pastel">¡Escribe la primera!</button></a>
-                        <a href="/"><button class="btn-outline-primary">Volver al Inicio</button></a>
-                      </div>
+              </div>
+              <% }) %>
+                <% } else { %>
+                  <div class="empty-state empty-card text-center text-muted p-3 col-full reveal-item"
+                    style="grid-column: 1 / -1;">
+                    <h3 class="mb-05">Aún no hay historias publicadas en la categoría "<%= categoriaNombre %>"</h3>
+                    <p>¿Tienes una gran idea? Sé el primero en escribir una historia para esta categoría.</p>
+                    <div class="mt-2" style="display: flex; gap: 15px; justify-content: center; align-items: center;">
+                      <a href="/historias/crear"><button class="btn btn-primary-pastel">¡Escribe la
+                          primera!</button></a>
+                      <a href="/principal"><button class="btn btn-secondary">Volver al Inicio</button></a>
                     </div>
-                    <% } %>
-          </div>
-
+                  </div>
+                  <% } %>
         </div>
-      </div>
-    </section>
 
-    <%- include('layouts/footer') %>
+      </div>
+    </div>
+  </section>
+
+  <%- include('layouts/footer') %>
