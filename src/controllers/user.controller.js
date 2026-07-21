@@ -23,6 +23,22 @@ export async function getProfile(req, res) {
   res.render('profile', { profile, user, loggerUser: req.session?.user || null });
 }
 export async function getEditProfile(req, res) { const { data } = await db.from('cuenta_usuario').select('*').eq('id_cuenta_usuario', userId(req)).maybeSingle(); res.render('profile-edit', { userData: data || {}, loggerUser: req.session.user }); }
-export async function postEditProfile(req, res) { const avatar_url = await uploadImage(req.files?.avatar?.[0], 'avatars'); const portada_url = await uploadImage(req.files?.coverImage?.[0], 'portadas'); const updates = { biografia: req.body.biografia || null, updated_at: new Date().toISOString() }; if (avatar_url) updates.avatar_url = avatar_url; if (portada_url) updates.portada_url = portada_url; await db.from('cuenta_usuario').update(updates).eq('id_cuenta_usuario', userId(req)); res.redirect('/usuario/perfil'); }
+export async function postEditProfile(req, res) {
+  try {
+    const avatar_url = await uploadImage(req.files?.avatar?.[0], 'avatars');
+    const portada_url = await uploadImage(req.files?.coverImage?.[0], 'portadas');
+    const updates = { biografia: req.body.biografia || null, updated_at: new Date().toISOString() };
+    if (avatar_url) updates.avatar_url = avatar_url;
+    if (portada_url) updates.portada_url = portada_url;
+    const { error } = await db.from('cuenta_usuario').update(updates).eq('id_cuenta_usuario', userId(req));
+    if (error) throw error;
+    if (avatar_url) req.session.user.avatar = avatar_url;
+    res.redirect('/usuario/perfil');
+  } catch (err) {
+    console.error('Error actualizando perfil:', err.message);
+    const { data } = await db.from('cuenta_usuario').select('*').eq('id_cuenta_usuario', userId(req)).maybeSingle();
+    res.status(500).render('profile-edit', { userData: data || {}, loggerUser: req.session?.user || null, error: 'Ocurrió un error al guardar los cambios. Inténtalo de nuevo.' });
+  }
+}
 export async function getUserNotifications(req, res) { const { data } = await db.from('notificaciones').select('*').eq('cuenta_usuario_id', userId(req)).order('created_at', { ascending: false }); res.json({ notificaciones: data || [] }); }
 export async function markUserNotificationsRead(req, res) { await db.from('notificaciones').update({ vista: true }).eq('cuenta_usuario_id', userId(req)); res.json({ ok: true }); }

@@ -2,6 +2,7 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { supabaseAdmin } from './db.js';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 // Helper function to get Role ID
 async function getRoleId(nombre) {
@@ -89,8 +90,9 @@ passport.use(new GoogleStrategy({
         }
 
         // Create dummy credentials
-        // Use a random hash to prevent manual login attempts with empty password
-        const randomHash = crypto.randomBytes(32).toString('hex');
+        // Usar bcrypt para que el hash sea válido y bcrypt.compare() siempre devuelva false
+        const randomPassword = crypto.randomBytes(32).toString('hex');
+        const randomHash = await bcrypt.hash(randomPassword, 10);
         await supabaseAdmin.from('cuenta_credenciales').insert({
           cuenta_usuario_id: newUser.id_cuenta_usuario,
           clave_hash: randomHash

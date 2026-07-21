@@ -25,12 +25,27 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(process.cwd(), 'public')));
 
-app.use(session({
-  store: new PgStore({
-    conString: process.env.DATABASE_URL,
+// Configurar el session store — si DATABASE_URL falla usa MemoryStore como fallback
+let sessionStore;
+if (process.env.DATABASE_URL) {
+  sessionStore = new PgStore({
+    conObject: {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+    },
     tableName: 'session',
     createTableIfMissing: true,
-  }),
+    errorLog: (err) => {
+      console.warn('[SessionStore] Error de conexion PostgreSQL:', err.message || err);
+    },
+  });
+  sessionStore.on('error', (err) => {
+    console.warn('[SessionStore] Error persistente:', err.message || err);
+  });
+}
+
+app.use(session({
+  ...(sessionStore ? { store: sessionStore } : {}),
   secret: process.env.SESSION_SECRET || 'willpig_studio_secret_key',
   resave: false,
   saveUninitialized: false,
@@ -100,6 +115,12 @@ app.use((req, res) => {
 
 // ── Global Error Handler ──
 app.use((err, req, res, _next) => {
+  // Evitar el error ERR_HTTP_HEADERS_SENT cuando la respuesta ya fue enviada
+  if (res.headersSent) {
+    console.error('[ERROR] Cabeceras ya enviadas, no se puede responder:', err.message);
+    return;
+  }
+
   const statusCode = err.status || err.statusCode || 500;
 
   // Build a human-readable hint about where the error originated
