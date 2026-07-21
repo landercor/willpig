@@ -401,7 +401,7 @@
                 </div>
                 <div class="form-group span-full">
                   <label>URL de Portada</label>
-                  <input type="url" name="portada_url" id="newPortadaUrl" class="form-control" placeholder="https://..." oninput="previewPortada('newPortadaUrl','newPortadaPreview')">
+                  <input type="url" name="portada_url" id="newPortadaUrl" class="form-control" placeholder="https://..." oninput="previewPortada('newPortadaUrl','newPortadaPreview')" onchange="previewPortada('newPortadaUrl','newPortadaPreview')">
                   <img id="newPortadaPreview" class="portada-preview" alt="Vista previa portada">
                 </div>
                 <div class="form-group">
@@ -1067,11 +1067,20 @@
 
     // ── Vista previa portada ─────────────────────────────────────
     function previewPortada(inputId, imgId) {
-      const url = document.getElementById(inputId)?.value;
+      const input = document.getElementById(inputId);
       const img = document.getElementById(imgId);
-      if (!img) return;
-      if (url) { img.src = url; img.style.display = 'block'; }
-      else { img.style.display = 'none'; }
+      if (!input || !img) return;
+      const url = String(input.value || '').trim();
+      if (!url) {
+        img.removeAttribute('src');
+        img.style.display = 'none';
+        return;
+      }
+
+      img.style.display = 'none';
+      img.onload = () => { img.style.display = 'block'; };
+      img.onerror = () => { img.style.display = 'none'; };
+      img.src = url;
     }
 
     // ── Toast sistema ────────────────────────────────────────────
