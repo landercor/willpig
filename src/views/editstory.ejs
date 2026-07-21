@@ -5,7 +5,10 @@
 <!-- Barra superior -->
     <header class="story-header">
       <div class="header-left">
-        <a href="javascript:history.back()" class="back-link">← Volver</a>
+        <a href="javascript:history.back()" class="back-link">
+          <img src="/img/img.ico/svg/arrow-left-short.svg" alt="Volver" style="width:18px; height:18px;">
+          <span>Volver</span>
+        </a>
         <h2>Agregar información de la historia</h2>
       </div>
 
@@ -21,13 +24,14 @@
       <div class="story-cover">
         <label for="portada" class="cover-box">
           <% if (cuento.portada_url) { %>
-            <img src="<%= cuento.portada_url %>" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+            <img id="cover-preview" src="<%= cuento.portada_url %>" alt="Vista previa de portada" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">
+            <p id="cover-helper-text" style="display:none;">Cambiar portada</p>
             <% } else { %>
-              <img src="/img/img.ico/image-icon.png" class="cover-icon">
-              <p>Cambiar portada</p>
+              <img id="cover-preview" src="/img/img.ico/image-icon.png" class="cover-icon" alt="Vista previa de portada" style="width:72px; height:72px; object-fit:contain;">
+              <p id="cover-helper-text">Cambiar portada</p>
               <% } %>
         </label>
-        <input type="file" id="portada" name="portada" accept="image/*" form="story-form" hidden>
+        <input type="file" id="portada" name="portada" accept="image/*" form="story-form" hidden onchange="previewCover(this, 'cover-preview', 'cover-helper-text')">
       </div>
 
       <!-- Formulario -->
@@ -113,5 +117,27 @@
         </section>
       </form>
     </main>
+
+    <script>
+      function previewCover(input, previewId, helperId) {
+        const preview = document.getElementById(previewId);
+        const helper = document.getElementById(helperId);
+        if (!input.files || !input.files[0]) return;
+
+        const file = input.files[0];
+        if (!file.type.startsWith('image/')) return;
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          preview.src = event.target.result;
+          preview.style.width = '100%';
+          preview.style.height = '100%';
+          preview.style.objectFit = 'cover';
+          preview.style.borderRadius = '12px';
+          if (helper) helper.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    </script>
 
     <%- include('layouts/footer') %>

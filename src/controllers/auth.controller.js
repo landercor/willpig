@@ -81,7 +81,7 @@ export async function login(req, res) {
     }
     const { data: cred } = await supabaseAdmin.from('cuenta_credenciales').select('clave_hash').eq('cuenta_usuario_id', user.id_cuenta_usuario).maybeSingle();
     const ok = cred?.clave_hash ? await bcrypt.compare(userPassword, cred.clave_hash) : false;
-    if (!ok) return res.render('login', { error: 'El correo o la contraseña no son correctos. Asegúrate de escribirlos bien (distingue mayúsculas y minúsculas).', next: redirectTo });
+    if (!ok) return res.render('login', { error: 'El correo o la contraseña no son correctos. Asegúrate de escribirlos bien (distingue mayúsculas y minúsculas). Si acabas de crear tu cuenta, recuerda que la contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.', next: redirectTo });
     await supabaseAdmin.from('cuenta_credenciales').update({ ultimo_login: new Date().toISOString(), intentos_fallidos: 0 }).eq('cuenta_usuario_id', user.id_cuenta_usuario);
     req.session.userId = user.id_cuenta_usuario;
     req.session.user = sessionUser(user);

@@ -4,8 +4,9 @@
 }) %>
 
 <div class="manage-container">
-            <div style="margin-bottom: 20px;">
-                <a href="javascript:history.back()" class="back-link" style="color: var(--primary); font-weight: bold; text-decoration: none;">← Volver</a>
+            <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                <a href="javascript:history.back()" class="back-link" style="color: var(--primary); font-weight: bold; text-decoration: none;"><img src="/img/img.ico/svg/arrow-left-short.svg" alt="left-arrow"> Volver</a>
+                <a href="/principal" class="back-link" style="color: var(--primary); font-weight: bold; text-decoration: none;"><img src="/img/img.ico/svg/arrow-left-short.svg" alt="">Ir al principal</a>
             </div>
             <header class="manage-header">
                 <img src="<%= cuento.portada_url || '/img/default-portada.jpg' %>" alt="Portada" class="manage-cover">

@@ -78,6 +78,23 @@
   gap: 15px;
 }
 
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary-salmon, #ff6b6b);
+  font-weight: 700;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 999px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.back-link:hover {
+  background: rgba(255, 107, 107, 0.12);
+  transform: translateX(-2px);
+}
+
 .btn-canceler {
   display: inline-flex;
   align-items: center;
