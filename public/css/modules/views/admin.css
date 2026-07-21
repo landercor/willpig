@@ -41,6 +41,7 @@ body {
 .admin-layout {
   display: flex;
   min-height: 100vh;
+  background-color: var(--bg);
 }
 
 /* SIDEBAR */
@@ -169,6 +170,7 @@ body {
   flex: 1;
   padding: 28px 32px;
   min-width: 0;
+  background-color: var(--bg);
 }
 
 /* PAGE HEADER */
@@ -666,7 +668,7 @@ body {
 .form-control,
 .inp {
   padding: 9px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid #94a3b8; /* Oscurecido para que sea visible */
   border-radius: 7px;
   font-size: 14px;
   background: #fff;
@@ -998,4 +1000,41 @@ textarea.form-control {
   border-radius: var(--radius);
   padding: 12px 16px;
   margin-bottom: 16px;
+}
+
+/* ── OVERRIDES PARA EL MODO OSCURO DE LA WEB ──────────────── */
+/* Evita que los textos del panel de admin se vuelvan claros e ilegibles si la web principal tiene activado el dark-mode */
+body.dark-mode .admin-layout {
+  color: var(--text) !important;
+}
+
+body.dark-mode .admin-main {
+  color: var(--text) !important;
+}
+
+body.dark-mode .admin-table th {
+  color: var(--text-muted) !important;
+}
+
+body.dark-mode .admin-table td {
+  color: var(--text) !important;
+}
+
+body.dark-mode .page-title,
+body.dark-mode .page-subtitle,
+body.dark-mode .stat-num,
+body.dark-mode .stat-label,
+body.dark-mode .section-title,
+body.dark-mode .quick-card,
+body.dark-mode .quick-card .q-label,
+body.dark-mode .quick-card .q-desc,
+body.dark-mode .form-card h2,
+body.dark-mode .form-group label {
+  color: inherit !important;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .inp {
+  color: var(--text) !important;
+  background-color: #fff !important;
 }

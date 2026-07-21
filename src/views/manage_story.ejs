@@ -4,9 +4,15 @@
 }) %>
 
 <div class="manage-container">
-            <div style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-                <a href="javascript:history.back()" class="back-link" style="color: var(--primary); font-weight: bold; text-decoration: none;"><img src="/img/img.ico/svg/arrow-left-short.svg" alt="left-arrow"> Volver</a>
-                <a href="/principal" class="back-link" style="color: var(--primary); font-weight: bold; text-decoration: none;"><img src="/img/img.ico/svg/arrow-left-short.svg" alt="">Ir al principal</a>
+            <div style="margin-bottom: 20px; display: flex; gap: 16px; align-items: center; font-size: 0.95rem; flex-wrap: wrap;">
+                <a href="/historias/mis" class="back-link" style="color: var(--primary); font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                    <img src="/img/img.ico/svg/arrow-left-short.svg" alt="left-arrow" style="width: 20px; height: 20px;">
+                    <span>Mis Historias</span>
+                </a>
+                <span style="color: #4b5563;">|</span>
+                <a href="/principal" class="back-link" style="color: #9ca3af; text-decoration: none; display: flex; align-items: center; gap: 4px; transition: color 0.2s;">
+                    <span>Ir al Principal</span>
+                </a>
             </div>
             <header class="manage-header">
                 <img src="<%= cuento.portada_url || '/img/default-portada.jpg' %>" alt="Portada" class="manage-cover">

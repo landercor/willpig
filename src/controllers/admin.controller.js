@@ -96,8 +96,12 @@ export const createCatalogo = name => async (req, res) => {
     if (req.body.enviar_a_todos === 'on') {
       const { data: users } = await db.from('cuenta_usuario').select('id_cuenta_usuario').eq('estado', 'activa');
       const contenido = req.body.contenido || req.body.mensaje || '';
-      if (contenido && users?.length) await db.from('notificaciones').insert(users.map(user => ({ tipo: req.body.tipo || 'novedad', contenido, cuenta_usuario_id: user.id_cuenta_usuario, vista: false })));
-      return res.redirect('/admin/notificaciones');
+      const url = req.body.url?.trim() || null;
+      const remitenteNombre = req.body.remitente?.trim() || (req.session?.user?.username ?? 'Admin');
+      const remitenteRol = req.session?.user?.rol || 'admin';
+      const textoFinal = remitenteNombre ? `[${remitenteNombre} (${remitenteRol})] ${contenido}` : contenido;
+      if (textoFinal && users?.length) await db.from('notificaciones').insert(users.map(user => ({ tipo: req.body.tipo || 'actualizacion', contenido: textoFinal, url, cuenta_usuario_id: user.id_cuenta_usuario, vista: false })));
+      return res.redirect('/admin/notificaciones?msg=Notificaciones+enviadas');
     }
     let user_id = req.body.cuenta_usuario_id;
     if (req.body.username_destinatario) {
@@ -106,7 +110,11 @@ export const createCatalogo = name => async (req, res) => {
       else return res.status(404).send('Usuario no encontrado');
     }
     if (!user_id) return res.status(400).send('Indica un usuario destinatario o marca "Enviar a todos".');
-    row = { tipo: req.body.tipo || 'actualizacion', contenido: req.body.contenido || req.body.mensaje || '', cuenta_usuario_id: user_id, vista: false };
+    const remitenteNombre = req.body.remitente?.trim() || (req.session?.user?.username ?? 'Admin');
+    const remitenteRol = req.session?.user?.rol || 'admin';
+    const textoBase = req.body.contenido || req.body.mensaje || '';
+    const textoFinal = remitenteNombre ? `[${remitenteNombre} (${remitenteRol})] ${textoBase}` : textoBase;
+    row = { tipo: req.body.tipo || 'actualizacion', contenido: textoFinal, url: req.body.url?.trim() || null, cuenta_usuario_id: user_id, vista: false };
   } else if (name === 'idiomas') {
     row = { codigo: req.body.codigo, nombre: req.body.nombre };
   } else {

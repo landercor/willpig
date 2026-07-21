@@ -141,14 +141,29 @@
                         if (notifs.length === 0) {
                           list.innerHTML = '<p style="text-align:center;padding:24px;color:#666;font-size:0.875rem;">Sin notificaciones nuevas</p>';
                         } else {
-                          list.innerHTML = notifs.map(n => `
-                            <div style="display:flex;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border-color);background:${n.leida ? 'transparent' : 'rgba(255,204,170,0.12)'};">
+                          list.innerHTML = notifs.map(n => {
+                            // Parsear "[Remitente] Mensaje" si existe ese formato
+                            const raw = n.mensaje || n.contenido || '';
+                            const match = raw.match(/^\[(.+?)\]\s*([\s\S]*)$/);
+                            const sender = match ? match[1] : null;
+                            const body = match ? match[2] : (raw || tipoLabel(n.tipo));
+                            const wrapper = n.url
+                              ? `<a href="${n.url}" style="display:flex;gap:12px;padding:13px 18px;text-decoration:none;color:inherit;background:${n.leida ? 'transparent' : 'rgba(255,204,170,0.12)'};">`
+                              : `<div style="display:flex;gap:12px;padding:13px 18px;background:${n.leida ? 'transparent' : 'rgba(255,204,170,0.12)'};">`;
+                            const closerTag = n.url ? '</a>' : '</div>';
+                            return `
+                            <div style="border-bottom:1px solid var(--border-color);">
+                              ${wrapper}
                               <div style="flex-shrink:0;width:8px;height:8px;border-radius:50%;background:${n.leida ? 'transparent' : 'var(--primary-salmon)'};margin-top:6px;"></div>
                               <div style="flex:1;">
-                                <p style="margin:0;font-size:0.875rem;color:#ddd;line-height:1.4;">${n.mensaje || tipoLabel(n.tipo)}</p>
+                                ${sender ? `<span style="display:block;font-size:0.72rem;font-weight:700;color:var(--primary-salmon);margin-bottom:3px;">De: ${sender}</span>` : ''}
+                                <p style="margin:0;font-size:0.875rem;color:#ddd;line-height:1.4;">${body}</p>
                                 <span style="font-size:0.75rem;color:#666;">${timeAgoNotif(n.created_at || n.fecha)}</span>
+                                ${n.url ? `<span style="display:block;font-size:0.72rem;color:var(--primary-salmon);margin-top:2px;">Ver →</span>` : ''}
                               </div>
-                            </div>`).join('');
+                              ${closerTag}
+                            </div>`;
+                          }).join('');
                         }
                         // Ocultar badge tras abrir
                         if (badge) badge.style.display = 'none';
@@ -158,7 +173,7 @@
                     }
 
                     function tipoLabel(tipo) {
-                      const map = { nuevo_seguidor: 'Alguien te siguió', like: 'Le gustó tu historia', comentario: 'Nuevo comentario en tu historia' };
+                      const map = { nuevo_seguidor: 'Alguien te siguió', like: 'Le gustó tu historia', comentario: 'Nuevo comentario en tu historia', actualizacion: 'Actualización de WillPig' };
                       return map[tipo] || 'Nueva notificación';
                     }
 

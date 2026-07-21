@@ -40,5 +40,5 @@ export async function postEditProfile(req, res) {
     res.status(500).render('profile-edit', { userData: data || {}, loggerUser: req.session?.user || null, error: 'Ocurrió un error al guardar los cambios. Inténtalo de nuevo.' });
   }
 }
-export async function getUserNotifications(req, res) { const { data } = await db.from('notificaciones').select('*').eq('cuenta_usuario_id', userId(req)).order('created_at', { ascending: false }); res.json({ notificaciones: data || [] }); }
+export async function getUserNotifications(req, res) { const { data } = await db.from('notificaciones').select('id_notificacion, tipo, contenido, vista, created_at, url').eq('cuenta_usuario_id', userId(req)).order('created_at', { ascending: false }); res.json({ notificaciones: (data || []).map(n => ({ ...n, mensaje: n.contenido, leida: n.vista })) }); }
 export async function markUserNotificationsRead(req, res) { await db.from('notificaciones').update({ vista: true }).eq('cuenta_usuario_id', userId(req)); res.json({ ok: true }); }
