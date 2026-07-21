@@ -22,9 +22,21 @@
 
                     <div class="action-bar">
                         <a href="/historias/editar-meta/<%= cuento.id_cuento %>" class="btn-edit-small">Editar Información</a>
-                        <button class="btn-edit-small">Cambiar Portada</button>
+                        <a href="/historias/editar-meta/<%= cuento.id_cuento %>" class="btn-edit-small">Cambiar Portada</a>
                         <% if (cuento.estado==='borrador' ) { %>
-                            <button class="btn-savever">Publicar Historia</button>
+                            <form method="POST" action="/historias/editar/<%= cuento.id_cuento %>" enctype="multipart/form-data" style="display:inline">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="titulo" value="<%= cuento.titulo %>">
+                              <input type="hidden" name="descripcion" value="<%= cuento.descripcion || '' %>">
+                              <input type="hidden" name="estado" value="publicado">
+                              <input type="hidden" name="visibilidad" value="publica">
+                              <input type="hidden" name="audiencia" value="<%= cuento.audiencia || 'general' %>">
+                              <input type="hidden" name="idioma" value="<%= cuento.idioma || 'es' %>">
+                              <input type="hidden" name="derechos" value="<%= cuento.derechos || 'todos' %>">
+                              <input type="hidden" name="clasificacion" value="<%= cuento.clasificacion || 'todo' %>">
+                              <input type="hidden" name="categoria_id" value="<%= cuento.categoria_id || 1 %>">
+                              <button type="submit" class="btn-savever">Publicar Historia</button>
+                            </form>
                             <% } %>
                     </div>
                 </div>
@@ -63,3 +75,27 @@
         </div>
 
         <%- include('layouts/footer') %>
+
+<script>
+(function() {
+  const CSRF = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+
+  window.deleteChapter = async function(id) {
+    if (!confirm('\u00bfEliminar este cap\u00edtulo? Esta acci\u00f3n no se puede deshacer.')) return;
+    try {
+      const res = await fetch(`/capitulos/delete/${id}`, {
+        method: 'DELETE',
+        headers: { 'CSRF-Token': CSRF, 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Error al eliminar el cap\u00edtulo.');
+      }
+    } catch (err) {
+      alert('Error de red. Int\u00e9ntalo de nuevo.');
+    }
+  };
+})();
+</script>

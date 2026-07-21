@@ -23,7 +23,7 @@ export async function verPrincipal(req, res) {
     if (!historiasPorCategoria[name]) historiasPorCategoria[name] = [];
     historiasPorCategoria[name].push(h);
   }
-  const carrusel = (historias || []).filter(h => h.portada_url).slice(0, 5).map(h => ({ titulo: h.titulo, imagen: h.portada_url, link: '/historias/' + h.id_cuento }));
+  const carrusel = (historias || []).filter(h => h.portada_url).slice(0, 5).map(h => ({ id: h.id_cuento, titulo: h.titulo, imagen: h.portada_url, link: '/historias/' + h.id_cuento }));
   res.render('principal', { tituloPagina: 'Inicio | Willpig Studio', historias: (historias || []).slice(0, 10), tendencias: tendencias || [], historiasPorCategoria, carrusel, historiaDestacada: (tendencias || [])[0] || null, loggerUser: req.session?.user || null });
 }
 export async function verBusqueda(req, res) {

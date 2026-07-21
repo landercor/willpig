@@ -20,7 +20,7 @@
                 <a href="<%= item.link %>">
                   <button class="btn-primary-pastel">Leer ahora</button>
                 </a>
-                <button class="btn-outline-white">Añadir a lista</button>
+                <button class="btn-outline-white btn-add-list" data-storyid="<%= item.id %>">Añadir a lista</button>
               </div>
             </div>
           </div>
@@ -328,3 +328,33 @@
 
 
     <%- include('layouts/footer') %>
+
+<script>
+(function() {
+  const CSRF = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+  const IS_LOGGED = <%= typeof loggerUser !== 'undefined' && loggerUser ? 'true' : 'false' %>;
+
+  document.querySelectorAll('.btn-add-list').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!IS_LOGGED) { window.location.href = '/auth/login'; return; }
+      const storyId = btn.dataset.storyid;
+      if (!storyId) return;
+      btn.disabled = true;
+      try {
+        const res = await fetch(`/social/lista/agregar/${storyId}`, {
+          method: 'POST',
+          headers: { 'CSRF-Token': CSRF, 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          btn.textContent = '✓ En tu lista';
+          btn.style.opacity = '0.7';
+        } else if (res.status === 401) {
+          window.location.href = '/auth/login';
+        } else {
+          btn.disabled = false;
+        }
+      } catch (_) { btn.disabled = false; }
+    });
+  });
+})();
+</script>

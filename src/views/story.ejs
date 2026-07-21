@@ -120,6 +120,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const storyId = '<%= cuento.id_cuento %>';
     const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
+    const currentUserId = '<%= loggerUser ? String(loggerUser.id) : "" %>';
 
     // Tabs
     document.querySelectorAll('.story-tab').forEach(tab => {
@@ -203,22 +204,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 commentsList.innerHTML = '<p class="empty-comments">No hay comentarios todavía. ¡Sé el primero!</p>';
                 return;
             }
-            commentsList.innerHTML = data.comentarios.map(c => `
-                <div class="comment-item">
+            commentsList.innerHTML = data.comentarios.map(c => {
+              const isOwn = currentUserId && String(c.usuario_id) === currentUserId;
+              return `
+                <div class="comment-item" data-comment-id="${c.id}">
                     <img src="${(c.cuenta_usuario && c.cuenta_usuario.avatar_url) || '/img/default-avatar.svg'}" alt="" onerror="this.src='/img/default-avatar.svg'">
-                    <div>
+                    <div style="flex:1">
                         <div class="comment-meta">
                             <strong>@${c.cuenta_usuario ? c.cuenta_usuario.username : 'Usuario'}</strong>
                             <span>${new Date(c.created_at).toLocaleDateString('es-ES')}</span>
+                            ${isOwn ? `<button class="btn-delete-comment" onclick="deleteComment(${c.id})">Eliminar</button>` : ''}
                         </div>
                         <p>${c.contenido}</p>
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         } catch (_) {
             commentsList.innerHTML = '<p class="error-comments">Error al cargar comentarios.</p>';
         }
     }
     loadComments();
+
+    // Eliminar comentario propio
+    window.deleteComment = async function(commentId) {
+        if (!confirm('\u00bfEliminar este comentario?')) return;
+        try {
+            const res = await fetch(`/social/comentarios/borrar/${commentId}`, {
+                method: 'DELETE',
+                headers: { 'CSRF-Token': csrfToken, 'Accept': 'application/json' }
+            });
+            if (res.ok) loadComments();
+            else {
+                const d = await res.json().catch(() => ({}));
+                alert(d.error || 'No se pudo eliminar el comentario.');
+            }
+        } catch (_) { alert('Error de red.'); }
+    };
 });
 </script>
 <%- include('layouts/footer') %>

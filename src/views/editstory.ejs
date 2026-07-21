@@ -35,7 +35,13 @@
         enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <section class="story-details">
-          <h3>Detalles de la historia</h3>
+      <% 
+        /* Helper: el DB guarda formas cortas ('general','todos','borrador');
+           normStr permite comparar aunque el nombre en DB sea largo ('Todos los...').
+           Verifica que la forma corta guardada esté contenida en el nombre normalizado. */
+        const normStr = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      %>
+      <h3>Detalles de la historia</h3>
 
           <div class="form-group">
             <label for="titulo">Título</label>
@@ -51,7 +57,7 @@
             <label for="audiencia">Audiencia</label>
             <select id="audiencia" name="audiencia" required>
               <% audiencias.forEach(a => { %>
-                <option value="<%= a.nombre %>" <%=cuento.audiencia===a.nombre ? 'selected' : '' %>><%= a.nombre %></option>
+                <option value="<%= a.nombre %>" <%= normStr(a.nombre).includes(cuento.audiencia||'') ? 'selected' : '' %>><%= a.nombre %></option>
               <% }) %>
             </select>
           </div>
@@ -69,7 +75,7 @@
             <label for="derechos">Derechos de autor</label>
             <select id="derechos" name="derechos" required>
               <% tiposDerechos.forEach(d => { %>
-                <option value="<%= d.nombre %>" <%=cuento.derechos===d.nombre ? 'selected' : '' %>><%= d.nombre %></option>
+                <option value="<%= d.nombre %>" <%= normStr(d.nombre).includes(cuento.derechos||'') ? 'selected' : '' %>><%= d.nombre %></option>
               <% }) %>
             </select>
           </div>
@@ -87,7 +93,7 @@
           <div class="form-group">
             <label>Clasificación</label>
             <% clasificaciones.forEach(c => { %>
-              <label><input type="radio" name="clasificacion" value="<%= c.nombre %>" <%=cuento.clasificacion===c.nombre ? 'checked' : '' %>> <%= c.nombre %></label>
+              <label><input type="radio" name="clasificacion" value="<%= c.nombre %>" <%= normStr(c.nombre).includes(cuento.clasificacion||'') ? 'checked' : '' %>> <%= c.nombre %></label>
             <% }) %>
           </div>
 
@@ -100,7 +106,7 @@
           <div class="form-group">
             <label>Estado de la obra</label>
             <% estadosCuento.forEach(e => { %>
-              <label><input type="radio" name="estado" value="<%= e.nombre %>" <%=cuento.estado===e.nombre ? 'checked' : '' %>> <%= e.nombre %></label>
+              <label><input type="radio" name="estado" value="<%= e.nombre %>" <%= normStr(e.nombre).includes(cuento.estado||'') ? 'checked' : '' %>> <%= e.nombre %></label>
             <% }) %>
           </div>
 
