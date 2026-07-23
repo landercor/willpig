@@ -808,3 +808,81 @@ textarea.form-control {
 .empty-state-admin .empty-icon { font-size: 2.8rem; }
 .empty-state-admin h3 { font-size: 16px; font-weight: 600; color: var(--text); margin: 0; }
 .empty-state-admin p { font-size: 13px; color: var(--text-muted); margin: 0; max-width: 360px; }
+
+/* ─── CORRECCIÓN DE CONTRASTE Y TEXTOS INVISIBLES ─── */
+
+/* Labels de formularios siempre legibles */
+.form-group label,
+label,
+.nav-section-label {
+  color: #334155 !important; /* Gris oscuro de alto contraste */
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+/* Subtítulos y textos secundarios */
+.page-subtitle,
+.stat-label,
+.quick-card .q-desc,
+.sidebar-user,
+.empty-state-admin p,
+.toast-msg,
+.toast-close {
+  color: #475569 !important; /* Gris medio legible */
+  opacity: 1 !important;
+}
+
+/* Encabezados de tablas */
+.admin-table thead th {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+}
+
+/* Textos dentro de inputs e inputs deshabilitados */
+.form-control,
+.inp,
+.search-box-admin input {
+  color: #0f172a !important;
+}
+
+.form-control::placeholder,
+.inp::placeholder,
+.search-box-admin input::placeholder {
+  color: #94a3b8 !important; /* Color gris suave pero visible para el placeholder */
+}
+
+/* ─── BLOQUEO TOTAL DE TRANSICIONES DE COLOR EN TEXTOS ─── */
+
+/* 1. Eliminar cualquier transición de color en el panel */
+.admin-layout,
+.admin-layout *,
+.admin-layout *::before,
+.admin-layout *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important; /* Mantiene animaciones de hover en botones/cards pero MATA la de color de texto */
+  -webkit-text-fill-color: initial !important;
+}
+
+/* 2. Fijar color de texto permanente y sin degradados/animaciones */
+.admin-layout,
+.admin-layout p,
+.admin-layout span,
+.admin-layout label,
+.admin-layout h1,
+.admin-layout h2,
+.admin-layout h3,
+.admin-layout td,
+.admin-layout th,
+.admin-layout a:not(.btn) {
+  color: #1e293b !important; /* Gris carbón de alta legibilidad */
+  opacity: 1 !important;
+}
+
+/* 3. Textos secundarios (mantener un tono legible sin desvanecerse) */
+.admin-layout .page-subtitle,
+.admin-layout .stat-label,
+.admin-layout .quick-card .q-desc,
+.admin-layout .sidebar-user,
+.admin-layout .empty-state-admin p {
+  color: #475569 !important; /* Gris medio fijo */
+  opacity: 1 !important;
+}
