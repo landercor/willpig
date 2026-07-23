@@ -6,11 +6,20 @@ import { authLimiter } from '../middlewares/rateLimiter.js';
 
 const router = express.Router();
 
-// Rutas de Google OAuth
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+function getGoogleCallbackUrl(req) {
+  return process.env.GOOGLE_CALLBACK_URL || `${req.protocol}://${req.get('host')}/auth/google/callback`;
+}
 
-router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/auth/login', session: false }),
+// Rutas de Google OAuth
+router.get('/google', (req, res, next) => {
+  const callbackURL = getGoogleCallbackUrl(req);
+  passport.authenticate('google', { scope: ['profile', 'email'], callbackURL })(req, res, next);
+});
+
+router.get('/google/callback', (req, res, next) => {
+  const callbackURL = getGoogleCallbackUrl(req);
+  passport.authenticate('google', { failureRedirect: '/auth/login', session: false, callbackURL })(req, res, next);
+},
   (req, res) => {
     // Establecer la sesión manualmente con nuestro formato
     if (req.user) {
