@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { supabaseAdmin as db } from '../config/db.js';
+import { resolveUserCatalogPayload } from '../utils/userCatalog.js';
 export const catalogNames = ['categorias', 'etiquetas', 'notificaciones', 'idiomas', 'audiencias', 'tipos_derechos', 'clasificaciones', 'estados_cuento', 'estados_usuario', 'roles_usuario'];
 const tablePk = { categorias: 'id_categoria', etiquetas: 'id_etiqueta', notificaciones: 'id_notificacion', idiomas: 'id', audiencias: 'id', tipos_derechos: 'id', clasificaciones: 'id', estados_cuento: 'id', estados_usuario: 'id', roles_usuario: 'id' };
 async function base(seccion) {
@@ -46,33 +47,57 @@ export async function getDashboard(req, res) {
   });
 }
 export async function getUsuarios(req, res) { const { data } = await db.from('cuenta_usuario').select('*').order('fecha_registro', { ascending: false }); await renderAdmin(req, res, 'usuarios', { usuarios: data || [], query: req.query }); }
-export async function createUsuario(req, res) { const hash = await bcrypt.hash(req.body.password || '123456', 10); const { data } = await db.from('cuenta_usuario').insert({ username: req.body.username, email: req.body.email, clave: '', rol: req.body.rol || 'lector', estado: 'activa' }).select('id_cuenta_usuario').single(); if (data) await db.from('cuenta_credenciales').insert({ cuenta_usuario_id: data.id_cuenta_usuario, clave_hash: hash }); res.redirect('/admin/usuarios'); }
-export async function editUsuario(req, res) { 
-  console.log('📝 editUsuario called with:');
-  console.log('  id:', req.params.id);
-  console.log('  body:', req.body);
-  
+export async function createUsuario(req, res) {
+  const payload = await resolveUserCatalogPayload({
+    db,
+    rol: req.body.rol,
+    estado: 'activa',
+  });
+  const hash = await bcrypt.hash(req.body.password || '123456', 10);
+  const { data } = await db.from('cuenta_usuario').insert({
+    username: req.body.username,
+    email: req.body.email,
+    clave: '',
+    rol: payload.rol,
+    estado: payload.estado,
+    ...(payload.rol_id ? { rol_id: payload.rol_id } : {}),
+    ...(payload.estado_id ? { estado_id: payload.estado_id } : {}),
+  }).select('id_cuenta_usuario').single();
+  if (data) await db.from('cuenta_credenciales').insert({ cuenta_usuario_id: data.id_cuenta_usuario, clave_hash: hash });
+  res.redirect('/admin/usuarios');
+}
+export async function editUsuario(req, res) {
+  const payload = await resolveUserCatalogPayload({
+    db,
+    rol: req.body.rol,
+    estado: req.body.estado,
+  });
+
+  const updates = {
+    username: req.body.username,
+    email: req.body.email,
+    rol: payload.rol,
+    estado: payload.estado,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (payload.rol_id) updates.rol_id = payload.rol_id;
+  if (payload.estado_id) updates.estado_id = payload.estado_id;
+
   const { data, error } = await db.from('cuenta_usuario')
-    .update({ 
-      username: req.body.username, 
-      email: req.body.email, 
-      rol: req.body.rol, 
-      estado: req.body.estado, 
-      updated_at: new Date().toISOString() 
-    })
+    .update(updates)
     .eq('id_cuenta_usuario', req.params.id)
     .select();
-  
+
   if (error) {
     console.error('❌ Error updating user:', error);
-    return res.status(500).render('404', { 
+    return res.status(500).render('404', {
       message: `Error actualizando usuario: ${error.message}`,
-      loggerUser: req.session?.user || null
+      loggerUser: req.session?.user || null,
     });
   }
-  
-  console.log('✓ User updated successfully:', data);
-  res.redirect('/admin/usuarios'); 
+
+  res.redirect('/admin/usuarios');
 }
 export async function deleteUsuario(req, res) { await db.from('cuenta_usuario').delete().eq('id_cuenta_usuario', req.params.id); res.redirect('/admin/usuarios'); }
 export async function getHistorias(req, res) { const { data } = await db.from('cuentos').select('*, cuenta_usuario(username), categorias(nombre)').order('created_at', { ascending: false }); await renderAdmin(req, res, 'historias', { historias: data || [] }); }

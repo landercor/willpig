@@ -1,5 +1,5 @@
 import { supabaseAdmin as db } from '../config/db.js';
-const userId = req => req.session?.user?.id;
+const userId = req => req.session?.user?.id_cuenta_usuario || req.session?.user?.id;
 async function count(table, col, val) {
     const { count } = await db.from(table).select('*', { count: 'exact', head: true }).eq(col, val);
     return count || 0;
@@ -33,4 +33,22 @@ export async function agregarALista(req, res) { await db.from('lista_lectura').u
 export async function quitarDeLista(req, res) { await db.from('lista_lectura').delete().eq('usuario_id', userId(req)).eq('cuento_id', req.params.id); res.json({ enLista: false }); }
 export async function getComentarios(req, res) { const { data } = await db.from('comentarios').select('*, cuenta_usuario(id_cuenta_usuario, username, avatar_url)').eq('cuento_id', req.params.cuentoId).order('created_at', { ascending: false }); res.json({ comentarios: data || [] }); }
 export async function postComentario(req, res) { const contenido = String(req.body.contenido || '').trim(); if (!contenido) return res.status(400).json({ error: 'El comentario no puede estar vacio.' }); const { data, error } = await db.from('comentarios').insert({ cuento_id: Number(req.params.cuentoId), usuario_id: userId(req), contenido }).select('*, cuenta_usuario(id_cuenta_usuario, username, avatar_url)').single(); res.status(error ? 500 : 201).json(error ? { error: error.message } : { comentario: data }); }
-export async function deleteComentario(req, res) { await db.from('comentarios').delete().eq('id', req.params.comentarioId).eq('usuario_id', userId(req)); res.json({ ok: true }); }
+export async function deleteComentario(req, res) {
+    const currentUserId = userId(req);
+    if (!currentUserId) return res.status(401).json({ error: 'Debes iniciar sesion.' });
+
+    const { data: comentario, error: findError } = await db
+        .from('comentarios')
+        .select('id, usuario_id')
+        .eq('id', req.params.comentarioId)
+        .maybeSingle();
+
+    if (findError) return res.status(500).json({ error: findError.message });
+    if (!comentario) return res.status(404).json({ error: 'Comentario no encontrado.' });
+    if (String(comentario.usuario_id) !== String(currentUserId)) return res.status(403).json({ error: 'No tienes permiso para eliminar este comentario.' });
+
+    const { error } = await db.from('comentarios').delete().eq('id', req.params.comentarioId);
+    if (error) return res.status(500).json({ error: error.message });
+
+    res.json({ ok: true });
+}

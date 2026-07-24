@@ -120,7 +120,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const storyId = '<%= cuento.id_cuento %>';
     const csrfToken = '<%= typeof csrfToken !== "undefined" ? csrfToken : "" %>';
-    const currentUserId = '<%= loggerUser ? String(loggerUser.id) : "" %>';
+    const currentUserId = '<%= loggerUser ? String(loggerUser.id_cuenta_usuario || loggerUser.id || "") : "" %>';
 
     // Tabs
     document.querySelectorAll('.story-tab').forEach(tab => {
@@ -205,7 +205,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             commentsList.innerHTML = data.comentarios.map(c => {
-              const isOwn = currentUserId && String(c.usuario_id) === currentUserId;
+              const commentOwnerId = c.usuario_id || c.cuenta_usuario?.id_cuenta_usuario || '';
+              const isOwn = currentUserId && String(commentOwnerId) === String(currentUserId);
+              const safeCommentId = String(c.id || '').replace(/'/g, "\\'");
               return `
                 <div class="comment-item" data-comment-id="${c.id}">
                     <img src="${(c.cuenta_usuario && c.cuenta_usuario.avatar_url) || '/img/default-avatar.svg'}" alt="" onerror="this.src='/img/default-avatar.svg'">
@@ -213,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="comment-meta">
                             <strong>@${c.cuenta_usuario ? c.cuenta_usuario.username : 'Usuario'}</strong>
                             <span>${new Date(c.created_at).toLocaleDateString('es-ES')}</span>
-                            ${isOwn ? `<button class="btn-delete-comment" onclick="deleteComment(${c.id})">Eliminar</button>` : ''}
+                            ${isOwn ? `<button class="btn-delete-comment" type="button" onclick="deleteComment('${safeCommentId}')">Eliminar</button>` : ''}
                         </div>
                         <p>${c.contenido}</p>
                     </div>
